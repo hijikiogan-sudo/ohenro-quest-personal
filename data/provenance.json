@@ -1,0 +1,693 @@
+{
+  "checkedOn": "2026-10-14",
+  "publisher": "四国遍路日本遺産協議会",
+  "method": "公開地図の spots 配列を番号で統合。番号の欠落・重複矛盾・四国外座標を機械検査。公式ページ掲載値との一致を確認する意味であり、現地GPS精度を保証するものではない。",
+  "sources": [
+    {
+      "url": "https://www.seichijunrei-shikokuhenro.jp/map/tokushima/",
+      "sha256": "a041a3f02d6fde50f37f51f6f29b06d757db677574649b3e44519aa47b6473e1",
+      "retrievedAt": "2026-10-14T03:22:49.174709+00:00"
+    },
+    {
+      "url": "https://www.seichijunrei-shikokuhenro.jp/map/kochi/",
+      "sha256": "ae9cad5e09d7b79f1b8192a1a3cef5f833809d4b48579e9b9259e7ecd2651831",
+      "retrievedAt": "2026-10-14T03:22:49.175609+00:00"
+    },
+    {
+      "url": "https://www.seichijunrei-shikokuhenro.jp/map/ehime/",
+      "sha256": "6595a484eebdd5f30f3456f383385fb8888c1a2878b5e77a0723914f9d1a12d9",
+      "retrievedAt": "2026-10-14T03:22:49.176598+00:00"
+    },
+    {
+      "url": "https://www.seichijunrei-shikokuhenro.jp/map/kagawa/",
+      "sha256": "be54aaf40a86a65a2d961d617a8d87dd878e189f93894693620c1dd879701323",
+      "retrievedAt": "2026-10-14T03:22:49.177329+00:00"
+    }
+  ],
+  "crossCheck": {
+    "publisher": "一般社団法人 四国八十八ヶ所霊場会",
+    "indexUrl": "https://88shikokuhenro.jp/shikoku88/",
+    "count": 88,
+    "method": "88件すべて名称を字体正規化して照合。所在地は霊場会掲載値を採用。座標は日本遺産公式地図の札所マーカー値。",
+    "addressDifferences": [
+      {
+        "id": 4,
+        "heritageAddress": "徳島県板野郡板野町黒谷居内5",
+        "associationAddress": "徳島県板野郡板野町黒谷字居内28番地",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 12,
+        "heritageAddress": "徳島県名西郡神山町下分地中318",
+        "associationAddress": "徳島県名西郡神山町下分字中318",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 19,
+        "heritageAddress": "徳島県小松島市立江町若松13",
+        "associationAddress": "徳島県小松島市立江町字若松13番地",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 22,
+        "heritageAddress": "徳島県阿南市新野町秋山177",
+        "associationAddress": "徳島県阿南市新野町秋山177番地",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 30,
+        "heritageAddress": "高知県高知市一宮しなね2-23-11",
+        "associationAddress": "高知県高知市一宮しなね2丁目23-11",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 36,
+        "heritageAddress": "高知県土佐市宇佐町竜601",
+        "associationAddress": "高知県土佐市宇佐町竜163",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 38,
+        "heritageAddress": "高知県土佐清水市足摺岬214−１",
+        "associationAddress": "高知県土佐清水市足摺岬214-1",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 40,
+        "heritageAddress": "愛媛県南宇和郡愛南町御荘平城2253-1",
+        "associationAddress": "愛媛県宇和郡愛南町御荘平城2253-1",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 43,
+        "heritageAddress": "愛媛県西予市宇和町明石201",
+        "associationAddress": "愛媛県西予市宇和町明石205",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 44,
+        "heritageAddress": "愛媛県上浮穴郡久万高原町菅生1173",
+        "associationAddress": "愛媛県上浮穴郡久万高原町菅生2-1173",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 51,
+        "heritageAddress": "愛媛県松山市石手2-9-21",
+        "associationAddress": "愛媛県松山市石手二丁目9番21号",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 55,
+        "heritageAddress": "愛媛県今治市別宮町3-1",
+        "associationAddress": "愛媛県今治市別宮町3丁目1番地",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 60,
+        "heritageAddress": "愛媛県西条市小松町石鎚2253",
+        "associationAddress": "愛媛県西条市小松町石鎚甲2253",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 64,
+        "heritageAddress": "愛媛県条市洲之内甲1426",
+        "associationAddress": "愛媛県西条市洲之内甲1426",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 66,
+        "heritageAddress": "徳島県三好市池田町白地ノロウチ763-2",
+        "associationAddress": "徳島県三好市池田町白地ノロウチ763",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 68,
+        "heritageAddress": "香川県観音寺市八幡町1-2-7観音寺内",
+        "associationAddress": "香川県観音寺市八幡町1-2-7",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 71,
+        "heritageAddress": "香川県三豊市三野町大見乙70",
+        "associationAddress": "香川県三豊市三野町大見70",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      },
+      {
+        "id": 77,
+        "heritageAddress": "香川県仲多度郡多度津町北鴨1-3-30",
+        "associationAddress": "香川県仲多度郡多度津町北鴨1丁目3番30号",
+        "resolution": "所在地は霊場会の掲載値を採用。元データも保持（40番の郡名は観光協会で補足確認）。"
+      }
+    ],
+    "evidence": {
+      "1": {
+        "url": "https://88shikokuhenro.jp/01ryozenji/",
+        "title": "竺和山 一乗院 霊山寺",
+        "address": "徳島県鳴門市大麻町板東塚鼻126",
+        "sha256": "9b4df1d16cd83f4804ff8fbe5b6b27bce9a1e38fb139a6470d178f684e44fed8"
+      },
+      "2": {
+        "url": "https://88shikokuhenro.jp/02gokurakuji/",
+        "title": "日照山 無量寿院 極楽寺",
+        "address": "徳島県鳴門市大麻町檜字段の上12",
+        "sha256": "5491000cd76d18bd309a3cab28955a93e8fc3a1b48de15092fca41aac80fb79f"
+      },
+      "3": {
+        "url": "https://88shikokuhenro.jp/03konsenji/",
+        "title": "亀光山 釈迦院 金泉寺",
+        "address": "徳島県板野郡板野町大寺字亀山下66",
+        "sha256": "7996bd1bab58644972100b56fe7c8451ade7ba6b843394f60ae9fae5fc59b88f"
+      },
+      "4": {
+        "url": "https://88shikokuhenro.jp/04dainichiji/",
+        "title": "黒巌山 遍照院 大日寺",
+        "address": "徳島県板野郡板野町黒谷字居内28番地",
+        "sha256": "1de88a84055a65072635b9538072c8f73e1c12cd6b445ff7e987bad8ded55df8"
+      },
+      "5": {
+        "url": "https://88shikokuhenro.jp/05jizoji/",
+        "title": "無尽山 荘厳院 地蔵寺",
+        "address": "徳島県板野郡板野町羅漢字林東5",
+        "sha256": "87833fab56b99d7f4b547209db0ae4e0bfc4647b9665b960454abdc10c1b5840"
+      },
+      "6": {
+        "url": "https://88shikokuhenro.jp/06anrakuji/",
+        "title": "温泉山 瑠璃光院 安楽寺",
+        "address": "徳島県板野郡上板町引野字寺ノ西北8",
+        "sha256": "7ebff7914d7fba1ed5dc8e3be2b3897ee98b7ba1e069d9b2facab96c1557aad7"
+      },
+      "7": {
+        "url": "https://88shikokuhenro.jp/07jurakuji/",
+        "title": "光明山 蓮華院 十楽寺",
+        "address": "徳島県阿波市土成町高尾字法教田58",
+        "sha256": "e8a8446178dcf3f9e29ca8641006836a1eccef3bcc0450508368071c5360d2c7"
+      },
+      "8": {
+        "url": "https://88shikokuhenro.jp/08kumataniji/",
+        "title": "普明山 真光院 熊谷寺",
+        "address": "徳島県阿波市土成町土成字前田185",
+        "sha256": "db51084195e3c46bffbad1dca469214cb8a89bd2a053d721212ffe524abf1192"
+      },
+      "9": {
+        "url": "https://88shikokuhenro.jp/09horinji/",
+        "title": "正覚山 菩提院 法輪寺",
+        "address": "徳島県阿波市土成町土成字田中198-2",
+        "sha256": "35e6573c403d78b054f1e71ac7a4dd2c4f107472c2a95fe8fbb7294aecff7267"
+      },
+      "10": {
+        "url": "https://88shikokuhenro.jp/10kirihataji/",
+        "title": "得度山 灌頂院 切幡寺",
+        "address": "徳島県阿波市市場町切幡字観音129",
+        "sha256": "c318804894bdd0450b64b6c355e04b733d12f15be9aea5eba8b853c8f21192c1"
+      },
+      "11": {
+        "url": "https://88shikokuhenro.jp/11fujiidera/",
+        "title": "金剛山 一乗院 藤井寺",
+        "address": "徳島県吉野川市鴨島町飯尾1525",
+        "sha256": "f1c8c9804d528a29c4234f7b511664795a1d4cc7853fb6fe96eccd32a5a65067"
+      },
+      "12": {
+        "url": "https://88shikokuhenro.jp/12shozanji/",
+        "title": "摩廬山 正寿院 焼山寺",
+        "address": "徳島県名西郡神山町下分字中318",
+        "sha256": "e92452c12b98b4176b389eca3418f37e0b8f7c90ea307c0444de0c2c457e14d2"
+      },
+      "13": {
+        "url": "https://88shikokuhenro.jp/13dainichiji/",
+        "title": "大栗山 花蔵院 大日寺",
+        "address": "徳島県徳島市一宮町西丁263",
+        "sha256": "fc65767d80950a6c56d2ec3903dad43eff63c9ad9ea48be5f154638f8aa7cf71"
+      },
+      "14": {
+        "url": "https://88shikokuhenro.jp/14jorakuji/",
+        "title": "盛寿山 延命院 常楽寺",
+        "address": "徳島県徳島市国府町延命606",
+        "sha256": "acfb024089ef52d180cd421f4fe19aa6a4718643ffdf60619e9327926e08d96b"
+      },
+      "15": {
+        "url": "https://88shikokuhenro.jp/15kokubunji/",
+        "title": "薬王山 金色院 國分寺",
+        "address": "徳島県徳島市国府町矢野718-1",
+        "sha256": "e6ff8e13ff8e43875d4ba7a7031d1f1977632bac8e84606ee495ada8d83a88b6"
+      },
+      "16": {
+        "url": "https://88shikokuhenro.jp/16kanonji/",
+        "title": "光耀山 千手院 観音寺",
+        "address": "徳島県徳島市国府町観音寺49-2",
+        "sha256": "5aeff4af30f22606966f5f643a62f912463f97a1f07ae24f4a4a94808ce081f8"
+      },
+      "17": {
+        "url": "https://88shikokuhenro.jp/17idoji/",
+        "title": "瑠璃山 真福院 井戸寺",
+        "address": "徳島県徳島市国府町井戸北屋敷80-1",
+        "sha256": "6d63a94f2d3541bc5fe85f5c298cde4069bd3c002e6735b1898f7b7c4681d21c"
+      },
+      "18": {
+        "url": "https://88shikokuhenro.jp/18onzanji/",
+        "title": "母養山 宝樹院 恩山寺",
+        "address": "徳島県小松島市田野町字恩山寺谷40",
+        "sha256": "bb537c9fb7261b42c1209a44a0529794f6dd5accdfe81e6119bb334db0493858"
+      },
+      "19": {
+        "url": "https://88shikokuhenro.jp/19tatsueji/",
+        "title": "橋池山 摩尼院 立江寺",
+        "address": "徳島県小松島市立江町字若松13番地",
+        "sha256": "1bfbac3eb5b28e180857cd7f909dfe3c8bf907775ca35c9f2ccc65c74d7aaf63"
+      },
+      "20": {
+        "url": "https://88shikokuhenro.jp/20kakurinji/",
+        "title": "霊鷲山 宝珠院 鶴林寺",
+        "address": "徳島県勝浦郡勝浦町生名鷲ヶ尾14",
+        "sha256": "defc664127133eeae3c54b66ae385db0bc46891a87dacb8e7b8dd980cbb784f5"
+      },
+      "21": {
+        "url": "https://88shikokuhenro.jp/21tairyuji/",
+        "title": "舎心山 常住院 太龍寺",
+        "address": "徳島県阿南市加茂町龍山2",
+        "sha256": "4ed6039e75ea41ad1c64207abd7e38fec4d692a7bf58b773c8cdbce29dc11a45"
+      },
+      "22": {
+        "url": "https://88shikokuhenro.jp/22byodoji/",
+        "title": "白水山 医王院 平等寺",
+        "address": "徳島県阿南市新野町秋山177番地",
+        "sha256": "46f642a239135860ad47a725bb289eda6bcdf1fb0f4ca244309e59b48506e1b8"
+      },
+      "23": {
+        "url": "https://88shikokuhenro.jp/23yakuoji/",
+        "title": "医王山 無量寿院 薬王寺",
+        "address": "徳島県海部郡美波町奥河内字寺前285-1",
+        "sha256": "222fce24a300b2417724ce22721c2aaccd39feb369233f011aa1905a8381c93a"
+      },
+      "24": {
+        "url": "https://88shikokuhenro.jp/24hotsumisakiji/",
+        "title": "室戸山 明星院 最御崎寺",
+        "address": "高知県室戸市室戸岬町4058-1",
+        "sha256": "74e4e896b0b7e14205eadad13bb664d9e8586333e83056ffd57a0a5401efe01b"
+      },
+      "25": {
+        "url": "https://88shikokuhenro.jp/25shinshoji/",
+        "title": "宝珠山 真言院 津照寺",
+        "address": "高知県室戸市室津2652-イ",
+        "sha256": "79b67b38b489ceb3833fa80c588b41a94f1ada8a1d290893dd8c65c12fb4949d"
+      },
+      "26": {
+        "url": "https://88shikokuhenro.jp/26kongochoji/",
+        "title": "龍頭山 光明院 金剛頂寺",
+        "address": "高知県室戸市元乙523",
+        "sha256": "84377f5ad04b97ae3122deaddb870c4cda1a534d36746017e304b2433e1ca4dc"
+      },
+      "27": {
+        "url": "https://88shikokuhenro.jp/27kounomineji/",
+        "title": "竹林山 地蔵院 神峯寺",
+        "address": "高知県安芸郡安田町唐浜2594",
+        "sha256": "d18cfb8dc4da66301d949b9e0482168de9766b955d817c05e94f0122ca1d1e37"
+      },
+      "28": {
+        "url": "https://88shikokuhenro.jp/28dainichiji/",
+        "title": "法界山 高照院 大日寺",
+        "address": "高知県香南市野市町母代寺476",
+        "sha256": "ab2c774dd82d63078b71f033fe12576106fbcd0672f3421e29a4c0eb7a68dd41"
+      },
+      "29": {
+        "url": "https://88shikokuhenro.jp/29kokubunji/",
+        "title": "摩尼山 宝蔵院 国分寺",
+        "address": "高知県南国市国分546",
+        "sha256": "ce2b8104edd288f4f3878b0286a7b57ff59da57cb421c8c6563a02a6400a481f"
+      },
+      "30": {
+        "url": "https://88shikokuhenro.jp/30zenrakuji/",
+        "title": "百々山 東明院 善楽寺",
+        "address": "高知県高知市一宮しなね2丁目23-11",
+        "sha256": "cd4e8bf44e4d5468ad7e9e02c0e321a4fa2c00bdd03aab2749fb938a168c8bd7"
+      },
+      "31": {
+        "url": "https://88shikokuhenro.jp/31chikurinji/",
+        "title": "五台山 金色院 竹林寺",
+        "address": "高知県高知市五台山3577",
+        "sha256": "8dee7858f76ec5850cea837782e5fa9aa6387a149b3a81a159c4da8f01a1a1c5"
+      },
+      "32": {
+        "url": "https://88shikokuhenro.jp/32zenjibuji/",
+        "title": "八葉山 求聞持院 禅師峰寺",
+        "address": "高知県南国市十市3084",
+        "sha256": "85d162320181e357bcaef001159333271fd9f627b85025e1111569e32ae4f7ef"
+      },
+      "33": {
+        "url": "https://88shikokuhenro.jp/33sekeiji/",
+        "title": "高福山 幸福院 雪蹊寺",
+        "address": "高知県高知市長浜857-3",
+        "sha256": "72dc8510c1b6107b88fcdd5402ac98a67e9defd5d8e53eded9671ea8cb95462a"
+      },
+      "34": {
+        "url": "https://88shikokuhenro.jp/34tanemaji/",
+        "title": "本尾山 朱雀院 種間寺",
+        "address": "高知県高知市春野町秋山72",
+        "sha256": "5e76e1679d05db54a5e32fc030e092e45c9b791905e017f8082c6fda81319005"
+      },
+      "35": {
+        "url": "https://88shikokuhenro.jp/35kiyotakiji/",
+        "title": "醫王山 鏡池院 清瀧寺",
+        "address": "高知県土佐市高岡町丁568-1",
+        "sha256": "3653590972c8eec43173dcab0088d07156c07d370d9afe6234193d961301c195"
+      },
+      "36": {
+        "url": "https://88shikokuhenro.jp/36shoryuji/",
+        "title": "独鈷山 伊舎那院 青龍寺",
+        "address": "高知県土佐市宇佐町竜163",
+        "sha256": "93d816dbce7c5643e609dcb37a0c00dd33626ef877fefefc947dbbef8ec97f61"
+      },
+      "37": {
+        "url": "https://88shikokuhenro.jp/37iwamotoji/",
+        "title": "藤井山 五智院 岩本寺",
+        "address": "高知県高岡郡四万十町茂串町3-13",
+        "sha256": "6f916b668c819c0a60acb7c012220f4b917e7723fffa4b5d6ff90a5e1296b58d"
+      },
+      "38": {
+        "url": "https://88shikokuhenro.jp/38kongofukuji/",
+        "title": "蹉跎山 補陀洛院 金剛福寺",
+        "address": "高知県土佐清水市足摺岬214-1",
+        "sha256": "d492807b996f9a81a98ab930127c3746c91ef1049263822bb918e3f841616aa1"
+      },
+      "39": {
+        "url": "https://88shikokuhenro.jp/39enkoji/",
+        "title": "赤亀山 寺山院 延光寺",
+        "address": "高知県宿毛市平田町中山390",
+        "sha256": "034b741589d0f516ad7368b6a767c45cdcc31464adc3aaa83e88b232113be92f"
+      },
+      "40": {
+        "url": "https://88shikokuhenro.jp/40kanzaiji/",
+        "title": "平城山 薬師院 観自在寺",
+        "address": "愛媛県宇和郡愛南町御荘平城2253-1",
+        "sha256": "bae03f49b5f184f5cf0c918f42b131dc5972071a6622aee1af7760f422b9da10"
+      },
+      "41": {
+        "url": "https://88shikokuhenro.jp/41ryukoji/",
+        "title": "稲荷山 護国院 龍光寺",
+        "address": "愛媛県宇和島市三間町戸雁173",
+        "sha256": "5d3c81d2bb82801063d752a45d3567aa6babe6d32f96c63097de25f0a7ff5a04"
+      },
+      "42": {
+        "url": "https://88shikokuhenro.jp/42butsumokuji/",
+        "title": "一カ山 毘盧舎那院 佛木寺",
+        "address": "愛媛県宇和島市三間町則1683",
+        "sha256": "e7d2497dacbf71893c908b7766c0538872e940fe4e56413b5535a92433242b77"
+      },
+      "43": {
+        "url": "https://88shikokuhenro.jp/43meisekiji/",
+        "title": "源光山 円手院 明石寺",
+        "address": "愛媛県西予市宇和町明石205",
+        "sha256": "495f178011937b07ae6a0b87d9db12205ed267b4d899cc07d090d1d638bc8ec2"
+      },
+      "44": {
+        "url": "https://88shikokuhenro.jp/44daihoji/",
+        "title": "菅生山 大覚院 大寶寺",
+        "address": "愛媛県上浮穴郡久万高原町菅生2-1173",
+        "sha256": "dcf95612c72a987c4b7e1ce6c33b39d7ef0e26ba762e0ff24abf3a171cb6040e"
+      },
+      "45": {
+        "url": "https://88shikokuhenro.jp/45iwayaji/",
+        "title": "海岸山 岩屋寺",
+        "address": "愛媛県上浮穴郡久万高原町七鳥1468",
+        "sha256": "f8855279fadd91c1f7334ac1fa4e3d0301f40c7a1b41e93ff9520a27dfe7608a"
+      },
+      "46": {
+        "url": "https://88shikokuhenro.jp/46joruriji/",
+        "title": "医王山 養珠院 浄瑠璃寺",
+        "address": "愛媛県松山市浄瑠璃町282",
+        "sha256": "ab24b8bd07eaf8229c9d1fdc2a179f6afdf936da9b8f4906d66f0001073651b8"
+      },
+      "47": {
+        "url": "https://88shikokuhenro.jp/47yasakaji/",
+        "title": "熊野山 妙見院 八坂寺",
+        "address": "愛媛県松山市浄瑠璃町八坂773",
+        "sha256": "86a621e6b80f68941f3b1a54dfb79f9b76fc33951616dcea4118fb3b5de168a8"
+      },
+      "48": {
+        "url": "https://88shikokuhenro.jp/48sairinji/",
+        "title": "清滝山 安養院 西林寺",
+        "address": "愛媛県松山市高井町1007",
+        "sha256": "e54462e486ee8749d4b3f7e000c7847de6a9c0e43fd74a6c3d70206adcd9a934"
+      },
+      "49": {
+        "url": "https://88shikokuhenro.jp/49jodoji/",
+        "title": "西林山 三蔵院 浄土寺",
+        "address": "愛媛県松山市鷹子町1198",
+        "sha256": "47e4b78941e1560ad4aa4cf80517c7450800510dd1f5d7419f884940278f1413"
+      },
+      "50": {
+        "url": "https://88shikokuhenro.jp/50hantaji/",
+        "title": "東山 瑠璃光院 繁多寺",
+        "address": "愛媛県松山市畑寺町32",
+        "sha256": "6e1571162f317a06a5fcf96a2c2747c818ac59be954053e39f80851b4a9d2062"
+      },
+      "51": {
+        "url": "https://88shikokuhenro.jp/51ishiteji/",
+        "title": "熊野山 虚空蔵院 石手寺",
+        "address": "愛媛県松山市石手二丁目9番21号",
+        "sha256": "77b56f1fc717bf352a5277e77e8f3bdeb7dbb9b810374c1c31b854e420561197"
+      },
+      "52": {
+        "url": "https://88shikokuhenro.jp/52taisanji/",
+        "title": "瀧雲山 護持院 太山寺",
+        "address": "愛媛県松山市太山寺町1730",
+        "sha256": "938f7e29444e6c52e4201f3b03bb12f29024a8ebbaa94b1d36998ffc6a04fe4f"
+      },
+      "53": {
+        "url": "https://88shikokuhenro.jp/53enmyoji/",
+        "title": "須賀山 正智院 圓明寺",
+        "address": "愛媛県松山市和気町1-182",
+        "sha256": "f529c0e81e5749cb2a1660f2cca63489f59d7b0debafbf77b8cd0e99608ae090"
+      },
+      "54": {
+        "url": "https://88shikokuhenro.jp/54enmeiji/",
+        "title": "近見山 宝鐘院 延命寺",
+        "address": "愛媛県今治市阿方甲636",
+        "sha256": "f04b0bfe36ef10e3a5adeca2ed6825999b7c447332a0eb6b166c6b724f25c622"
+      },
+      "55": {
+        "url": "https://88shikokuhenro.jp/55nankobo/",
+        "title": "別宮山 金剛院 南光坊",
+        "address": "愛媛県今治市別宮町3丁目1番地",
+        "sha256": "41db9e34b3df8899f4bf1faa5a251844a79fb7cd723fbfe3cceb7461daf18811"
+      },
+      "56": {
+        "url": "https://88shikokuhenro.jp/56taizanji/",
+        "title": "金輪山 勅王院 泰山寺",
+        "address": "愛媛県今治市小泉1-9-18",
+        "sha256": "17c469712e65953baefd329688d6da958e039be6dc0bdca4d29472563ede23be"
+      },
+      "57": {
+        "url": "https://88shikokuhenro.jp/57eifukuji/",
+        "title": "府頭山 無量寿院 栄福寺",
+        "address": "愛媛県今治市玉川町八幡甲200",
+        "sha256": "e4ce96f04ddf2ae1f11f67802a723013e98617ae449ddee9a6b8e4244f784b90"
+      },
+      "58": {
+        "url": "https://88shikokuhenro.jp/58senyuji/",
+        "title": "作礼山 千光院 仙遊寺",
+        "address": "愛媛県今治市玉川町別所甲483",
+        "sha256": "94b1cb9f6d822d5c43d82684c5a0776d749003f784021db7d982728090da7eed"
+      },
+      "59": {
+        "url": "https://88shikokuhenro.jp/59kokubunji/",
+        "title": "金光山 最勝院 国分寺",
+        "address": "愛媛県今治市国分4-1-33",
+        "sha256": "cb42a8b8209f940a90f4b0e2b89bfcfcc467dfc6ec3d1369a73a480197a82861"
+      },
+      "60": {
+        "url": "https://88shikokuhenro.jp/60yokomineji/",
+        "title": "石鈇山 福智院 横峰寺",
+        "address": "愛媛県西条市小松町石鎚甲2253",
+        "sha256": "2f104f4c0ab84cffeea08bda488549d87ac62180fcef2e53f8ceb1ec9c47f353"
+      },
+      "61": {
+        "url": "https://88shikokuhenro.jp/61koonji/",
+        "title": "栴檀山 教王院 香園寺",
+        "address": "愛媛県西条市小松町南川甲19",
+        "sha256": "7f13bccfb00af392f2e2f0cbe031181929985147f6fb573024830ff38b6b0502"
+      },
+      "62": {
+        "url": "https://88shikokuhenro.jp/62houjyuji/",
+        "title": "天養山 観音院 宝寿寺",
+        "address": "愛媛県西条市小松町新屋敷甲428",
+        "sha256": "9d8d7dfed866b2447f66c17da0a548ef24f34198f06645a97ea665d62d663ce1"
+      },
+      "63": {
+        "url": "https://88shikokuhenro.jp/63kichijoji/",
+        "title": "密教山 胎蔵院 吉祥寺",
+        "address": "愛媛県西条市氷見乙1048",
+        "sha256": "7581b73d82e2e3c2e2620cb8aea2cea059c7b87c9445549ea9da5c831f057dcb"
+      },
+      "64": {
+        "url": "https://88shikokuhenro.jp/64maegamiji/",
+        "title": "石鈇山 金色院 前神寺",
+        "address": "愛媛県西条市洲之内甲1426",
+        "sha256": "3b7a8ef5706c51fe82959145145d5734c6edb5118ae472e6e4d2d9dcc0c330a4"
+      },
+      "65": {
+        "url": "https://88shikokuhenro.jp/65sankakuji/",
+        "title": "由霊山 慈尊院 三角寺",
+        "address": "愛媛県四国中央市金田町三角寺甲75",
+        "sha256": "c528b19f2e558e6ed3e8c6f1fad5da373172f6c8237e60bb293564f1bbbcfc27"
+      },
+      "66": {
+        "url": "https://88shikokuhenro.jp/66unpenji/",
+        "title": "巨鼇山 千手院 雲辺寺",
+        "address": "徳島県三好市池田町白地ノロウチ763",
+        "sha256": "cbd27ef05398a364e71b3e3bb3b62f74329c53ad6d215ca3f4cb4668b5a7f2e2"
+      },
+      "67": {
+        "url": "https://88shikokuhenro.jp/67daikoji/",
+        "title": "小松尾山 不動光院 大興寺",
+        "address": "香川県三豊市山本町辻4209",
+        "sha256": "bcef731d5a80f28e21a7eb5c933cd1b40c898d028f3c304ad9a4b633bcc3be03"
+      },
+      "68": {
+        "url": "https://88shikokuhenro.jp/68jinnein/",
+        "title": "七宝山 神恵院",
+        "address": "香川県観音寺市八幡町1-2-7",
+        "sha256": "f724f6794dc4560cddbc4e60224fef5c7959ede24ce142ee6370f283e63c8560"
+      },
+      "69": {
+        "url": "https://88shikokuhenro.jp/69kannonji/",
+        "title": "七宝山 観音寺",
+        "address": "香川県観音寺市八幡町1-2-7",
+        "sha256": "0a056205e4512e2c385cbb345171fa08f9445d2673c9e45c8e95867d70e119d9"
+      },
+      "70": {
+        "url": "https://88shikokuhenro.jp/70motoyamaji/",
+        "title": "七宝山 持宝院 本山寺",
+        "address": "香川県三豊市豊中町本山甲1445",
+        "sha256": "98f701eafdf77f0688d805f2351ba0a887a775fdab2b112528d7f5df2db4c628"
+      },
+      "71": {
+        "url": "https://88shikokuhenro.jp/71iyadaniji/",
+        "title": "剣五山 千手院 弥谷寺",
+        "address": "香川県三豊市三野町大見70",
+        "sha256": "2239f6a18819d59c29fc841db2f1698648bb9ce17bbd238ee4e3a7effea705cf"
+      },
+      "72": {
+        "url": "https://88shikokuhenro.jp/72mandaraji/",
+        "title": "我拝師山 延命院 曼荼羅寺",
+        "address": "香川県善通寺市吉原町1380-1",
+        "sha256": "be7b87d2b125f8dd0e908660c8c2d5d6afe523cf6d8697f9ab7b3a369a983ce5"
+      },
+      "73": {
+        "url": "https://88shikokuhenro.jp/73shusyakaji/",
+        "title": "我拝師山 求聞持院 出釈迦寺",
+        "address": "香川県善通寺市吉原町1091",
+        "sha256": "40825319ca46c0d5fadc2ebc2c8ef5d90628f8d02f2eeeded917a2c2775809ec"
+      },
+      "74": {
+        "url": "https://88shikokuhenro.jp/74koyamaji/",
+        "title": "医王山 多宝院 甲山寺",
+        "address": "香川県善通寺市弘田町1765-1",
+        "sha256": "4ff328ce85b07a4a3b7d140fb0dab04d2ab16430b55a69da9eaaee671bba3825"
+      },
+      "75": {
+        "url": "https://88shikokuhenro.jp/75zentsuji/",
+        "title": "五岳山 誕生院 善通寺",
+        "address": "香川県善通寺市善通寺町3-3-1",
+        "sha256": "5c82aa4c5e8335c95db70328372b990034fb5a29664a5fef8adc64aaaa250a2b"
+      },
+      "76": {
+        "url": "https://88shikokuhenro.jp/76konzoji/",
+        "title": "鶏足山 宝幢院 金倉寺",
+        "address": "香川県善通寺市金蔵寺町1160",
+        "sha256": "f76e2b8e62da4c0a31c69fa2ddb11ec74c4f284f56baebcaf023129d1e797b43"
+      },
+      "77": {
+        "url": "https://88shikokuhenro.jp/77doryuji/",
+        "title": "桑多山 明王院 道隆寺",
+        "address": "香川県仲多度郡多度津町北鴨1丁目3番30号",
+        "sha256": "8a72c58d93843ecfa4137494a81145899ef26aa1542cb9fc79925dbdd3ecfeee"
+      },
+      "78": {
+        "url": "https://88shikokuhenro.jp/78goshoji/",
+        "title": "仏光山 広徳院 郷照寺",
+        "address": "香川県綾歌郡宇多津町1435",
+        "sha256": "b421ef40ce59a8b1d5176feb7ff5bf3c8c86abc6ce9ac9e7b0add5c6acd165de"
+      },
+      "79": {
+        "url": "https://88shikokuhenro.jp/79tennoji/",
+        "title": "金華山 高照院 天皇寺",
+        "address": "香川県坂出市西庄町天皇1713-2",
+        "sha256": "db23a2de80131876b156a786322fb8de17279f3a0361d6589a06cc55d0834c90"
+      },
+      "80": {
+        "url": "https://88shikokuhenro.jp/80kokubunji/",
+        "title": "白牛山 千手院 国分寺",
+        "address": "香川県高松市国分寺町国分2065",
+        "sha256": "7b964a5b99d54f795bc6a0233150949a1183c67b797b1f839d63b91f7bffd849"
+      },
+      "81": {
+        "url": "https://88shikokuhenro.jp/81shiromineji/",
+        "title": "綾松山 洞林院 白峯寺",
+        "address": "香川県坂出市青海町2635",
+        "sha256": "dfc928f133bc5c73cc885bf3c5b90f35189ee596b8fdbfb6d8b0ce79cfe7242b"
+      },
+      "82": {
+        "url": "https://88shikokuhenro.jp/82negoroji/",
+        "title": "青峰山 千手院 根香寺",
+        "address": "香川県高松市中山町1506",
+        "sha256": "2fdc6299dfd8840423fc00f6c42378f7ee3fe76a41e1c2b7e624fa04ea963ca3"
+      },
+      "83": {
+        "url": "https://88shikokuhenro.jp/83ichinomiyaji/",
+        "title": "神毫山 大宝院 一宮寺",
+        "address": "香川県高松市一宮町607",
+        "sha256": "71883ee0155d4d6c6c2bce13bf5608e1c7a4a0147c8190639991b99928eb9650"
+      },
+      "84": {
+        "url": "https://88shikokuhenro.jp/84yashimaji/",
+        "title": "南面山 千光院 屋島寺",
+        "address": "香川県高松市屋島東町1808",
+        "sha256": "013d0ad72a6c0bc8ff9d0632826d1a1b9fd8effe54f03653c3e37f333aa063b6"
+      },
+      "85": {
+        "url": "https://88shikokuhenro.jp/85yakuriji/",
+        "title": "五剣山 観自在院 八栗寺",
+        "address": "香川県高松市牟礼町牟礼3416",
+        "sha256": "9db4a0f5c98ee9a580d87b02b325c02fe4de33674850a85e7b9f60b389b55248"
+      },
+      "86": {
+        "url": "https://88shikokuhenro.jp/86shidoji/",
+        "title": "補陀洛山 清浄光院 志度寺",
+        "address": "香川県さぬき市志度1102",
+        "sha256": "2238a170e6056bec4571796bb8089961a63ebaf74f600ec102cf23efd051c883"
+      },
+      "87": {
+        "url": "https://88shikokuhenro.jp/87nagaoji/",
+        "title": "補陀落山 観音院 長尾寺",
+        "address": "香川県さぬき市長尾西653",
+        "sha256": "ba26053c08f6f3ae6524021eaee1456a48f11397df207fcc855edcc512b2951d"
+      },
+      "88": {
+        "url": "https://88shikokuhenro.jp/88ookuboji/",
+        "title": "医王山 遍照光院 大窪寺",
+        "address": "香川県さぬき市多和兼割96",
+        "sha256": "1eb4ce24b208c48e9587035c190823e39d1579542c993c60acb7e3fcf653afde"
+      }
+    }
+  },
+  "supplementalChecks": [
+    {
+      "id": 40,
+      "url": "https://ainan-marugoto.jp/spot/kanjizaiji/",
+      "address": "愛媛県南宇和郡愛南町御荘平城2253-1",
+      "reason": "郡名を愛南町観光協会の公式情報で確認。"
+    },
+    {
+      "id": 36,
+      "url": "https://kochi-tabi.jp/search_spot_sightseeing.html?id=879",
+      "address": "高知県土佐市宇佐町竜163",
+      "reason": "霊場会掲載番地を高知県観光情報でも確認。"
+    },
+    {
+      "id": 43,
+      "url": "https://www.city.seiyo.ehime.jp/miryoku/seiyoshibunkazai/bunkazai/kuni/kuni_yukei_kenzobutsu/4203.html",
+      "address": "愛媛県西予市宇和町明石205",
+      "reason": "霊場会掲載番地を西予市公式文化財情報でも確認。"
+    }
+  ]
+}
