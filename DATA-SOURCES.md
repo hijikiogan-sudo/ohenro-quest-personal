@@ -1,0 +1,46 @@
+# 札所データの出典と検証範囲
+
+確認日：**2026年10月14日**
+
+## 名称・所在地
+
+[一般社団法人 四国八十八ヶ所霊場会・各霊場紹介](https://88shikokuhenro.jp/shikoku88/)から88札所の個別ページを取得しました。日本遺産公開地図の札所名と、字体を正規化して88件すべて照合しています。所在地は原則として霊場会の掲載値を採用し、日本遺産の元の掲載値を `heritageAddress` に保持しました。18件に表記差があり、番地の違い・字や丁目の書き方・郡名などが含まれます。
+
+追加で確認した主要な差異：
+
+- **40番・観自在寺**：霊場会の「愛媛県宇和郡」と異なり、[愛南町観光協会](https://ainan-marugoto.jp/spot/kanjizaiji/)と日本遺産地図が「愛媛県南宇和郡愛南町御荘平城2253-1」と記載。観光協会の所在地を採用し、霊場会の表記も保持。
+- **36番・青龍寺**：日本遺産地図は竜601、霊場会は竜163。[高知県観光情報](https://kochi-tabi.jp/search_spot_sightseeing.html?id=879)にも竜163の掲載があるため、霊場会の所在地を採用。
+- **43番・明石寺**：日本遺産地図は明石201、霊場会は明石205。[西予市の文化財情報](https://www.city.seiyo.ehime.jp/miryoku/seiyoshibunkazai/bunkazai/kuni/kuni_yukei_kenzobutsu/4203.html)も明石205ほかと記載。
+
+出典間の差異は `public/data/provenance.json` の `crossCheck.addressDifferences` に記載しています。公式ページへのリンクは札所の詳細画面でも開けます。寺院の解説文章・写真は転載していません。
+
+## 緯度・経度
+
+[四国遍路日本遺産協議会「聖地巡礼 四国遍路」](https://www.seichijunrei-shikokuhenro.jp/map/)の以下の県別公開地図に含まれる **札所マーカーのlatitude／longitude** を取得しました。埋込地図の表示中心や画像の見た目から座標を推測していません。
+
+- [徳島](https://www.seichijunrei-shikokuhenro.jp/map/tokushima/)
+- [高知](https://www.seichijunrei-shikokuhenro.jp/map/kochi/)
+- [愛媛](https://www.seichijunrei-shikokuhenro.jp/map/ehime/)
+- [香川](https://www.seichijunrei-shikokuhenro.jp/map/kagawa/)
+
+札所番号で統合し、1〜88の欠番なし、重複番号の矛盾なし、全座標が四国周辺の範囲内であることを検査しました。各札所に出典URL、確認日、元サイトの更新日時を付けています。
+
+**「検証済み」は、この公開資料の掲載値と照合した意味です。** 公開元のデータには2016年の更新日時が含まれます。現地で測量した、現在の境内の入口と一致する、300m判定の利用実績があるという意味ではありません。座標を捏造・補間していません。現地での誤差・駐車場入口・道路規制は未検証です。
+
+## 県別の集計
+
+実際の所在地を採用します。66番・雲辺寺は讃岐の霊場として扱われることがありますが、所在地は徳島県三好市なので徳島24・高知16・愛媛26・香川22か所です。番号順の巡礼区分とは分けて扱います。
+
+## 海岸線
+
+[Natural Earth公式リポジトリの1:50m国界データ](https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_50m_admin_0_countries.geojson)から日本の形状だけ抽出し、`japan-coast.geojson` に同梱しました。[パブリックドメインの利用条件](https://www.naturalearthdata.com/about/terms-of-use/)で提供されています。UIはメルカトル投影を使い、同じ投影で札所を配置します。低縮尺の海岸線なので細かな地形・道路・車道の案内には使えません。
+
+## 外部地図リンク
+
+[Google Maps URLs](https://developers.google.com/maps/documentation/urls/get-started)はAPIキー不要のリンク形式です。Appleの地図リンクとともに、札所名と住所・車モードを渡します。経路検索やナビゲーションは外部地図アプリ側が行います。
+
+## 再検証
+
+`scripts/collect-data.py` → `scripts/verify-official.py` の順で実行します。開発時のHTMLキャッシュが作業フォルダの `work/sources/` にあれば再利用し、なければ公式ページを取得します。再実行は原稿データを生成し直す開発操作です。新しい確認日に更新する場合は確認日フィールドと補足資料もレビューしてください。アプリの通常利用時にはデータ取得を行いません。
+
+ページ全体のHTMLは配布ZIPに含めず、公開データの取得URL・SHA-256・照合結果を検証記録に残しています。一般公開前には出典サイトの利用条件、最新の掲載情報、札所からの情報修正の連絡方法を改めて確認します。
