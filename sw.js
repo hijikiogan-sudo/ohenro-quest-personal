@@ -1,7 +1,7 @@
 const BASE=new URL('./',self.location.href);
 const PREFIX='ohenro-personal:'+BASE.pathname+':';
-const CACHE=PREFIX+'v1';
-const FILES=['./','./index.html','./style.css','./app.mjs','./personal-store.mjs','./domain.mjs','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png','./apple-touch-icon.png','./data/temples.json','./data/japan-coast.geojson','./data/provenance.json'];
+const CACHE=PREFIX+'v2';
+const FILES=['./','./index.html','./style.css','./display.css','./display.mjs','./road-map.mjs','./vendor/leaflet/leaflet.js','./vendor/leaflet/leaflet.css','./vendor/leaflet/images/layers.png','./vendor/leaflet/images/layers-2x.png','./vendor/leaflet/images/marker-icon.png','./vendor/leaflet/images/marker-icon-2x.png','./vendor/leaflet/images/marker-shadow.png','./app.mjs','./personal-store.mjs','./domain.mjs','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png','./apple-touch-icon.png','./data/temples.json','./data/japan-coast.geojson','./data/provenance.json'];
 const PATHS=new Set(FILES.map(p=>new URL(p,BASE).pathname));
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES.map(p=>new URL(p,BASE).href))).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith(PREFIX)&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

@@ -1,3 +1,5 @@
+import {attachTheme, fittedMapBox} from './display.mjs';
+import {createRoadMap} from './road-map.mjs';
 import {progress, routeUrl, japanDate, assessGPS} from './domain.mjs';
 import {createPersonalStore} from './personal-store.mjs';
 
@@ -8,6 +10,9 @@ const normalizeTerm=value=>value.normalize('NFKC').toLocaleLowerCase().replace(/
 let temples=[],coast=null,state=null,journeyId='',view='home',initialized=false,connected=false;
 const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,temples:()=>temples});
 let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
+let mapPref='';
+attachTheme({scope:new URL('.',import.meta.url).pathname});
+const roadMap=createRoadMap({onTemple:id=>detailDialog(id)});
 let dialogEpoch=0;
 function toast(message,action) {
   clearTimeout(toastTimer);const el=$('#toast');el.replaceChildren(document.createTextNode(message));
@@ -57,7 +62,7 @@ function render(){
   if(next)$('#next-detail').onclick=()=>detailDialog(next.id);
   const badgeList=[['はじめの一歩','✧'],['十寺巡礼','❀'],['結願','♧']];
   $('#badges').innerHTML=badgeList.map(([name,icon])=>`<div class="badge ${p.badges.includes(name)?'earned':''}"><span class="badge-icon" aria-hidden="true">${icon}</span><span>${name}</span><span>${p.badges.includes(name)?'獲得済み':'未獲得'}</span></div>`).join('')+p.badges.filter(b=>!badgeList.some(([name])=>name===b)).map(b=>`<div class="badge earned"><span class="badge-icon">❀</span><span>${esc(b)}</span><span>獲得済み</span></div>`).join('');
-  drawMap(done);renderTemples();renderHistory();renderFamily();
+  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();
   $('#install-note').textContent=window.isSecureContext?'この画面はPWA・位置情報が使える接続です（対応ブラウザ・端末の許可が必要）。':'この接続ではGPS・PWA機能に制限があります。iPhoneでの本利用には、信頼されたHTTPS接続が必要です。';
 }
 function renderTemples(){
@@ -154,12 +159,24 @@ function drawMap(done){if(!coast)return;const svg=$('#map');svg.setAttribute('vi
   html+='<text x="240" y="105" class="water-label">瀬戸内海</text><text x="470" y="385" class="water-label">太平洋</text>';
   for(const [name,coord] of [['徳島',[134.12,33.95]],['高知',[133.35,33.45]],['愛媛',[132.95,33.85]],['香川',[133.91,34.27]]]){const [x,y]=projection(coord);html+=`<text x="${x}" y="${y}" class="map-label">${name}</text>`;}
   const markerRadius=mapBox[2]/800*8;
-  html+=temples.map(t=>{const [x,y]=projection([t.lng,t.lat]);return `<g class="pin ${done.has(t.id)?'visited':''}" transform="translate(${x},${y})" font-size="${markerRadius*1.18}" tabindex="0" role="button" aria-label="第${t.id}番 ${esc(t.name)} ${done.has(t.id)?'訪問済み':'未訪問'}" data-map-temple="${t.id}"><title>第${t.id}番 ${esc(t.name)}</title><circle r="${markerRadius}" vector-effect="non-scaling-stroke"/><text y="0">${t.id}</text></g>`;}).join('');
+  html+=mapTemples().map(t=>{const [x,y]=projection([t.lng,t.lat]);return `<g class="pin ${done.has(t.id)?'visited':''}" transform="translate(${x},${y})" font-size="${markerRadius*1.18}" tabindex="0" role="button" aria-label="第${t.id}番 ${esc(t.name)} ${done.has(t.id)?'訪問済み':'未訪問'}" data-map-temple="${t.id}"><title>第${t.id}番 ${esc(t.name)}</title><circle r="${markerRadius}" vector-effect="non-scaling-stroke"/><text y="0">${t.id}</text></g>`;}).join('');
   svg.innerHTML=html;$$('[data-map-temple]').forEach(el=>{el.onclick=()=>detailDialog(Number(el.dataset.mapTemple));el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();detailDialog(Number(el.dataset.mapTemple));}};});
 }
-function redrawMap(){drawMap(new Set(currentVisits().map(v=>v.templeId)));}
+function mapTemples(){return temples.filter(t=>!mapPref||t.prefecture===mapPref);}
+function fitMapCounty(){mapBox=mapPref?fittedMapBox(mapTemples().map(t=>projection([t.lng,t.lat]))):[0,0,800,480];}
+function renderMapPanel(done,{fit=false}={}){
+  const rows=mapTemples(),count=rows.filter(t=>done.has(t.id)).length;
+  $('#map-pref-title').textContent=mapPref||'四国全体';
+  $('#map-pref-count').textContent=`訪問 ${count} / ${rows.length}寺`;
+  $$('[data-map-pref]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mapPref===mapPref)));
+  $('#map-temple-list').innerHTML=rows.map(t=>`<button class="map-temple-chip ${done.has(t.id)?'visited':''}" data-map-list-temple="${t.id}"><span>${t.id}</span>${esc(t.name)}${done.has(t.id)?' ✓':''}</button>`).join('');
+  $$('[data-map-list-temple]').forEach(b=>b.onclick=()=>detailDialog(Number(b.dataset.mapListTemple)));
+  roadMap.update(rows,done,{fit});
+}
+$$('[data-map-pref]').forEach(b=>b.onclick=()=>{mapPref=b.dataset.mapPref;fitMapCounty();drawMap(new Set(currentVisits().map(v=>v.templeId)));renderMapPanel(new Set(currentVisits().map(v=>v.templeId)),{fit:true});});
+function redrawMap(){const done=new Set(currentVisits().map(v=>v.templeId));drawMap(done);renderMapPanel(done);}
 function zoom(factor){const width=Math.max(100,Math.min(1000,mapBox[2]*factor));const ratio=width/mapBox[2];mapBox=[mapBox[0]+(mapBox[2]-width)/2,mapBox[1]+(mapBox[3]-mapBox[3]*ratio)/2,width,mapBox[3]*ratio];redrawMap();}
-$('#map-in').onclick=()=>zoom(.65);$('#map-out').onclick=()=>zoom(1/.65);$('#map-reset').onclick=()=>{mapBox=[0,0,800,480];redrawMap();};
+$('#map-in').onclick=()=>zoom(.65);$('#map-out').onclick=()=>zoom(1/.65);$('#map-reset').onclick=()=>{fitMapCounty();redrawMap();};
 let drag=null;
 $('#map').addEventListener('pointerdown',e=>{if(e.target.closest('[data-map-temple]'))return;drag={x:e.clientX,y:e.clientY,box:[...mapBox]};$('#map').setPointerCapture(e.pointerId);});
 $('#map').addEventListener('pointermove',e=>{if(!drag)return;const rect=$('#map').getBoundingClientRect(),scale=Math.min(rect.width/drag.box[2],rect.height/drag.box[3]);mapBox=[drag.box[0]-(e.clientX-drag.x)/scale,drag.box[1]-(e.clientY-drag.y)/scale,...drag.box.slice(2)];$('#map').setAttribute('viewBox',mapBox.join(' '));});
