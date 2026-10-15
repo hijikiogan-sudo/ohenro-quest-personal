@@ -19,7 +19,7 @@ attachTheme({scope:new URL('.',import.meta.url).pathname});
 const roadMap=createRoadMap({scope:new URL('.',import.meta.url).pathname,onTemple:id=>detailDialog(id),onCluster:ids=>clusterDialog(ids),onPositionStyle:style=>{positionStyle=style;if(coast)drawMap(new Set(currentVisits().map(v=>v.templeId)));}});
 let dialogEpoch=0;
 const photos=createPhotoStore({scope:new URL('.',import.meta.url).pathname});
-const photoUI=createPhotoUI({store:photos,getJourney:()=>currentJourney(),openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast});
+const photoUI=createPhotoUI({store:photos,getJourney:()=>currentJourney(),getJourneys:()=>state?.journeys||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast});
 function toast(message,action) {
   clearTimeout(toastTimer);const el=$('#toast');el.replaceChildren(document.createTextNode(message));
   if(action) {const b=document.createElement('button');b.textContent=action.label;b.onclick=action.run;el.append(b);}
@@ -39,8 +39,9 @@ function openDialog(title,html) {photoUI.cleanup();dialogEpoch++;$('#dialog-titl
 function closeDialog() {photoUI.cleanup();dialogEpoch++;$('#dialog').close();}
 $('#dialog-close').onclick=closeDialog;
 $('#dialog').addEventListener('cancel',()=>{photoUI.cleanup();dialogEpoch++;});
+$('#dialog').addEventListener('close',()=>photoUI.dialogClosed());
 function requireAuth(callback){if(!state||!connected){toast('端末の保存領域を利用できません。通常のSafariで再読み込みしてください。');return false;}callback?.();return true;}
-function setView(next){view=next;$$('.view').forEach(el=>el.hidden=el.id!=='view-'+view);$$('[data-view]').forEach(el=>{el.classList.toggle('active',el.dataset.view===view);el.setAttribute('aria-current',el.dataset.view===view?'page':'false');});render();window.scrollTo({top:0,behavior:'instant'});}
+function setView(next){if(next!=='album')photoUI.leaveLibrary();view=next;$$('.view').forEach(el=>el.hidden=el.id!=='view-'+view);$$('[data-view]').forEach(el=>{el.classList.toggle('active',el.dataset.view===view);el.setAttribute('aria-current',el.dataset.view===view?'page':'false');});render();window.scrollTo({top:0,behavior:'instant'});}
 $$('[data-view]').forEach(el=>el.onclick=()=>setView(el.dataset.view));
 $$('[data-action=manual]').forEach(el=>el.onclick=()=>requireAuth(()=>manualDialog()));
 $$('[data-action=history]').forEach(el=>el.onclick=()=>setView('history'));
@@ -68,7 +69,7 @@ function render(){
   if(next)$('#next-detail').onclick=()=>detailDialog(next.id);
   const badgeList=[['はじめの一歩','✧'],['十寺巡礼','❀'],['結願','♧']];
   $('#badges').innerHTML=badgeList.map(([name,icon])=>`<div class="badge ${p.badges.includes(name)?'earned':''}"><span class="badge-icon" aria-hidden="true">${icon}</span><span>${name}</span><span>${p.badges.includes(name)?'獲得済み':'未獲得'}</span></div>`).join('')+p.badges.filter(b=>!badgeList.some(([name])=>name===b)).map(b=>`<div class="badge earned"><span class="badge-icon">❀</span><span>${esc(b)}</span><span>獲得済み</span></div>`).join('');
-  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();photoUI.stats();
+  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();photoUI.stats();if(view==='album')photoUI.library({soft:true});
   $('#install-note').textContent=window.isSecureContext?'この画面はPWA・位置情報が使える接続です（対応ブラウザ・端末の許可が必要）。':'この接続ではGPS・PWA機能に制限があります。iPhoneでの本利用には、信頼されたHTTPS接続が必要です。';
 }
 function renderTemples(){

@@ -35,10 +35,11 @@ export async function readPhotoZip(file){
   if(end.getUint32(0,true)!==0x06054b50||end.getUint16(4,true)!==0||end.getUint16(6,true)!==0||end.getUint16(8,true)!==entries.size||end.getUint16(10,true)!==entries.size||end.getUint32(16,true)!==offset||offset+end.getUint32(12,true)!==file.size-22||end.getUint16(20,true)!==0)throw new Error('写真バックアップZIPが途中で切れているか、形式が異なります。');
   const manifestBlob=entries.get('manifest.json');if(!manifestBlob)throw new Error('写真バックアップの情報がありません。');
   let manifest;try{manifest=JSON.parse(await manifestBlob.text());}catch{throw new Error('写真バックアップの情報を読み取れません。');}
-  if(manifest.format!=='ohenro-quest-photos'||manifest.version!==1||!Array.isArray(manifest.photos)||!manifest.photos.length||manifest.photos.length>200||typeof manifest.journeyName!=='string'||manifest.journeyName.length>60||entries.size!==manifest.photos.length+1)throw new Error('対応する写真バックアップではありません。');
+  if(manifest.format!=='ohenro-quest-photos'||![1,2].includes(manifest.version)||!Array.isArray(manifest.photos)||!manifest.photos.length||manifest.photos.length>200||typeof manifest.journeyName!=='string'||manifest.journeyName.length>60||entries.size!==manifest.photos.length+1)throw new Error('対応する写真バックアップではありません。');
   const paths=new Set();
   for(const p of manifest.photos){
-    if(!p||!/^photos\/[a-zA-Z0-9_-]+\.jpg$/.test(p.path??'')||paths.has(p.path)||!entries.has(p.path)||!Number.isInteger(p.templeId)||p.templeId<1||p.templeId>88||typeof p.caption!=='string'||p.caption.length>300||typeof p.date!=='string'||!validDate(p.date)||!/^[a-f0-9]{64}$/.test(p.digest??''))throw new Error('写真バックアップの札所・写真情報が不正です。');
+    if(!p||!/^photos\/[a-zA-Z0-9_-]+\.jpg$/.test(p.path??'')||paths.has(p.path)||!entries.has(p.path)||!((Number.isInteger(p.templeId)&&p.templeId>=1&&p.templeId<=88)||(manifest.version===2&&p.templeId===null))||typeof p.caption!=='string'||p.caption.length>300||typeof p.date!=='string'||!validDate(p.date)||!/^[a-f0-9]{64}$/.test(p.digest??'')||(manifest.version===2&&typeof p.favorite!=='boolean'))throw new Error('写真バックアップの札所・写真情報が不正です。');
+    p.favorite=manifest.version===2?p.favorite:false;
     const blob=entries.get(p.path);const signature=new Uint8Array(await blob.slice(0,2).arrayBuffer());if(signature[0]!==255||signature[1]!==216)throw new Error('写真ZIPにはJPEG形式の写真だけを含めてください。');const digest=[...new Uint8Array(await crypto.subtle.digest('SHA-256',await blob.arrayBuffer()))].map(b=>b.toString(16).padStart(2,'0')).join('');
     if(digest!==p.digest)throw new Error('写真の検証に失敗しました。保存はしていません。');paths.add(p.path);
   }
