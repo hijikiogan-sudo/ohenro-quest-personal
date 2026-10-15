@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>お遍路クエスト | 自分のペースで、八十八の旅</title>
   <link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css"><link rel="stylesheet" href="./style.css?v=personal-7"><link rel="stylesheet" href="./display.css"><link rel="stylesheet" href="./memories.css"><link rel="stylesheet" href="./quest-map.css"><link rel="stylesheet" href="./album.css"><link rel="stylesheet" href="./plan.css"><link rel="stylesheet" href="./prayer.css"><script type="module" src="./app.mjs?v=personal-7"></script>
+  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css"><link rel="stylesheet" href="./style.css?v=personal-8"><link rel="stylesheet" href="./display.css"><link rel="stylesheet" href="./memories.css"><link rel="stylesheet" href="./quest-map.css"><link rel="stylesheet" href="./album.css"><link rel="stylesheet" href="./plan.css"><link rel="stylesheet" href="./prayer.css"><link rel="stylesheet" href="./today.css"><script type="module" src="./app.mjs?v=personal-8"></script>
 </head>
 <body>
   <a class="skip" href="#main">本文へ移動</a>
@@ -22,7 +22,7 @@
       <button class="nav" data-view="history"><span aria-hidden="true">▤</span>訪問の記録</button>
       <button class="nav" data-view="family"><span aria-hidden="true">♧</span>記録と設定</button>
     </nav>
-    <div class="side-footer"><span class="small-seal">同行二人</span><p>週末に、ひとつ先の景色へ。</p><span class="version">個人テスト版 · v0.9</span></div>
+    <div class="side-footer"><span class="small-seal">同行二人</span><p>週末に、ひとつ先の景色へ。</p><span class="version">個人テスト版 · v0.10</span></div>
   </aside>
   <div class="workspace">
     <header class="topbar"><span class="breadcrumb">四国八十八ヶ所 <span>/</span> 車遍路の記録</span><div class="top-actions"><span id="connection" class="connection">● 保存領域を確認</span><button id="theme-toggle" class="quiet" aria-label="表示モードを切り替える">☾ ダーク</button><button id="account" class="quiet">設定</button></div></header>
@@ -31,6 +31,7 @@
       <section id="view-home" class="view">
         <div class="intro"><div><div class="eyebrow">YOUR WEEKEND ADVENTURE</div><h1><span>週末を、</span><br class="mobile-break"><span>ちいさな冒険に。</span></h1><p>四国八十八ヶ所を、あなたのペースで。</p><div class="travel-scene" aria-hidden="true"><span class="travel-sun"></span><span class="travel-cloud"></span><span class="travel-mountain"></span><span class="travel-mountain second"></span><span class="travel-route"></span><span class="travel-pin">⌖</span></div></div><button class="primary" data-action="manual">＋ 訪問を記録</button></div>
         <div class="journey-line"><label for="journey">巡礼の記録</label><select id="journey" aria-label="表示する巡礼"></select><span id="group-label">自分の巡礼 · この端末だけに保存</span></div>
+        <section id="today-content" aria-label="今日の巡礼"></section>
         <div class="dashboard-grid">
           <section class="card summary"><div class="section-label">マイ巡礼パスポート <span id="journey-label">はじめての巡礼</span></div><div class="summary-inner"><div class="progress-ring" id="ring"><strong id="total-count">0<small>/ 88 寺</small></strong></div><div class="summary-copy"><span id="achievement" class="eyebrow">達成率 0%</span><h2 id="traveler-title">はじまりの旅人</h2><p id="remaining">あと88の出会いが待っています。</p><span class="level-chip" id="level">Lv. 1</span><span class="xp" id="xp">0 XP</span></div></div><div class="prefectures" id="pref-progress"></div><p class="tiny">所在地で集計。66番・雲辺寺は徳島県に含みます。</p></section>
           <section class="card next"><div class="section-label">つぎの札所 <span>未訪問の札所から</span></div><div id="next-temple"></div></section>

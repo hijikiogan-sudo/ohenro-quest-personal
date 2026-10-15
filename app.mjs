@@ -1,3 +1,5 @@
+import {createTodayStore} from './today-store.mjs';
+import {createTodayUI} from './today-ui.mjs';
 import {createPrayerUI,templePrayerCard} from './prayer.mjs';
 import {createPlanStore} from './plan-store.mjs';
 import {createPlanUI} from './plan-ui.mjs';
@@ -24,8 +26,10 @@ let dialogEpoch=0;
 const photos=createPhotoStore({scope:new URL('.',import.meta.url).pathname});
 const photoUI=createPhotoUI({store:photos,getJourney:()=>currentJourney(),getJourneys:()=>state?.journeys||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast});
 const plans=createPlanStore({scope:new URL('.',import.meta.url).pathname});
-const planUI=createPlanUI({store:plans,getJourney:()=>currentJourney(),getTemples:()=>temples,getVisits:()=>currentVisits(),toast});
+const planUI=createPlanUI({store:plans,getJourney:()=>currentJourney(),getTemples:()=>temples,getVisits:()=>currentVisits(),toast,onStart:plan=>todayUI.startDialog(plan)});
 const prayerUI=createPrayerUI({document,openDialog,getEpoch:()=>dialogEpoch,backToTemple:id=>detailDialog(id)});
+const todayStore=createTodayStore({scope:new URL('.',import.meta.url).pathname});
+const todayUI=createTodayUI({document,store:todayStore,plans,getJourney:()=>currentJourney(),getVisits:()=>state?.visits||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onPlans:()=>setView('plan'),onStarted:()=>setView('home'),onPrayer:t=>requireAuth(()=>prayerUI.open(t)),onPhotos:t=>requireAuth(()=>photoUI.album(t)),onGPS:t=>requireAuth(()=>gpsDialog(t)),onManual:t=>requireAuth(()=>manualDialog([t.id]))});
 function toast(message,action) {
   clearTimeout(toastTimer);const el=$('#toast');el.replaceChildren(document.createTextNode(message));
   if(action) {const b=document.createElement('button');b.textContent=action.label;b.onclick=action.run;el.append(b);}
@@ -41,13 +45,13 @@ async function refresh({silent=false}={}) {
 }
 function currentVisits(){return state?.visits.filter(v=>v.journeyId===journeyId)||[];}
 function currentJourney(){return state?.journeys.find(j=>j.id===journeyId);}
-function openDialog(title,html) {prayerUI.cleanup();photoUI.cleanup();dialogEpoch++;$('#dialog-title').textContent=title;$('#dialog-content').innerHTML=html;$('#dialog-error').hidden=true;if(!$('#dialog').open)$('#dialog').showModal();return dialogEpoch;}
-function closeDialog() {prayerUI.cleanup();photoUI.cleanup();dialogEpoch++;$('#dialog').close();}
+function openDialog(title,html) {prayerUI.cleanup();photoUI.cleanup();dialogEpoch++;$('#dialog-title').textContent=title;$('#dialog-content').inert=false;$('#dialog-content').innerHTML=html;$('#dialog-error').hidden=true;if(!$('#dialog').open)$('#dialog').showModal();return dialogEpoch;}
+function closeDialog() {prayerUI.cleanup();photoUI.cleanup();dialogEpoch++;$('#dialog-content').inert=false;$('#dialog').close();}
 $('#dialog-close').onclick=closeDialog;
 $('#dialog').addEventListener('cancel',()=>{prayerUI.cleanup();photoUI.cleanup();dialogEpoch++;});
 $('#dialog').addEventListener('close',()=>{photoUI.dialogClosed();if(!$('#dialog').open)prayerUI.cleanup();});
 function requireAuth(callback){if(!state||!connected){toast('端末の保存領域を利用できません。通常のSafariで再読み込みしてください。');return false;}callback?.();return true;}
-function setView(next){if(view==='plan'&&next!=='plan'){if(!planUI.canLeave())return;planUI.leave();}if(next!=='album')photoUI.leaveLibrary();view=next;$$('.view').forEach(el=>el.hidden=el.id!=='view-'+view);$$('[data-view]').forEach(el=>{el.classList.toggle('active',el.dataset.view===view);el.setAttribute('aria-current',el.dataset.view===view?'page':'false');});render();window.scrollTo({top:0,behavior:'instant'});}
+function setView(next){if(view==='home'&&next!=='home')todayUI.leave();if(view==='plan'&&next!=='plan'){if(!planUI.canLeave())return;planUI.leave();}if(next!=='album')photoUI.leaveLibrary();view=next;$$('.view').forEach(el=>el.hidden=el.id!=='view-'+view);$$('[data-view]').forEach(el=>{el.classList.toggle('active',el.dataset.view===view);el.setAttribute('aria-current',el.dataset.view===view?'page':'false');});render();window.scrollTo({top:0,behavior:'instant'});}
 $$('[data-view]').forEach(el=>el.onclick=()=>setView(el.dataset.view));
 $$('[data-action=manual]').forEach(el=>el.onclick=()=>requireAuth(()=>manualDialog()));
 $$('[data-action=history]').forEach(el=>el.onclick=()=>setView('history'));
@@ -75,7 +79,7 @@ function render(){
   if(next)$('#next-detail').onclick=()=>detailDialog(next.id);
   const badgeList=[['はじめの一歩','✧'],['十寺巡礼','❀'],['結願','♧']];
   $('#badges').innerHTML=badgeList.map(([name,icon])=>`<div class="badge ${p.badges.includes(name)?'earned':''}"><span class="badge-icon" aria-hidden="true">${icon}</span><span>${name}</span><span>${p.badges.includes(name)?'獲得済み':'未獲得'}</span></div>`).join('')+p.badges.filter(b=>!badgeList.some(([name])=>name===b)).map(b=>`<div class="badge earned"><span class="badge-icon">❀</span><span>${esc(b)}</span><span>獲得済み</span></div>`).join('');
-  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();photoUI.stats();if(view==='album')photoUI.library({soft:true});if(view==='plan')planUI.render({soft:true});
+  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();photoUI.stats();if(view==='album')photoUI.library({soft:true});if(view==='plan')planUI.render({soft:true});if(view==='home')todayUI.render();
   $('#install-note').textContent=window.isSecureContext?'この画面はPWA・位置情報が使える接続です（対応ブラウザ・端末の許可が必要）。':'この接続ではGPS・PWA機能に制限があります。iPhoneでの本利用には、信頼されたHTTPS接続が必要です。';
 }
 function renderTemples(){
