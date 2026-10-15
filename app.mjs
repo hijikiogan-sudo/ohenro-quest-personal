@@ -1,3 +1,5 @@
+import {createPlanStore} from './plan-store.mjs';
+import {createPlanUI} from './plan-ui.mjs';
 import {createPhotoStore} from './photo-store.mjs';
 import {createPhotoUI} from './photo-ui.mjs';
 import {groupNearby,templeGlyph} from './temple-marker.mjs';
@@ -20,6 +22,8 @@ const roadMap=createRoadMap({scope:new URL('.',import.meta.url).pathname,onTempl
 let dialogEpoch=0;
 const photos=createPhotoStore({scope:new URL('.',import.meta.url).pathname});
 const photoUI=createPhotoUI({store:photos,getJourney:()=>currentJourney(),getJourneys:()=>state?.journeys||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast});
+const plans=createPlanStore({scope:new URL('.',import.meta.url).pathname});
+const planUI=createPlanUI({store:plans,getJourney:()=>currentJourney(),getTemples:()=>temples,getVisits:()=>currentVisits(),toast});
 function toast(message,action) {
   clearTimeout(toastTimer);const el=$('#toast');el.replaceChildren(document.createTextNode(message));
   if(action) {const b=document.createElement('button');b.textContent=action.label;b.onclick=action.run;el.append(b);}
@@ -41,7 +45,7 @@ $('#dialog-close').onclick=closeDialog;
 $('#dialog').addEventListener('cancel',()=>{photoUI.cleanup();dialogEpoch++;});
 $('#dialog').addEventListener('close',()=>photoUI.dialogClosed());
 function requireAuth(callback){if(!state||!connected){toast('端末の保存領域を利用できません。通常のSafariで再読み込みしてください。');return false;}callback?.();return true;}
-function setView(next){if(next!=='album')photoUI.leaveLibrary();view=next;$$('.view').forEach(el=>el.hidden=el.id!=='view-'+view);$$('[data-view]').forEach(el=>{el.classList.toggle('active',el.dataset.view===view);el.setAttribute('aria-current',el.dataset.view===view?'page':'false');});render();window.scrollTo({top:0,behavior:'instant'});}
+function setView(next){if(view==='plan'&&next!=='plan'){if(!planUI.canLeave())return;planUI.leave();}if(next!=='album')photoUI.leaveLibrary();view=next;$$('.view').forEach(el=>el.hidden=el.id!=='view-'+view);$$('[data-view]').forEach(el=>{el.classList.toggle('active',el.dataset.view===view);el.setAttribute('aria-current',el.dataset.view===view?'page':'false');});render();window.scrollTo({top:0,behavior:'instant'});}
 $$('[data-view]').forEach(el=>el.onclick=()=>setView(el.dataset.view));
 $$('[data-action=manual]').forEach(el=>el.onclick=()=>requireAuth(()=>manualDialog()));
 $$('[data-action=history]').forEach(el=>el.onclick=()=>setView('history'));
@@ -69,7 +73,7 @@ function render(){
   if(next)$('#next-detail').onclick=()=>detailDialog(next.id);
   const badgeList=[['はじめの一歩','✧'],['十寺巡礼','❀'],['結願','♧']];
   $('#badges').innerHTML=badgeList.map(([name,icon])=>`<div class="badge ${p.badges.includes(name)?'earned':''}"><span class="badge-icon" aria-hidden="true">${icon}</span><span>${name}</span><span>${p.badges.includes(name)?'獲得済み':'未獲得'}</span></div>`).join('')+p.badges.filter(b=>!badgeList.some(([name])=>name===b)).map(b=>`<div class="badge earned"><span class="badge-icon">❀</span><span>${esc(b)}</span><span>獲得済み</span></div>`).join('');
-  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();photoUI.stats();if(view==='album')photoUI.library({soft:true});
+  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();photoUI.stats();if(view==='album')photoUI.library({soft:true});if(view==='plan')planUI.render({soft:true});
   $('#install-note').textContent=window.isSecureContext?'この画面はPWA・位置情報が使える接続です（対応ブラウザ・端末の許可が必要）。':'この接続ではGPS・PWA機能に制限があります。iPhoneでの本利用には、信頼されたHTTPS接続が必要です。';
 }
 function renderTemples(){
@@ -89,13 +93,13 @@ function renderHistory(){
 }
 function renderFamily(){
   const last=state?.lastExportAt?new Date(state.lastExportAt).toLocaleString('ja-JP'):'まだ書き出していません';
-  $('#family-content').innerHTML=`<p>自分のペースで、八十八の出会いを。</p><p class="small">ログイン不要の個人版です。記録はこの端末・このブラウザに保存します。家族や別の端末とは自動共有しません。</p><button class="secondary" id="new-journey">新しい巡礼を作成</button><p class="small">前回のバックアップ書き出し：${esc(last)}</p><p class="tiny">プライベートブラウズは使わず、先にホーム画面へ追加してください。端末の容量不足・ブラウザのデータ削除・機種変更で記録が失われる場合があります。JSONバックアップを「ファイル」などに保存してください。</p>`;
-  $('#new-journey').onclick=()=>requireAuth(()=>newJourneyDialog());
+  $('#family-content').innerHTML=`<p>自分のペースで、八十八の出会いを。</p><p class="small">ログイン不要の個人版です。記録はこの端末・このブラウザに保存します。家族や別の端末とは自動共有しません。</p><button class="secondary" id="new-journey">新しい巡礼を作成</button><button class="quiet" id="settings-history">訪問の記録を見る</button><p class="small">前回のバックアップ書き出し：${esc(last)}</p><p class="tiny">プライベートブラウズは使わず、先にホーム画面へ追加してください。端末の容量不足・ブラウザのデータ削除・機種変更で記録が失われる場合があります。JSONバックアップを「ファイル」などに保存してください。</p>`;
+  $('#new-journey').onclick=()=>requireAuth(()=>newJourneyDialog());$('#settings-history').onclick=()=>setView('history');
 }
 function detailDialog(id){
   const t=temples.find(t=>t.id===id),visits=currentVisits().filter(v=>v.templeId===id);
-  openDialog(`${t.name}`,`<div class="detail-number">${esc(t.prefecture)} · 第${t.id}番札所</div><div class="detail-name">${esc(t.kana)}</div><div class="detail-meta">${esc(t.address)}<br>${visits.length?`✓ ${visits.length}回の訪問を記録`:'この巡礼では未訪問'}</div><div class="detail-actions"><button class="primary" id="gps-start">現在地でチェックイン</button><button class="secondary" id="single-manual">過去の訪問を記録</button><a class="secondary" href="${esc(routeUrl(t))}" target="_blank" rel="noopener noreferrer">Googleマップで車ルート ↗</a><a class="secondary" href="${esc(routeUrl(t,'apple'))}" target="_blank" rel="noopener noreferrer">Appleマップで車ルート ↗</a></div><p class="small">ルート先は札所名・住所で検索します。駐車場や入口、通行規制は公式案内で確認し、安全な場所に停車して操作してください。</p><section class="temple-album-card"><div class="album-section-title"><span>この札所の写真</span><span id="album-count">確認中</span></div><div id="album-preview" class="album-preview"></div><button class="secondary" id="open-album">写真を撮る・アルバムを開く →</button></section><details><summary>情報の出典・座標を確認</summary><div class="source-links"><p>緯度 ${t.lat} / 経度 ${t.lng}<br>公式公開地図と照合：${t.verifiedAt}<br>${esc(t.coordinateNote)}</p><a href="${esc(t.associationSourceUrl)}" target="_blank" rel="noopener noreferrer">霊場会の札所案内 ↗</a><br><a href="${esc(t.sourceUrl)}" target="_blank" rel="noopener noreferrer">日本遺産の札所案内 ↗</a>${t.addressSupplementSourceUrl?`<br><a href="${esc(t.addressSupplementSourceUrl)}" target="_blank" rel="noopener noreferrer">所在地の補足確認 ↗</a>`:''}${t.address!==t.heritageAddress?`<p>所在地は出典間に表記差があります。日本遺産掲載値：${esc(t.heritageAddress)}。採用理由は検証記録を参照してください。</p>`:''}</div></details>`);
-  $('#single-manual').onclick=()=>requireAuth(()=>manualDialog([id]));$('#gps-start').onclick=()=>requireAuth(()=>gpsDialog(t));$('#open-album').onclick=()=>requireAuth()&&photoUI.album(t);photoUI.cover(t);
+  openDialog(`${t.name}`,`<div class="detail-number">${esc(t.prefecture)} · 第${t.id}番札所</div><div class="detail-name">${esc(t.kana)}</div><div class="detail-meta">${esc(t.address)}<br>${visits.length?`✓ ${visits.length}回の訪問を記録`:'この巡礼では未訪問'}</div><div class="detail-actions"><button class="primary" id="gps-start">現在地でチェックイン</button><button class="secondary" id="single-manual">過去の訪問を記録</button><button class="secondary" id="add-to-plan">行き先予定に追加</button><a class="secondary" href="${esc(routeUrl(t))}" target="_blank" rel="noopener noreferrer">Googleマップで車ルート ↗</a><a class="secondary" href="${esc(routeUrl(t,'apple'))}" target="_blank" rel="noopener noreferrer">Appleマップで車ルート ↗</a></div><p class="small">ルート先は札所名・住所で検索します。駐車場や入口、通行規制は公式案内で確認し、安全な場所に停車して操作してください。</p><section class="temple-album-card"><div class="album-section-title"><span>この札所の写真</span><span id="album-count">確認中</span></div><div id="album-preview" class="album-preview"></div><button class="secondary" id="open-album">写真を撮る・アルバムを開く →</button></section><details><summary>情報の出典・座標を確認</summary><div class="source-links"><p>緯度 ${t.lat} / 経度 ${t.lng}<br>公式公開地図と照合：${t.verifiedAt}<br>${esc(t.coordinateNote)}</p><a href="${esc(t.associationSourceUrl)}" target="_blank" rel="noopener noreferrer">霊場会の札所案内 ↗</a><br><a href="${esc(t.sourceUrl)}" target="_blank" rel="noopener noreferrer">日本遺産の札所案内 ↗</a>${t.addressSupplementSourceUrl?`<br><a href="${esc(t.addressSupplementSourceUrl)}" target="_blank" rel="noopener noreferrer">所在地の補足確認 ↗</a>`:''}${t.address!==t.heritageAddress?`<p>所在地は出典間に表記差があります。日本遺産掲載値：${esc(t.heritageAddress)}。採用理由は検証記録を参照してください。</p>`:''}</div></details>`);
+  $('#add-to-plan').onclick=()=>{if(!requireAuth())return;closeDialog();setView('plan');planUI.addTemple(id);};$('#single-manual').onclick=()=>requireAuth(()=>manualDialog([id]));$('#gps-start').onclick=()=>requireAuth(()=>gpsDialog(t));$('#open-album').onclick=()=>requireAuth()&&photoUI.album(t);photoUI.cover(t);
 }
 function clusterDialog(ids){
   openDialog('この周辺の札所',`<p class="small">近い位置にある${ids.length}つの札所です。開きたい札所を選んでください。</p><div class="cluster-list">${ids.map(id=>{const t=temples.find(t=>t.id===id);return `<button class="cluster-temple" data-cluster-temple="${id}"><span>${templeGlyph(id)}</span><div><small>第${id}番 · ${esc(t.prefecture)}</small><strong>${esc(t.name)}</strong></div><span>→</span></button>`;}).join('')}</div>`);
