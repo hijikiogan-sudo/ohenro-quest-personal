@@ -71,4 +71,3 @@
 @media(max-width:620px){#road-map{height:390px}.top-actions{gap:6px}#theme-toggle{font-size:11px;padding:9px 8px}.map-pref-tabs{padding-left:14px;padding-right:14px;gap:6px}.map-pref-tabs button{padding:8px 12px}.map-heading{padding-left:16px;padding-right:16px}.map-temple-list{max-height:155px}.map-note{font-size:11px}.map-card>.section-label{flex-wrap:wrap}.map-mode .secondary{width:100%}}
 @media(max-width:400px){.breadcrumb{display:none}.topbar{justify-content:flex-end}.top-actions{width:100%;justify-content:space-between}}
 
-:root[data-theme=dark] #road-map .leaflet-tile-pane{filter:brightness(.75) contrast(1.08)}

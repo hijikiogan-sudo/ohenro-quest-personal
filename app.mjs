@@ -3,6 +3,7 @@ import {createPhotoUI} from './photo-ui.mjs';
 import {groupNearby,templeGlyph} from './temple-marker.mjs';
 import {attachTheme, fittedMapBox} from './display.mjs';
 import {createRoadMap} from './road-map.mjs';
+import {questTerrain,questTempleGlyph} from './quest-map.mjs';
 import {progress, routeUrl, japanDate, assessGPS} from './domain.mjs';
 import {createPersonalStore} from './personal-store.mjs';
 
@@ -13,9 +14,9 @@ const normalizeTerm=value=>value.normalize('NFKC').toLocaleLowerCase().replace(/
 let temples=[],coast=null,state=null,journeyId='',view='home',initialized=false,connected=false;
 const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,temples:()=>temples});
 let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
-let mapPref='';
+let mapPref='',positionStyle='quest',questBackground='';
 attachTheme({scope:new URL('.',import.meta.url).pathname});
-const roadMap=createRoadMap({onTemple:id=>detailDialog(id),onCluster:ids=>clusterDialog(ids)});
+const roadMap=createRoadMap({scope:new URL('.',import.meta.url).pathname,onTemple:id=>detailDialog(id),onCluster:ids=>clusterDialog(ids),onPositionStyle:style=>{positionStyle=style;if(coast)drawMap(new Set(currentVisits().map(v=>v.templeId)));}});
 let dialogEpoch=0;
 const photos=createPhotoStore({scope:new URL('.',import.meta.url).pathname});
 const photoUI=createPhotoUI({store:photos,getJourney:()=>currentJourney(),openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast});
@@ -166,12 +167,14 @@ const svgNS='http://www.w3.org/2000/svg';
 const mercator=lat=>180/Math.PI*Math.log(Math.tan(Math.PI/4+lat*Math.PI/360));
 const projection=([lng,lat])=>[130+(lng-131.9)*190,20+(mercator(34.55)-mercator(lat))*190];
 function drawMap(done){if(!coast)return;const svg=$('#map');svg.setAttribute('viewBox',mapBox.join(' '));
-  let html='';for(const polygon of coast.geometry.coordinates){html+=`<path class="land" d="${polygon.map(ring=>ring.map((p,i)=>{const [x,y]=projection(p);return `${i?'L':'M'}${x.toFixed(2)},${y.toFixed(2)}`;}).join('')+'Z').join('')}"/>`;}
+  svg.dataset.style=positionStyle;
+  let html='';if(positionStyle==='quest'){questBackground||=questTerrain(coast,projection);html=questBackground;}
+  else for(const polygon of coast.geometry.coordinates){html+=`<path class="land" d="${polygon.map(ring=>ring.map((p,i)=>{const [x,y]=projection(p);return `${i?'L':'M'}${x.toFixed(2)},${y.toFixed(2)}`;}).join('')+'Z').join('')}"/>`;}
   html+='<text x="240" y="105" class="water-label">瀬戸内海</text><text x="470" y="385" class="water-label">太平洋</text>';
   for(const [name,coord] of [['徳島',[134.12,33.95]],['高知',[133.35,33.45]],['愛媛',[132.95,33.85]],['香川',[133.91,34.27]]]){const [x,y]=projection(coord);html+=`<text x="${x}" y="${y}" class="map-label">${name}</text>`;}
   const markerScale=mapBox[2]/(svg.clientWidth||600);
   const groups=groupNearby(mapTemples(),t=>projection([t.lng,t.lat]).map(v=>v/markerScale),48);
-  html+=groups.map(group=>{const t=group[0],multiple=group.length>1,[x,y]=projection([group.reduce((s,t)=>s+t.lng,0)/group.length,group.reduce((s,t)=>s+t.lat,0)/group.length]);return `<g class="pin temple-position ${group.every(t=>done.has(t.id))?'visited':''}" transform="translate(${x},${y}) scale(${markerScale})" tabindex="0" role="button" aria-label="${multiple?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+esc(t.name)}" ${multiple?`data-map-cluster="${group.map(t=>t.id).join(',')}"`:`data-map-temple="${t.id}"`}><g transform="translate(-22,-47)">${templeGlyph(multiple?group.length+'寺':t.id)}</g></g>`;}).join('');
+  html+=groups.map(group=>{const t=group[0],multiple=group.length>1,[x,y]=projection([group.reduce((s,t)=>s+t.lng,0)/group.length,group.reduce((s,t)=>s+t.lat,0)/group.length]);return `<g class="pin temple-position ${group.every(t=>done.has(t.id))?'visited':''}" transform="translate(${x},${y}) scale(${markerScale})" tabindex="0" role="button" aria-label="${multiple?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+esc(t.name)}" ${multiple?`data-map-cluster="${group.map(t=>t.id).join(',')}"`:`data-map-temple="${t.id}"`}><g transform="translate(-22,-47)">${(positionStyle==='quest'?questTempleGlyph:templeGlyph)(multiple?group.length+'寺':t.id)}</g></g>`;}).join('');
   svg.innerHTML=html;$$('[data-map-temple],[data-map-cluster]').forEach(el=>{const activate=()=>el.dataset.mapCluster?clusterDialog(el.dataset.mapCluster.split(',').map(Number)):detailDialog(Number(el.dataset.mapTemple));el.onclick=activate;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};});
 }
 function mapTemples(){return temples.filter(t=>!mapPref||t.prefecture===mapPref);}
@@ -187,6 +190,8 @@ function renderMapPanel(done,{fit=false}={}){
 }
 $$('[data-map-pref]').forEach(b=>b.onclick=()=>{mapPref=b.dataset.mapPref;fitMapCounty();drawMap(new Set(currentVisits().map(v=>v.templeId)));renderMapPanel(new Set(currentVisits().map(v=>v.templeId)),{fit:true});});
 function redrawMap(){const done=new Set(currentVisits().map(v=>v.templeId));drawMap(done);renderMapPanel(done);}
+let mapResizeTimer;
+window.addEventListener('resize',()=>{clearTimeout(mapResizeTimer);mapResizeTimer=setTimeout(()=>{if(view==='home')redrawMap();},120);});
 function zoom(factor){const width=Math.max(100,Math.min(1000,mapBox[2]*factor));const ratio=width/mapBox[2];mapBox=[mapBox[0]+(mapBox[2]-width)/2,mapBox[1]+(mapBox[3]-mapBox[3]*ratio)/2,width,mapBox[3]*ratio];redrawMap();}
 $('#map-in').onclick=()=>zoom(.65);$('#map-out').onclick=()=>zoom(1/.65);$('#map-reset').onclick=()=>{fitMapCounty();redrawMap();};
 let drag=null;

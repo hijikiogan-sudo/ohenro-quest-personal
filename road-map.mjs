@@ -1,15 +1,24 @@
 import {groupNearby,templeGlyph} from './temple-marker.mjs';
+import {MAP_STYLES,readMapStyle} from './quest-map.mjs';
 // 地図タイルは利用者が表示した範囲のみ通常の画像として読み込む。
 // Service Workerやアプリ独自のオフラインキャッシュには保存しない。
-export function createRoadMap({document=globalThis.document,window=globalThis.window,navigator=globalThis.navigator,onTemple=()=>{},onCluster=()=>{}}={}){
+export function createRoadMap({document=globalThis.document,window=globalThis.window,navigator=globalThis.navigator,onTemple=()=>{},onCluster=()=>{},onPositionStyle=()=>{},scope='/',storage}={}){
   const $=s=>document.querySelector(s);
   let map,layer,markers,loading,enabled=false,rows=[],visited=new Set(),needsFit=true,lastSignature='',baseStyle='pale',setBaseLayer,tileFailed=false;
+  try{storage??=window.localStorage;}catch{}
+  const styleKey='ohenro-map-style:'+scope;
+  let style=readMapStyle(storage,styleKey);
+  enabled=['pale','road'].includes(style);if(enabled)baseStyle=style;
   function show(){
     const active=enabled&&navigator.onLine!==false;
     $('#road-map').hidden=!active;$('#map-wrap').hidden=active;
-    $('#road-toggle').textContent=enabled?'位置図に戻す':'見やすい地図を表示';
+    $('#map-base').value=style;
+    const positionStyle=style==='plain'?'plain':'quest';
+    $('#map').dataset.style=positionStyle;
+    $('#quest-caption').hidden=active||positionStyle!=='quest';
+    $('#road-toggle').textContent=enabled?'冒険の地図に戻す':'道路地図を表示';
     $('#road-toggle').setAttribute('aria-pressed',String(enabled));
-    $('#map-status').textContent=enabled?(active?'お寺のアイコンから札所を開けます。複数の札所はまとめて表示します。':'オフラインのため位置図を表示しています。'):'位置図 · 通信なしで県別の札所を確認できます。';
+    $('#map-status').textContent=enabled?(active?'お寺のアイコンから札所を開けます。複数の札所はまとめて表示します。':'オフラインのため冒険の位置図を表示しています。'):(positionStyle==='quest'?'冒険の地図 · お寺を選んで、次のクエストへ。':'位置図 · 通信なしで県別の札所を確認できます。');
     $('#road-note').hidden=!active;$('#gsi-credit').hidden=!(active&&baseStyle==='pale');if(active&&tileFailed)$('#map-status').textContent='地図画像の一部を取得できません。位置図も利用できます。';
     return active;
   }
@@ -34,7 +43,7 @@ export function createRoadMap({document=globalThis.document,window=globalThis.wi
           if(layer)map.removeLayer(layer);
           const pale=baseStyle==='pale';
           layer=L.tileLayer(pale?'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png':'https://tile.openstreetmap.org/{z}/{x}/{y}.png',{minZoom:7,maxZoom:18,keepBuffer:1,attribution:pale?'<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">地理院タイル</a>':'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'}).addTo(map);
-          tileFailed=false;$('#map-base').value=baseStyle;
+          tileFailed=false;
           layer.on('tileerror',()=>{tileFailed=true;show();});layer.on('loading',()=>{tileFailed=false;});layer.on('load',()=>show());show();
         }
         setBaseLayer=setBase;setBase();
@@ -60,11 +69,22 @@ export function createRoadMap({document=globalThis.document,window=globalThis.wi
       if(signature!==lastSignature){renderMarkers();lastSignature=signature;}
     }catch(e){enabled=false;show();$('#map-status').textContent=e.message;}
   }
-  $('#map-base').onchange=e=>{baseStyle=e.target.value;if(setBaseLayer)setBaseLayer();};
-  $('#road-toggle').onclick=()=>{enabled=!enabled;needsFit=true;return draw();};
+  function choose(next,{save=true}={}){
+    if(!MAP_STYLES.includes(next))return;
+    style=next;enabled=['pale','road'].includes(style);
+    if(enabled)baseStyle=style;
+    if(save)try{storage?.setItem(styleKey,style);}catch{}
+    needsFit=true;show();
+    onPositionStyle(style==='plain'?'plain':'quest');
+    if(enabled&&setBaseLayer)setBaseLayer();
+    return draw();
+  }
+  $('#map-base').onchange=e=>choose(e.target.value);
+  $('#road-toggle').onclick=()=>choose(enabled?'quest':'pale');
+  onPositionStyle(style==='plain'?'plain':'quest');show();
   return {
     update(next,done,{fit=false}={}){rows=next;visited=done;needsFit||=fit;return draw();},
     reset(){needsFit=true;return draw();},
-    show, getEnabled:()=>enabled
+    show, choose, getStyle:()=>style, getEnabled:()=>enabled
   };
 }

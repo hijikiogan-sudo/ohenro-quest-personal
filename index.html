@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>お遍路クエスト | 自分のペースで、八十八の旅</title>
   <link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css"><link rel="stylesheet" href="./style.css?v=personal-3"><link rel="stylesheet" href="./display.css"><link rel="stylesheet" href="./memories.css"><script type="module" src="./app.mjs?v=personal-3"></script>
+  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css"><link rel="stylesheet" href="./style.css?v=personal-4"><link rel="stylesheet" href="./display.css"><link rel="stylesheet" href="./memories.css"><link rel="stylesheet" href="./quest-map.css"><script type="module" src="./app.mjs?v=personal-4"></script>
 </head>
 <body>
   <a class="skip" href="#main">本文へ移動</a>
@@ -20,7 +20,7 @@
       <button class="nav" data-view="history"><span aria-hidden="true">▤</span>訪問の記録</button>
       <button class="nav" data-view="family"><span aria-hidden="true">♧</span>記録と設定</button>
     </nav>
-    <div class="side-footer"><span class="small-seal">同行二人</span><p>週末に、ひとつ先の景色へ。</p><span class="version">個人テスト版 · v0.5</span></div>
+    <div class="side-footer"><span class="small-seal">同行二人</span><p>週末に、ひとつ先の景色へ。</p><span class="version">個人テスト版 · v0.6</span></div>
   </aside>
   <div class="workspace">
     <header class="topbar"><span class="breadcrumb">四国八十八ヶ所 <span>/</span> 車遍路の記録</span><div class="top-actions"><span id="connection" class="connection">● 保存領域を確認</span><button id="theme-toggle" class="quiet" aria-label="表示モードを切り替える">☾ ダーク</button><button id="account" class="quiet">設定</button></div></header>
@@ -37,7 +37,7 @@
             <div class="map-heading"><strong id="map-pref-title">四国全体</strong><span id="map-pref-count"></span></div>
             <div class="map-wrap" id="map-wrap"><svg id="map" viewBox="0 0 800 480" role="group" aria-label="四国八十八ヶ所の札所位置図。番号を選ぶと札所を開きます。"></svg><div class="map-tools"><button id="map-in" aria-label="地図を拡大">＋</button><button id="map-out" aria-label="地図を縮小">−</button><button id="map-reset" aria-label="選んだ県の地図を元に戻す">範囲を戻す</button></div><span class="map-north">↑ N</span></div>
             <div id="road-map" role="region" aria-label="選んだ県の道路と札所の地図" hidden></div>
-            <div class="map-style-row"><label>地図の見え方<select id="map-base"><option value="pale">すっきり・淡色</option><option value="roads">道路情報を詳しく</option></select></label><span>お寺を選んで、次の一寺へ。</span></div><div class="map-mode"><button id="road-toggle" class="secondary" aria-pressed="false">見やすい地図を表示</button><p id="map-status" class="tiny" role="status"></p></div>
+            <div id="quest-caption" class="quest-map-caption"><strong>✦ 四国、八十八の冒険。</strong><span>山・森・船の絵は演出です。車での経路は札所の「車ルート」で確認できます。</span></div><div class="map-style-row"><label>地図のスタイル<select id="map-base" aria-label="地図のスタイル"><option value="quest" selected>冒険の地図（位置図）</option><option value="plain">シンプルな位置図</option><option value="pale">すっきり・淡色地図</option><option value="road">道路情報を詳しく</option></select></label><span>お寺を選んで、次のクエストへ。</span></div><div class="map-mode"><button id="road-toggle" class="secondary" aria-pressed="false">道路地図を表示</button><p id="map-status" class="tiny" role="status"></p></div>
             <p id="road-note" class="tiny map-note" hidden>道路地図は通信が必要です。表示範囲を国土地理院またはOpenStreetMapに送信します。道幅・通行可能性を保証する情報ではありません。</p>
             <div id="map-temple-list" class="map-temple-list" aria-label="地図に表示している札所"></div>
             <p id="gsi-credit" class="map-credit" hidden>淡色地図：地理院タイル。Shoreline data is derived from: United States. National Imagery and Mapping Agency. &quot;Vector Map Level 0 (VMAP0).&quot; Bethesda, MD: Denver, CO: The Agency; USGS Information Services, 1997.</p><div class="map-foot"><span>番号をタップで詳細</span><span>位置図：Natural Earth · <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener noreferrer">道路地図の修正を報告 ↗</a></span></div>

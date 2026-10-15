@@ -1,0 +1,20 @@
+/* 地図はライト／ダーク共通の昼間のパレット。文字と操作部を明瞭に保つ。 */
+:root[data-theme=dark] #road-map .leaflet-tile-pane{filter:none}
+#map[data-style=quest],:root[data-theme=dark] #map[data-style=quest]{background:#73cddd;color-scheme:light;isolation:isolate}
+#map[data-style=plain],:root[data-theme=dark] #map[data-style=plain]{background:radial-gradient(ellipse at 60% 30%,#eaf8f6,#dceef4)}
+#map[data-style=plain] .land,:root[data-theme=dark] #map[data-style=plain] .land{fill:#f7fbf3;stroke:#a2bcb5}
+#map[data-style=plain] .map-label,:root[data-theme=dark] #map[data-style=plain] .map-label{fill:#425f55}
+#map[data-style=plain] .water-label,:root[data-theme=dark] #map[data-style=plain] .water-label{fill:#416a80}
+#map[data-style=quest] .map-label{fill:#385e49;font-size:13px;font-weight:800;letter-spacing:2px;paint-order:stroke;stroke:#f7f0c9;stroke-width:4px;stroke-linejoin:round}
+#map[data-style=quest] .water-label{fill:#236c83;font-size:12px;font-weight:700;letter-spacing:5px;paint-order:stroke;stroke:#ade5e8;stroke-width:3px}
+.quest-roof{fill:#6c647b;stroke:#fff4d4;stroke-width:1.5}.quest-roof-light{fill:#96899f}.quest-eaves{fill:#61596e;stroke:#fff4d4;stroke-width:1.5}.quest-house{fill:#fff6d9;stroke:#635d65;stroke-width:2}.quest-step{fill:#a48a65}.quest-pin-shadow{fill:#335f58;opacity:.3}.quest-digit{font:800 13px -apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif;fill:#393747}
+.visited .quest-roof,.visited .quest-eaves{fill:#127865}.visited .quest-roof-light{fill:#46b091}.visited .quest-house{fill:#d4fae1;stroke:#196a59}.visited .quest-digit{fill:#135846}
+.grouped .quest-house{fill:#ffdf8b;stroke:#91622f}.grouped .quest-digit{fill:#664320;font-size:11px}
+#map[data-style=quest] .quest-digit{fill:#393747;dominant-baseline:auto;font-size:13px;font-weight:800}#map[data-style=quest] .visited .quest-digit{fill:#135846}
+#map[data-style=plain] .temple-digit{fill:#153e50}#map[data-style=plain] .visited .temple-digit{fill:#005a65}
+.quest-map-caption{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:14px 24px;background:#fff8e6;color:#68553c;border-top:1px solid #efdeb4;font-size:11px;line-height:1.7}
+.quest-map-caption strong{color:#795737;font-size:12px;white-space:nowrap}
+:root[data-theme=dark] .quest-map-caption{background:#283d40;color:#dddfc9;border-color:#4b6059}
+:root[data-theme=dark] .quest-map-caption strong{color:#ffdf9d}
+.map-card .map-style-row{padding-bottom:3px}.map-style-row label{flex-wrap:wrap}.map-style-row select{max-width:100%;font-size:13px}
+@media(max-width:620px){.quest-map-caption{padding:11px 17px;display:block;font-size:10px}.quest-map-caption strong{display:block;margin-bottom:3px}.map-style-row label{width:100%;justify-content:space-between}.map-style-row select{max-width:75%;font-size:12px}}

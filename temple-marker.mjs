@@ -13,5 +13,5 @@ export function groupNearby(rows,project,cell=48){
 export function templeGlyph(label){
   if(!/^\d{1,2}(寺)?$/.test(String(label)))throw new Error('札所マーカーの表示を確認してください。');
   // 数字は寺院の本堂部分へ。円形ピンや鳥居と区別する。
-  return `<svg class="temple-glyph" viewBox="0 0 44 48" aria-hidden="true"><path class="temple-shadow" d="M7 42h30l-15 5Z"/><path class="temple-roof" d="M22 2c-3 8-9 10-17 12l2 4h30l2-4C31 12 25 10 22 2Z"/><path class="temple-roof second" d="M22 12c-5 7-12 9-20 12l3 4h34l3-4c-8-3-15-5-20-12Z"/><rect class="temple-house" x="8" y="25" width="28" height="17" rx="3"/><path class="temple-step" d="M5 43h34"/><text class="temple-digit" x="22" y="37" text-anchor="middle">${label}</text></svg>`;
+  return `<svg class="temple-glyph" width="44" height="48" viewBox="0 0 44 48" aria-hidden="true"><path class="temple-shadow" d="M7 42h30l-15 5Z"/><path class="temple-roof" d="M22 2c-3 8-9 10-17 12l2 4h30l2-4C31 12 25 10 22 2Z"/><path class="temple-roof second" d="M22 12c-5 7-12 9-20 12l3 4h34l3-4c-8-3-15-5-20-12Z"/><rect class="temple-house" x="8" y="25" width="28" height="17" rx="3"/><path class="temple-step" d="M5 43h34"/><text class="temple-digit" x="22" y="37" text-anchor="middle">${label}</text></svg>`;
 }
