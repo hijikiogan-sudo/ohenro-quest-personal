@@ -1,15 +1,16 @@
+import {groupNearby,templeGlyph} from './temple-marker.mjs';
 // 地図タイルは利用者が表示した範囲のみ通常の画像として読み込む。
 // Service Workerやアプリ独自のオフラインキャッシュには保存しない。
-export function createRoadMap({document=globalThis.document,window=globalThis.window,navigator=globalThis.navigator,onTemple=()=>{}}={}){
+export function createRoadMap({document=globalThis.document,window=globalThis.window,navigator=globalThis.navigator,onTemple=()=>{},onCluster=()=>{}}={}){
   const $=s=>document.querySelector(s);
-  let map,layer,markers,loading,enabled=false,rows=[],visited=new Set(),needsFit=true,lastSignature='';
+  let map,layer,markers,loading,enabled=false,rows=[],visited=new Set(),needsFit=true,lastSignature='',baseStyle='pale',setBaseLayer,tileFailed=false;
   function show(){
     const active=enabled&&navigator.onLine!==false;
     $('#road-map').hidden=!active;$('#map-wrap').hidden=active;
-    $('#road-toggle').textContent=enabled?'位置図に戻す':'道路地図を表示';
+    $('#road-toggle').textContent=enabled?'位置図に戻す':'見やすい地図を表示';
     $('#road-toggle').setAttribute('aria-pressed',String(enabled));
-    $('#map-status').textContent=enabled?(active?'道路地図 · 拡大すると周辺の道路を確認できます。':'オフラインのため位置図を表示しています。'):'位置図 · 通信なしで県別の札所を確認できます。';
-    $('#road-note').hidden=!active;
+    $('#map-status').textContent=enabled?(active?'お寺のアイコンから札所を開けます。複数の札所はまとめて表示します。':'オフラインのため位置図を表示しています。'):'位置図 · 通信なしで県別の札所を確認できます。';
+    $('#road-note').hidden=!active;$('#gsi-credit').hidden=!(active&&baseStyle==='pale');if(active&&tileFailed)$('#map-status').textContent='地図画像の一部を取得できません。位置図も利用できます。';
     return active;
   }
   function library(){
@@ -26,28 +27,40 @@ export function createRoadMap({document=globalThis.document,window=globalThis.wi
     try{
       const L=await library();if(!show()||$('#view-home').hidden)return;
       if(!map){
-        map=L.map($('#road-map'),{scrollWheelZoom:false,zoomControl:false});
+        map=L.map($('#road-map'),{scrollWheelZoom:false,zoomControl:false,minZoom:7,maxZoom:18,maxBounds:[[30,130],[37,137]],maxBoundsViscosity:.8});
+        map.attributionControl.setPrefix(false);
         L.control.zoom({zoomInTitle:'地図を拡大',zoomOutTitle:'地図を縮小'}).addTo(map);
-        layer=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,keepBuffer:1,attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'}).addTo(map);
+        function setBase(){
+          if(layer)map.removeLayer(layer);
+          const pale=baseStyle==='pale';
+          layer=L.tileLayer(pale?'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png':'https://tile.openstreetmap.org/{z}/{x}/{y}.png',{minZoom:7,maxZoom:18,keepBuffer:1,attribution:pale?'<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">地理院タイル</a>':'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'}).addTo(map);
+          tileFailed=false;$('#map-base').value=baseStyle;
+          layer.on('tileerror',()=>{tileFailed=true;show();});layer.on('loading',()=>{tileFailed=false;});layer.on('load',()=>show());show();
+        }
+        setBaseLayer=setBase;setBase();
         markers=L.layerGroup().addTo(map);
-        let failed=false;
-        layer.on('tileerror',()=>{failed=true;$('#map-status').textContent='道路画像の一部を取得できません。位置図への切り替えも利用できます。';});
-        layer.on('loading',()=>{failed=false;});layer.on('load',()=>{if(!failed)show();});
       }
       map.invalidateSize();
       const signature=rows.map(t=>t.id+':'+visited.has(t.id)).join(',');
-      if(signature!==lastSignature){
+      function renderMarkers(){
         markers.clearLayers();
-        for(const t of rows){
-          const label='第'+t.id+'番 '+t.name+(visited.has(t.id)?' 訪問済み':' 未訪問');
-          const content=document.createElement('span');content.textContent=t.id;
-          L.marker([t.lat,t.lng],{keyboard:true,title:label,alt:label,icon:L.divIcon({className:'road-pin'+(visited.has(t.id)?' visited':''),html:content,iconSize:[30,30],iconAnchor:[15,15]})}).addTo(markers).on('click',()=>onTemple(t.id));
+        const groups=groupNearby(rows,t=>{const p=map.project([t.lat,t.lng],map.getZoom());return[p.x,p.y];},48);
+        for(const group of groups){
+          const t=group[0],isGroup=group.length>1,done=group.every(t=>visited.has(t.id));
+          const label=isGroup?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+t.name+(done?' 訪問済み':' 未訪問');
+          const content=document.createElement('span');content.innerHTML=templeGlyph(isGroup?group.length+'寺':t.id);
+          const lat=group.reduce((s,t)=>s+t.lat,0)/group.length,lng=group.reduce((s,t)=>s+t.lng,0)/group.length;
+          const marker=L.marker([lat,lng],{keyboard:true,title:label,alt:label,icon:L.divIcon({className:'temple-map-marker'+(done?' visited':'')+(isGroup?' grouped':''),html:content,iconSize:[44,48],iconAnchor:[22,47]})}).addTo(markers);
+          marker.on('click',()=>isGroup?onCluster(group.map(t=>t.id)):onTemple(t.id));
+          if(!isGroup&&map.getZoom()>=12){const name=document.createElement('span');name.textContent=t.name;marker.bindTooltip(name,{direction:'right',offset:[12,-22],className:'temple-map-name'});}
         }
-        lastSignature=signature;
       }
-      if(needsFit&&rows.length){map.fitBounds(rows.map(t=>[t.lat,t.lng]),{padding:[28,28],maxZoom:11,animate:false});needsFit=false;}
+      if(!map._ohenroMarkers){map.on('zoomend',()=>{lastSignature='';draw();});map._ohenroMarkers=true;}
+      if(needsFit&&rows.length){needsFit=false;map.fitBounds(rows.map(t=>[t.lat,t.lng]),{padding:[36,36],maxZoom:12,animate:false});}
+      if(signature!==lastSignature){renderMarkers();lastSignature=signature;}
     }catch(e){enabled=false;show();$('#map-status').textContent=e.message;}
   }
+  $('#map-base').onchange=e=>{baseStyle=e.target.value;if(setBaseLayer)setBaseLayer();};
   $('#road-toggle').onclick=()=>{enabled=!enabled;needsFit=true;return draw();};
   return {
     update(next,done,{fit=false}={}){rows=next;visited=done;needsFit||=fit;return draw();},

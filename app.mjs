@@ -1,3 +1,6 @@
+import {createPhotoStore} from './photo-store.mjs';
+import {createPhotoUI} from './photo-ui.mjs';
+import {groupNearby,templeGlyph} from './temple-marker.mjs';
 import {attachTheme, fittedMapBox} from './display.mjs';
 import {createRoadMap} from './road-map.mjs';
 import {progress, routeUrl, japanDate, assessGPS} from './domain.mjs';
@@ -12,8 +15,10 @@ const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,
 let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
 let mapPref='';
 attachTheme({scope:new URL('.',import.meta.url).pathname});
-const roadMap=createRoadMap({onTemple:id=>detailDialog(id)});
+const roadMap=createRoadMap({onTemple:id=>detailDialog(id),onCluster:ids=>clusterDialog(ids)});
 let dialogEpoch=0;
+const photos=createPhotoStore({scope:new URL('.',import.meta.url).pathname});
+const photoUI=createPhotoUI({store:photos,getJourney:()=>currentJourney(),openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast});
 function toast(message,action) {
   clearTimeout(toastTimer);const el=$('#toast');el.replaceChildren(document.createTextNode(message));
   if(action) {const b=document.createElement('button');b.textContent=action.label;b.onclick=action.run;el.append(b);}
@@ -29,10 +34,10 @@ async function refresh({silent=false}={}) {
 }
 function currentVisits(){return state?.visits.filter(v=>v.journeyId===journeyId)||[];}
 function currentJourney(){return state?.journeys.find(j=>j.id===journeyId);}
-function openDialog(title,html) {dialogEpoch++;$('#dialog-title').textContent=title;$('#dialog-content').innerHTML=html;$('#dialog-error').hidden=true;if(!$('#dialog').open)$('#dialog').showModal();return dialogEpoch;}
-function closeDialog() {dialogEpoch++;$('#dialog').close();}
+function openDialog(title,html) {photoUI.cleanup();dialogEpoch++;$('#dialog-title').textContent=title;$('#dialog-content').innerHTML=html;$('#dialog-error').hidden=true;if(!$('#dialog').open)$('#dialog').showModal();return dialogEpoch;}
+function closeDialog() {photoUI.cleanup();dialogEpoch++;$('#dialog').close();}
 $('#dialog-close').onclick=closeDialog;
-$('#dialog').addEventListener('cancel',()=>{dialogEpoch++;});
+$('#dialog').addEventListener('cancel',()=>{photoUI.cleanup();dialogEpoch++;});
 function requireAuth(callback){if(!state||!connected){toast('端末の保存領域を利用できません。通常のSafariで再読み込みしてください。');return false;}callback?.();return true;}
 function setView(next){view=next;$$('.view').forEach(el=>el.hidden=el.id!=='view-'+view);$$('[data-view]').forEach(el=>{el.classList.toggle('active',el.dataset.view===view);el.setAttribute('aria-current',el.dataset.view===view?'page':'false');});render();window.scrollTo({top:0,behavior:'instant'});}
 $$('[data-view]').forEach(el=>el.onclick=()=>setView(el.dataset.view));
@@ -62,7 +67,7 @@ function render(){
   if(next)$('#next-detail').onclick=()=>detailDialog(next.id);
   const badgeList=[['はじめの一歩','✧'],['十寺巡礼','❀'],['結願','♧']];
   $('#badges').innerHTML=badgeList.map(([name,icon])=>`<div class="badge ${p.badges.includes(name)?'earned':''}"><span class="badge-icon" aria-hidden="true">${icon}</span><span>${name}</span><span>${p.badges.includes(name)?'獲得済み':'未獲得'}</span></div>`).join('')+p.badges.filter(b=>!badgeList.some(([name])=>name===b)).map(b=>`<div class="badge earned"><span class="badge-icon">❀</span><span>${esc(b)}</span><span>獲得済み</span></div>`).join('');
-  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();
+  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();photoUI.stats();
   $('#install-note').textContent=window.isSecureContext?'この画面はPWA・位置情報が使える接続です（対応ブラウザ・端末の許可が必要）。':'この接続ではGPS・PWA機能に制限があります。iPhoneでの本利用には、信頼されたHTTPS接続が必要です。';
 }
 function renderTemples(){
@@ -87,8 +92,12 @@ function renderFamily(){
 }
 function detailDialog(id){
   const t=temples.find(t=>t.id===id),visits=currentVisits().filter(v=>v.templeId===id);
-  openDialog(`${t.name}`,`<div class="detail-number">${esc(t.prefecture)} · 第${t.id}番札所</div><div class="detail-name">${esc(t.kana)}</div><div class="detail-meta">${esc(t.address)}<br>${visits.length?`✓ ${visits.length}回の訪問を記録`:'この巡礼では未訪問'}</div><div class="detail-actions"><button class="primary" id="gps-start">現在地でチェックイン</button><button class="secondary" id="single-manual">過去の訪問を記録</button><a class="secondary" href="${esc(routeUrl(t))}" target="_blank" rel="noopener noreferrer">Googleマップで車ルート ↗</a><a class="secondary" href="${esc(routeUrl(t,'apple'))}" target="_blank" rel="noopener noreferrer">Appleマップで車ルート ↗</a></div><p class="small">ルート先は札所名・住所で検索します。駐車場や入口、通行規制は公式案内で確認し、安全な場所に停車して操作してください。</p><details><summary>情報の出典・座標を確認</summary><div class="source-links"><p>緯度 ${t.lat} / 経度 ${t.lng}<br>公式公開地図と照合：${t.verifiedAt}<br>${esc(t.coordinateNote)}</p><a href="${esc(t.associationSourceUrl)}" target="_blank" rel="noopener noreferrer">霊場会の札所案内 ↗</a><br><a href="${esc(t.sourceUrl)}" target="_blank" rel="noopener noreferrer">日本遺産の札所案内 ↗</a>${t.addressSupplementSourceUrl?`<br><a href="${esc(t.addressSupplementSourceUrl)}" target="_blank" rel="noopener noreferrer">所在地の補足確認 ↗</a>`:''}${t.address!==t.heritageAddress?`<p>所在地は出典間に表記差があります。日本遺産掲載値：${esc(t.heritageAddress)}。採用理由は検証記録を参照してください。</p>`:''}</div></details>`);
-  $('#single-manual').onclick=()=>requireAuth(()=>manualDialog([id]));$('#gps-start').onclick=()=>requireAuth(()=>gpsDialog(t));
+  openDialog(`${t.name}`,`<div class="detail-number">${esc(t.prefecture)} · 第${t.id}番札所</div><div class="detail-name">${esc(t.kana)}</div><div class="detail-meta">${esc(t.address)}<br>${visits.length?`✓ ${visits.length}回の訪問を記録`:'この巡礼では未訪問'}</div><div class="detail-actions"><button class="primary" id="gps-start">現在地でチェックイン</button><button class="secondary" id="single-manual">過去の訪問を記録</button><a class="secondary" href="${esc(routeUrl(t))}" target="_blank" rel="noopener noreferrer">Googleマップで車ルート ↗</a><a class="secondary" href="${esc(routeUrl(t,'apple'))}" target="_blank" rel="noopener noreferrer">Appleマップで車ルート ↗</a></div><p class="small">ルート先は札所名・住所で検索します。駐車場や入口、通行規制は公式案内で確認し、安全な場所に停車して操作してください。</p><section class="temple-album-card"><div class="album-section-title"><span>この札所の写真</span><span id="album-count">確認中</span></div><div id="album-preview" class="album-preview"></div><button class="secondary" id="open-album">写真を撮る・アルバムを開く →</button></section><details><summary>情報の出典・座標を確認</summary><div class="source-links"><p>緯度 ${t.lat} / 経度 ${t.lng}<br>公式公開地図と照合：${t.verifiedAt}<br>${esc(t.coordinateNote)}</p><a href="${esc(t.associationSourceUrl)}" target="_blank" rel="noopener noreferrer">霊場会の札所案内 ↗</a><br><a href="${esc(t.sourceUrl)}" target="_blank" rel="noopener noreferrer">日本遺産の札所案内 ↗</a>${t.addressSupplementSourceUrl?`<br><a href="${esc(t.addressSupplementSourceUrl)}" target="_blank" rel="noopener noreferrer">所在地の補足確認 ↗</a>`:''}${t.address!==t.heritageAddress?`<p>所在地は出典間に表記差があります。日本遺産掲載値：${esc(t.heritageAddress)}。採用理由は検証記録を参照してください。</p>`:''}</div></details>`);
+  $('#single-manual').onclick=()=>requireAuth(()=>manualDialog([id]));$('#gps-start').onclick=()=>requireAuth(()=>gpsDialog(t));$('#open-album').onclick=()=>requireAuth()&&photoUI.album(t);photoUI.cover(t);
+}
+function clusterDialog(ids){
+  openDialog('この周辺の札所',`<p class="small">近い位置にある${ids.length}つの札所です。開きたい札所を選んでください。</p><div class="cluster-list">${ids.map(id=>{const t=temples.find(t=>t.id===id);return `<button class="cluster-temple" data-cluster-temple="${id}"><span>${templeGlyph(id)}</span><div><small>第${id}番 · ${esc(t.prefecture)}</small><strong>${esc(t.name)}</strong></div><span>→</span></button>`;}).join('')}</div>`);
+  $$('[data-cluster-temple]').forEach(b=>b.onclick=()=>detailDialog(Number(b.dataset.clusterTemple)));
 }
 function manualDialog(selected=[]) {
   const choices=new Set(selected);
@@ -128,6 +137,8 @@ function gpsDialog(t){
 function voidDialog(id){const v=state.visits.find(v=>v.id===id),t=temples[v.templeId-1];openDialog('訪問記録を取り消す',`<p>${esc(t.name)} · ${esc(v.date||'訪問日不明')} の訪問を取り消します。</p><p class="small">この端末の記録から取り消します。直後に表示される「元に戻す」で復元できます。</p><div class="dialog-actions"><button class="quiet" id="cancel-void">戻る</button><button class="primary" id="confirm-void">この訪問を取り消す</button></div>`);$('#cancel-void').onclick=closeDialog;$('#confirm-void').onclick=async e=>{e.target.disabled=true;try{await api('visit/void',{id});closeDialog();await refresh();toast('訪問記録を取り消しました。',{label:'元に戻す',run:async()=>{try{await api('visit/undo',{id});await refresh();toast('記録を復元しました。');}catch(err){showError(err);}}});}catch(err){showError(err);e.target.disabled=false;}};}
 function newJourneyDialog(){openDialog('新しい巡礼をつくる',`<form id="journey-form" class="dialog-form"><label>巡礼の名前<input name="name" required maxlength="60" placeholder="例：自分の2周目"></label><p class="small">訪問記録・XP・達成率は巡礼ごとに分かれます。今の記録は残ります。</p><div class="actions"><button class="primary">作成する</button></div></form>`);$('#journey-form').onsubmit=async e=>{e.preventDefault();e.submitter.disabled=true;try{const r=await api('journeys',{name:new FormData(e.target).get('name')});journeyId=r.id;closeDialog();await refresh();setView('home');toast('新しい巡礼を作成しました。');}catch(err){showError(err);e.submitter.disabled=false;}};}
 async function exportBackup(onlyCurrent=false){if(!requireAuth())return;try{const data=await api('export');if(onlyCurrent){data.journeys=data.journeys.filter(j=>j.id===journeyId);data.visits=data.visits.filter(v=>v.journeyId===journeyId);}const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`ohenro-${onlyCurrent?'journey':'all'}-${japanDate()}.json`;link.click();await api('backup/exported',{});await refresh({silent:true});setTimeout(()=>URL.revokeObjectURL(url),1000);toast('バックアップを保存しました。保存先をご確認ください。');}catch(e){showError(e);}}
+$('#photos-export').onclick=()=>requireAuth(()=>photoUI.exportPhotos());
+$('#photos-import').onchange=e=>{const file=e.target.files[0];e.target.value='';if(file)requireAuth(()=>photoUI.importPhotos(file));};
 $('#export').onclick=()=>exportBackup();$('#export-current').onclick=()=>exportBackup(true);
 $('#import').onchange=async e=>{
   const file=e.target.files[0];e.target.value='';
@@ -158,9 +169,10 @@ function drawMap(done){if(!coast)return;const svg=$('#map');svg.setAttribute('vi
   let html='';for(const polygon of coast.geometry.coordinates){html+=`<path class="land" d="${polygon.map(ring=>ring.map((p,i)=>{const [x,y]=projection(p);return `${i?'L':'M'}${x.toFixed(2)},${y.toFixed(2)}`;}).join('')+'Z').join('')}"/>`;}
   html+='<text x="240" y="105" class="water-label">瀬戸内海</text><text x="470" y="385" class="water-label">太平洋</text>';
   for(const [name,coord] of [['徳島',[134.12,33.95]],['高知',[133.35,33.45]],['愛媛',[132.95,33.85]],['香川',[133.91,34.27]]]){const [x,y]=projection(coord);html+=`<text x="${x}" y="${y}" class="map-label">${name}</text>`;}
-  const markerRadius=mapBox[2]/800*8;
-  html+=mapTemples().map(t=>{const [x,y]=projection([t.lng,t.lat]);return `<g class="pin ${done.has(t.id)?'visited':''}" transform="translate(${x},${y})" font-size="${markerRadius*1.18}" tabindex="0" role="button" aria-label="第${t.id}番 ${esc(t.name)} ${done.has(t.id)?'訪問済み':'未訪問'}" data-map-temple="${t.id}"><title>第${t.id}番 ${esc(t.name)}</title><circle r="${markerRadius}" vector-effect="non-scaling-stroke"/><text y="0">${t.id}</text></g>`;}).join('');
-  svg.innerHTML=html;$$('[data-map-temple]').forEach(el=>{el.onclick=()=>detailDialog(Number(el.dataset.mapTemple));el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();detailDialog(Number(el.dataset.mapTemple));}};});
+  const markerScale=mapBox[2]/(svg.clientWidth||600);
+  const groups=groupNearby(mapTemples(),t=>projection([t.lng,t.lat]).map(v=>v/markerScale),48);
+  html+=groups.map(group=>{const t=group[0],multiple=group.length>1,[x,y]=projection([group.reduce((s,t)=>s+t.lng,0)/group.length,group.reduce((s,t)=>s+t.lat,0)/group.length]);return `<g class="pin temple-position ${group.every(t=>done.has(t.id))?'visited':''}" transform="translate(${x},${y}) scale(${markerScale})" tabindex="0" role="button" aria-label="${multiple?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+esc(t.name)}" ${multiple?`data-map-cluster="${group.map(t=>t.id).join(',')}"`:`data-map-temple="${t.id}"`}><g transform="translate(-22,-47)">${templeGlyph(multiple?group.length+'寺':t.id)}</g></g>`;}).join('');
+  svg.innerHTML=html;$$('[data-map-temple],[data-map-cluster]').forEach(el=>{const activate=()=>el.dataset.mapCluster?clusterDialog(el.dataset.mapCluster.split(',').map(Number)):detailDialog(Number(el.dataset.mapTemple));el.onclick=activate;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};});
 }
 function mapTemples(){return temples.filter(t=>!mapPref||t.prefecture===mapPref);}
 function fitMapCounty(){mapBox=mapPref?fittedMapBox(mapTemples().map(t=>projection([t.lng,t.lat]))):[0,0,800,480];}
@@ -178,7 +190,7 @@ function redrawMap(){const done=new Set(currentVisits().map(v=>v.templeId));draw
 function zoom(factor){const width=Math.max(100,Math.min(1000,mapBox[2]*factor));const ratio=width/mapBox[2];mapBox=[mapBox[0]+(mapBox[2]-width)/2,mapBox[1]+(mapBox[3]-mapBox[3]*ratio)/2,width,mapBox[3]*ratio];redrawMap();}
 $('#map-in').onclick=()=>zoom(.65);$('#map-out').onclick=()=>zoom(1/.65);$('#map-reset').onclick=()=>{fitMapCounty();redrawMap();};
 let drag=null;
-$('#map').addEventListener('pointerdown',e=>{if(e.target.closest('[data-map-temple]'))return;drag={x:e.clientX,y:e.clientY,box:[...mapBox]};$('#map').setPointerCapture(e.pointerId);});
+$('#map').addEventListener('pointerdown',e=>{if(e.target.closest('[data-map-temple],[data-map-cluster]'))return;drag={x:e.clientX,y:e.clientY,box:[...mapBox]};$('#map').setPointerCapture(e.pointerId);});
 $('#map').addEventListener('pointermove',e=>{if(!drag)return;const rect=$('#map').getBoundingClientRect(),scale=Math.min(rect.width/drag.box[2],rect.height/drag.box[3]);mapBox=[drag.box[0]-(e.clientX-drag.x)/scale,drag.box[1]-(e.clientY-drag.y)/scale,...drag.box.slice(2)];$('#map').setAttribute('viewBox',mapBox.join(' '));});
 $('#map').addEventListener('pointerup',()=>{drag=null;});$('#map').addEventListener('pointercancel',()=>{drag=null;});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('#install').hidden=false;});$('#install').onclick=async()=>{if(!installPrompt)return;await installPrompt.prompt();installPrompt=null;$('#install').hidden=true;};
