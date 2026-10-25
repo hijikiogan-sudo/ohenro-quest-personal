@@ -1,0 +1,190 @@
+{
+ "format": "ohenro-quest-car",
+ "version": 1,
+ "checkedAt": "2026-10-25",
+ "note": "四国八十八ヶ所霊場会の札所案内に記載された車・駐車場の情報のみ。料金・閉鎖期間・台数は変わることがあるため、出発前に公式案内で確認すること。駐車場の座標は出典で確認できたものだけをparkingPointsに入れる（現時点では0件）。",
+ "temples": [
+  {
+   "id": 12,
+   "name": "焼山寺",
+   "parking": "各車種あわせ70〜80台",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/12shozanji",
+     "checkedAt": "2026-10-25"
+    }
+   ]
+  },
+  {
+   "id": 20,
+   "name": "鶴林寺",
+   "parking": "あり（志納金制）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/20kakurinji",
+     "checkedAt": "2026-10-25"
+    }
+   ]
+  },
+  {
+   "id": 21,
+   "name": "太龍寺",
+   "parking": "太龍寺ロープウェイ駐車場：普通車150台、マイクロバス・大型バス各10台、終日無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": "ロープウェイで山上へ（全長2,775m、101人乗り、所要約10分）。車の到着地点はロープウェイ乗り場",
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/tokushima/21tairyuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ]
+  },
+  {
+   "id": 27,
+   "name": "神峯寺",
+   "parking": "普通車30台（有料）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/27kounomineji",
+     "checkedAt": "2026-10-25"
+    }
+   ]
+  },
+  {
+   "id": 45,
+   "name": "岩屋寺",
+   "parking": "あり（有料）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/45iwayaji",
+     "checkedAt": "2026-10-25"
+    }
+   ]
+  },
+  {
+   "id": 60,
+   "name": "横峰寺",
+   "parking": "林道の駐車場あり",
+   "walkToHondoMeters": 500,
+   "vehicleLimits": [
+    "大型バスは通行できない"
+   ],
+   "roadNotes": [],
+   "seasonalClosure": "冬期は12月下旬から2月いっぱい林道が不通",
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/ehime/60yokomineji/",
+     "checkedAt": "2026-10-25"
+    }
+   ]
+  },
+  {
+   "id": 66,
+   "name": "雲辺寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": "麓の雲辺寺ロープウェイ乗り場から山頂駅へ。車の到着地点はロープウェイ乗り場",
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/66unpenji",
+     "checkedAt": "2026-10-25"
+    }
+   ]
+  },
+  {
+   "id": 81,
+   "name": "白峯寺",
+   "parking": "約200台（無料）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/81shiromineji",
+     "checkedAt": "2026-10-25"
+    }
+   ]
+  },
+  {
+   "id": 82,
+   "name": "根香寺",
+   "parking": "あり（無料）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/82negoroji",
+     "checkedAt": "2026-10-25"
+    }
+   ]
+  },
+  {
+   "id": 88,
+   "name": "大窪寺",
+   "parking": "あり（無料）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/88ookuboji",
+     "checkedAt": "2026-10-25"
+    }
+   ]
+  }
+ ]
+}

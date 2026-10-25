@@ -1,5 +1,7 @@
 export const GPS_RADIUS = 300;
 export const GPS_MAX_ACCURACY = 100;
+// 駐車場地点を基準にしたGPS近接判定：誤差を含めて150m以内。
+export const PARKING_RADIUS = 150;
 export function japanDate(now = Date.now()) {
   return new Date(now + 9 * 3600000).toISOString().slice(0, 10);
 }
@@ -14,7 +16,7 @@ export function distanceMeters(a, b) {
   const h = Math.sin(dLat/2)**2 + Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLng/2)**2;
   return 6371000 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(Math.max(0,1-h)));
 }
-export function assessGPS(position, temple, now = Date.now()) {
+export function assessGPS(position, temple, now = Date.now(), parking = null) {
   if (!position || !Number.isFinite(position.lat) || !Number.isFinite(position.lng) ||
       position.lat < -90 || position.lat > 90 || position.lng < -180 || position.lng > 180 ||
       !Number.isFinite(position.accuracy) || position.accuracy < 0 || !Number.isFinite(position.timestamp)) {
@@ -23,8 +25,13 @@ export function assessGPS(position, temple, now = Date.now()) {
   if (Math.abs(now - position.timestamp) > 60000) return {ok:false, message:'位置情報が古いため、再測位してください。'};
   if (position.accuracy > GPS_MAX_ACCURACY) return {ok:false, message:'測位誤差が100mを超えています。空が見える場所で再測位するか、手動登録してください。'};
   const distance = distanceMeters(position, temple);
-  if (distance + position.accuracy > GPS_RADIUS) return {ok:false, message:'誤差を含めて札所から300m以内と確認できません。近づいて再測位するか、手動登録してください。'};
-  return {ok:true, distance:Math.round(distance), accuracy:Math.round(position.accuracy), trust:'gps-self-reported'};
+  if (distance + position.accuracy <= GPS_RADIUS) return {ok:true, distance:Math.round(distance), accuracy:Math.round(position.accuracy), trust:'gps-self-reported', near:'temple'};
+  if (parking && Number.isFinite(parking.lat) && Number.isFinite(parking.lng)) {
+    const fromParking = distanceMeters(position, parking);
+    if (fromParking + position.accuracy <= PARKING_RADIUS) return {ok:true, distance:Math.round(distance), parkingDistance:Math.round(fromParking), accuracy:Math.round(position.accuracy), trust:'gps-self-reported', near:'parking'};
+    return {ok:false, message:`誤差を含めて札所から${GPS_RADIUS}m以内、または駐車場から${PARKING_RADIUS}m以内と確認できません。近づいて再測位するか、手動登録してください。`};
+  }
+  return {ok:false, message:'誤差を含めて札所から300m以内と確認できません。近づいて再測位するか、手動登録してください。'};
 }
 export function progress(temples, visits) {
   const unique = new Set(visits.map(v=>v.templeId));
@@ -41,9 +48,9 @@ export function progress(temples, visits) {
   return {count, xp, level:1+Math.floor(xp/500), percent:Math.round(count/88*100), badges,
     title: count===88 ? '結願の旅人' : count>=40 ? '巡礼の達人' : count>=10 ? '巡礼の旅人' : 'はじまりの旅人'};
 }
-export function routeUrl(temple, provider='google') {
-  const destination = `${temple.name} ${temple.address}`;
-  // 本堂の座標を駐車場入口と誤認させないよう名称と住所で地図アプリに渡す。
+export function routeUrl(temple, provider='google', parking=null) {
+  // 駐車場の座標が分かる札所は駐車場へ案内する。分からない札所は、本堂の座標を駐車場入口と誤認させないよう名称と住所で地図アプリに渡す。
+  const destination = parking && Number.isFinite(parking.lat) && Number.isFinite(parking.lng) ? `${parking.lat.toFixed(6)},${parking.lng.toFixed(6)}` : `${temple.name} ${temple.address}`;
   if (provider === 'apple') return `https://maps.apple.com/?${new URLSearchParams({daddr:destination,dirflg:'d'})}`;
   return `https://www.google.com/maps/dir/?${new URLSearchParams({api:'1',destination,travelmode:'driving'})}`;
 }
