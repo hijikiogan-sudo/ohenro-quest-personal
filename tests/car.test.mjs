@@ -118,7 +118,7 @@ test('行き先予定：駐車場がある札所だけ座標を経由地にす�
 test('駐車場地点のJSON：書き出し→読み込みが往復し、不正値は拒否', () => {
   const points = [validateUserParking({templeId: 60, lat: 33.84, lng: 133.11, accuracy: 9.6, savedAt: NOW})];
   const back = readParkingsJSON(exportParkings(points));
-  assert.deepEqual(back, points);
+  assert.deepEqual(back.points, points);
   assert.throws(() => readParkingsJSON('{"format":"ohenro-quest-parkings","version":1,"points":[{"templeId":60,"lat":10,"lng":133,"accuracy":5,"savedAt":1}]}'));
   assert.throws(() => readParkingsJSON(JSON.stringify({format: 'ohenro-quest-parkings', version: 1, points: [...points, ...points]})));
   assert.throws(() => readParkingsJSON('not json'));
@@ -127,4 +127,64 @@ test('駐車場地点のJSON：書き出し→読み込みが往復し、不正�
 test('距離計算の確認：北へ500mはほぼ500m', () => {
   const d = distanceMeters(yokomine, north(yokomine, 500));
   assert.ok(Math.abs(d - 500) < 2);
+});
+
+// ---- STEP 2 ----
+import {closureHit, vehicleBlocked, carFlags, hasWarn, planWarnings, validateRating, RATINGS} from '../car-domain.mjs';
+
+test('冬期閉鎖：年をまたぐ期間を判定（横峰寺 12-21〜02-29）', () => {
+  const c = carInfoFor(car, 60).closure;
+  for (const d of ['2026-12-21', '2026-12-31', '2027-01-15', '2027-02-28', '2028-02-29']) assert.equal(closureHit(c, d), true, d);
+  for (const d of ['2026-12-20', '2027-03-01', '2026-11-03', '2026-08-01']) assert.equal(closureHit(c, d), false, d);
+  assert.equal(closureHit(c, ''), false);
+  assert.equal(closureHit({from: '04-01', to: '04-30', approximate: false}, '2026-04-15'), true);
+});
+
+test('車のサイズ：横峰寺は大型バスのみ不可', () => {
+  const y = carInfoFor(car, 60);
+  assert.equal(vehicleBlocked(y, 'bus'), true);
+  assert.equal(vehicleBlocked(y, 'standard'), false);
+  assert.equal(vehicleBlocked(null, 'bus'), false);
+});
+
+test('一覧のラベル：公式情報と自分の評価から作る', () => {
+  const y = carFlags(carInfoFor(car, 60));
+  assert.deepEqual(y.map(f => f.key), ['closure', 'limits', 'walk']);
+  assert.equal(hasWarn(y), true);
+  assert.ok(carFlags(carInfoFor(car, 60), {vehicle: 'bus'}).some(f => f.key === 'vehicle'));
+  assert.ok(carFlags(carInfoFor(car, 21)).some(f => f.key === 'ropeway' && f.level === 'warn'));
+  assert.equal(carFlags(null).length, 0);
+  assert.equal(hasWarn(carFlags(null, {rating: 1})), false);
+  assert.equal(hasWarn(carFlags(null, {rating: 2})), true);
+  assert.equal(hasWarn(carFlags(carInfoFor(car, 81))), false);
+});
+
+test('行き先予定の注意：日付・車・ロープウェイ・自分の評価・費用', () => {
+  const stops = [{templeId: 60, minutes: 30}, {templeId: 21, minutes: 60}, {templeId: 1, minutes: 30}, {templeId: 27, minutes: 30}];
+  const noDate = planWarnings({stops, carData: car, temples});
+  assert.equal(noDate.needsDate, true);
+  const winter = planWarnings({stops, date: '2027-01-10', carData: car, temples, vehicle: 'bus', ratings: new Map([[1, 3]])});
+  assert.equal(winter.needsDate, false);
+  const y = winter.items.find(i => i.templeId === 60);
+  assert.ok(y.messages.some(m => /通行止めの期間に当たる可能性/.test(m.text)));
+  assert.ok(y.messages.some(m => /設定中の車（大型バス）は通行できない/.test(m.text)));
+  assert.ok(winter.items.find(i => i.templeId === 21).messages.some(m => /ロープウェイ/.test(m.text)));
+  assert.ok(winter.items.find(i => i.templeId === 1).messages.some(m => /難所/.test(m.text)));
+  assert.ok(winter.costs.some(c => c.startsWith('第27番')));
+  const summer = planWarnings({stops: [{templeId: 60, minutes: 30}], date: '2027-07-10', carData: car, temples});
+  assert.equal(summer.items[0].messages.some(m => /通行止め/.test(m.text)), false);
+  assert.equal(summer.warnCount, 0);
+  assert.equal(planWarnings({stops: [{templeId: 1, minutes: 30}], carData: car, temples}).items.length, 0);
+});
+
+test('自分の評価は0〜3のみ、バックアップv2に含まれ、v1も読める', () => {
+  assert.equal(RATINGS.length, 4);
+  assert.throws(() => validateRating({templeId: 1, level: 4, savedAt: NOW}));
+  assert.throws(() => validateRating({templeId: 0, level: 1, savedAt: NOW}));
+  const points = [validateUserParking({templeId: 60, lat: 33.84, lng: 133.11, accuracy: 9, savedAt: NOW})];
+  const rs = [validateRating({templeId: 12, level: 2, savedAt: NOW})];
+  const back = readParkingsJSON(exportParkings(points, rs));
+  assert.deepEqual(back, {points, ratings: rs});
+  const v1 = JSON.stringify({format: 'ohenro-quest-parkings', version: 1, points});
+  assert.deepEqual(readParkingsJSON(v1), {points, ratings: []});
 });

@@ -2,7 +2,7 @@
  "format": "ohenro-quest-car",
  "version": 1,
  "checkedAt": "2026-10-25",
- "note": "四国八十八ヶ所霊場会の札所案内に記載された車・駐車場の情報のみ。料金・閉鎖期間・台数は変わることがあるため、出発前に公式案内で確認すること。駐車場の座標は出典で確認できたものだけをparkingPointsに入れる（現時点では0件）。",
+ "note": "四国八十八ヶ所霊場会の札所案内に記載された車・駐車場の情報のみ。料金・閉鎖期間・台数は変わることがあるため、出発前に公式案内で確認すること。駐車場の座標は出典で確認できたものだけをparkingPointsに入れる（現時点では0件）。 closureの期間は霊場会の「12月下旬から2月いっぱい」を12-21〜02-29として扱い、approximate=trueで「可能性」と表示する。",
  "temples": [
   {
    "id": 12,
@@ -20,7 +20,10 @@
      "url": "https://88shikokuhenro.jp/12shozanji",
      "checkedAt": "2026-10-25"
     }
-   ]
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
   },
   {
    "id": 20,
@@ -38,6 +41,11 @@
      "url": "https://88shikokuhenro.jp/20kakurinji",
      "checkedAt": "2026-10-25"
     }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（志納金制）"
    ]
   },
   {
@@ -56,6 +64,11 @@
      "url": "https://88shikokuhenro.jp/tokushima/21tairyuji/",
      "checkedAt": "2026-10-25"
     }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "ロープウェイの運賃（金額は公式案内で確認）"
    ]
   },
   {
@@ -74,6 +87,11 @@
      "url": "https://88shikokuhenro.jp/27kounomineji",
      "checkedAt": "2026-10-25"
     }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（有料・金額は霊場会の案内に記載なし）"
    ]
   },
   {
@@ -92,6 +110,11 @@
      "url": "https://88shikokuhenro.jp/45iwayaji",
      "checkedAt": "2026-10-25"
     }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（有料・金額は霊場会の案内に記載なし）"
    ]
   },
   {
@@ -112,7 +135,16 @@
      "url": "https://88shikokuhenro.jp/ehime/60yokomineji/",
      "checkedAt": "2026-10-25"
     }
-   ]
+   ],
+   "closure": {
+    "from": "12-21",
+    "to": "02-29",
+    "approximate": true
+   },
+   "blockedVehicles": [
+    "bus"
+   ],
+   "costs": []
   },
   {
    "id": 66,
@@ -130,6 +162,11 @@
      "url": "https://88shikokuhenro.jp/66unpenji",
      "checkedAt": "2026-10-25"
     }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "ロープウェイの運賃（金額は公式案内で確認）"
    ]
   },
   {
@@ -148,7 +185,10 @@
      "url": "https://88shikokuhenro.jp/81shiromineji",
      "checkedAt": "2026-10-25"
     }
-   ]
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
   },
   {
    "id": 82,
@@ -166,7 +206,10 @@
      "url": "https://88shikokuhenro.jp/82negoroji",
      "checkedAt": "2026-10-25"
     }
-   ]
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
   },
   {
    "id": 88,
@@ -184,7 +227,10 @@
      "url": "https://88shikokuhenro.jp/88ookuboji",
      "checkedAt": "2026-10-25"
     }
-   ]
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
   }
  ]
 }

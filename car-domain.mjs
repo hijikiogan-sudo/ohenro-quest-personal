@@ -21,6 +21,9 @@ export function validateCarData(data) {
     if (t.walkToHondoMeters !== null && !(Number.isInteger(t.walkToHondoMeters) && t.walkToHondoMeters > 0 && t.walkToHondoMeters < 10000)) fail(`第${t.id}番の徒歩距離を確認できません。`);
     for (const key of ['vehicleLimits', 'roadNotes']) if (!Array.isArray(t[key]) || t[key].some(v => !str(v, 300))) fail(`第${t.id}番の車情報（${key}）を確認できません。`);
     if (!Array.isArray(t.parkingPoints) || t.parkingPoints.some(p => !p || !str(p.label, 80) || !latOK(p.lat) || !lngOK(p.lng) || !str(p.sourceUrl, 300))) fail(`第${t.id}番の駐車場座標を確認できません。`);
+    validateClosure(t.closure ?? null);
+    if (t.blockedVehicles !== undefined && (!Array.isArray(t.blockedVehicles) || t.blockedVehicles.some(v => !['kei', 'standard', 'large', 'micro', 'bus'].includes(v)))) fail(`第${t.id}番の通行できない車種を確認できません。`);
+    if (t.costs !== undefined && (!Array.isArray(t.costs) || t.costs.some(v => !str(v, 120)))) fail(`第${t.id}番の費用の情報を確認できません。`);
     if (!Array.isArray(t.sources) || !t.sources.length || t.sources.some(s => !s || !str(s.label, 120) || !/^https:\/\//.test(s.url) || !dateOK(s.checkedAt))) fail(`第${t.id}番の出典を確認できません。`);
   }
   return data;
@@ -64,15 +67,101 @@ export function parkingQuery(parking) {
   return `${parking.lat.toFixed(6)},${parking.lng.toFixed(6)}`;
 }
 
-export function exportParkings(points) {
-  return JSON.stringify({format: 'ohenro-quest-parkings', version: 1, exportedAt: new Date().toISOString(), points: points.map(validateUserParking)}, null, 2);
+export function exportParkings(points, ratings = []) {
+  return JSON.stringify({format: 'ohenro-quest-parkings', version: 2, exportedAt: new Date().toISOString(), points: points.map(validateUserParking), ratings: ratings.map(validateRating)}, null, 2);
 }
 
 export function readParkingsJSON(value) {
   if (typeof value !== 'string' || value.length > 256 * 1024) fail('駐車場地点のJSONは256KB以内にしてください。');
   let data; try { data = JSON.parse(value); } catch { fail('JSONファイルを読み込めません。'); }
-  if (data?.format !== 'ohenro-quest-parkings' || data.version !== 1 || !Array.isArray(data.points) || data.points.length > 88) fail('対応する駐車場地点のバックアップではありません。');
+  if (data?.format !== 'ohenro-quest-parkings' || ![1, 2].includes(data.version) || !Array.isArray(data.points) || data.points.length > 88 || (data.version === 2 && (!Array.isArray(data.ratings) || data.ratings.length > 88))) fail('対応する駐車場地点のバックアップではありません。');
   const points = data.points.map(validateUserParking);
   if (new Set(points.map(p => p.templeId)).size !== points.length) fail('同じ札所の駐車場地点が重複しています。');
-  return points;
+  const ratings = data.version === 2 ? data.ratings.map(validateRating) : [];
+  if (new Set(ratings.map(r => r.templeId)).size !== ratings.length) fail('同じ札所の評価が重複しています。');
+  return {points, ratings};
+}
+
+// ---- STEP 2：注意表示・季節・車のサイズ・自分の評価 ----
+
+export const VEHICLES = [
+  {id: 'kei', label: '軽自動車'},
+  {id: 'standard', label: '普通車'},
+  {id: 'large', label: 'ミニバン・大きめの乗用車'},
+  {id: 'micro', label: 'マイクロバス'},
+  {id: 'bus', label: '大型バス'},
+];
+export const vehicleLabel = id => VEHICLES.find(v => v.id === id)?.label || '普通車';
+
+// 自分の評価（現地で走ってみた感覚）。公式の格付けではない。
+export const RATINGS = [
+  {level: 0, label: 'ふつう', note: '離合や駐車に困らなかった'},
+  {level: 1, label: 'やや注意', note: '一部すれ違いに気を使う・急坂・駐車場が混む'},
+  {level: 2, label: '注意', note: '離合が難しい区間が続く・駐車場から長い登り'},
+  {level: 3, label: '難所', note: '運転に慣れていないと厳しい・事前確認が必須'},
+];
+export const ratingLabel = level => RATINGS.find(r => r.level === level)?.label || '';
+
+export function validateRating(r) {
+  if (!r || !Number.isInteger(r.templeId) || r.templeId < 1 || r.templeId > 88 || !Number.isInteger(r.level) || r.level < 0 || r.level > 3 || !Number.isFinite(r.savedAt)) fail('自分の評価を確認できません。');
+  return {templeId: r.templeId, level: r.level, savedAt: r.savedAt};
+}
+
+const mmdd = v => typeof v === 'string' && /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(v);
+export function validateClosure(c) {
+  if (c === null) return null;
+  if (!c || !mmdd(c.from) || !mmdd(c.to) || typeof c.approximate !== 'boolean') fail('季節の通行止めの期間を確認できません。');
+  return c;
+}
+
+// date（YYYY-MM-DD）が閉鎖期間に入るか。年をまたぐ期間（12月〜2月など）に対応。
+export function closureHit(closure, date) {
+  if (!closure || typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const d = date.slice(5);
+  return closure.from <= closure.to ? (d >= closure.from && d <= closure.to) : (d >= closure.from || d <= closure.to);
+}
+
+export function vehicleBlocked(info, vehicleId) {
+  return !!info && Array.isArray(info.blockedVehicles) && info.blockedVehicles.includes(vehicleId);
+}
+
+// 一覧・地図・予定に出す短いラベル。level: warn は事前確認が必要、info は知っておくと便利。
+export function carFlags(info, {rating = null, vehicle = 'standard'} = {}) {
+  const flags = [];
+  if (rating !== null && rating !== undefined) flags.push({key: 'rating', label: `自分の評価：${ratingLabel(rating)}`, level: rating >= 2 ? 'warn' : 'info'});
+  if (!info) return flags;
+  if (info.closure || info.seasonalClosure) flags.push({key: 'closure', label: '冬期通行止めあり', level: 'warn'});
+  if (vehicleBlocked(info, vehicle)) flags.push({key: 'vehicle', label: `${vehicleLabel(vehicle)}は通行不可`, level: 'warn'});
+  else if (info.vehicleLimits?.length) flags.push({key: 'limits', label: '車両の制限あり', level: 'info'});
+  if (info.ropeway) flags.push({key: 'ropeway', label: 'ロープウェイ', level: 'warn'});
+  if (info.walkToHondoMeters >= 300) flags.push({key: 'walk', label: `駐車場から約${info.walkToHondoMeters}m`, level: 'info'});
+  if (info.costs?.length) flags.push({key: 'cost', label: '費用がかかる', level: 'info'});
+  return flags;
+}
+
+export const hasWarn = flags => flags.some(f => f.level === 'warn');
+
+// 行き先予定の注意。date は出発予定日（YYYY-MM-DD、未設定なら空文字）。
+export function planWarnings({stops, date = '', carData, ratings = new Map(), vehicle = 'standard', temples = []}) {
+  const name = id => { const t = temples.find(t => t.id === id); return `第${id}番 ${t?.name || ''}`; };
+  const items = [];
+  let needsDate = false;
+  const costs = [];
+  for (const s of stops) {
+    const info = carInfoFor(carData, s.templeId), messages = [];
+    if (info) {
+      if (info.closure) {
+        if (!date) needsDate = true;
+        else if (closureHit(info.closure, date)) messages.push({level: 'warn', text: `出発予定日（${date}）は通行止めの期間に当たる${info.closure.approximate ? '可能性があります' : 'ため、車で近づけません'}。${info.seasonalClosure || ''}`});
+      }
+      if (vehicleBlocked(info, vehicle)) messages.push({level: 'warn', text: `設定中の車（${vehicleLabel(vehicle)}）は通行できないと案内されています。`});
+      if (info.ropeway) messages.push({level: 'warn', text: `車はロープウェイ乗り場まで。運行時間・運休日を公式案内で確認し、乗車と山上での参拝に時間の余裕を。`});
+      if (info.walkToHondoMeters >= 300) messages.push({level: 'info', text: `駐車場から本堂まで約${info.walkToHondoMeters}m歩きます。参拝時間に含めてください。`});
+      if (info.costs?.length) costs.push(...info.costs.map(c => `${name(s.templeId)}：${c}`));
+    }
+    const r = ratings.get(s.templeId);
+    if (r !== undefined && r >= 2) messages.push({level: 'warn', text: `自分の評価は「${ratingLabel(r)}」です。時間と体力に余裕のある順番に。`});
+    if (messages.length) items.push({templeId: s.templeId, name: name(s.templeId), messages});
+  }
+  return {items, needsDate, costs, warnCount: items.reduce((n, i) => n + i.messages.filter(m => m.level === 'warn').length, 0)};
 }

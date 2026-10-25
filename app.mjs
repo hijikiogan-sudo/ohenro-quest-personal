@@ -12,18 +12,21 @@ import {questTerrain,questTempleGlyph} from './quest-map.mjs';
 import {progress, routeUrl, japanDate, assessGPS} from './domain.mjs';
 import {createPersonalStore} from './personal-store.mjs';
 import {createParkingStore} from './parking-store.mjs';
-import {createCarUI} from './car-ui.mjs';
-import {validateCarData, createParkingResolver} from './car-domain.mjs';
+import {createCarUI, chipsHTML} from './car-ui.mjs';
+import {validateCarData, createParkingResolver, planWarnings, hasWarn, VEHICLES} from './car-domain.mjs';
 
 const $ = selector=>document.querySelector(selector);
 const $$ = selector=>[...document.querySelectorAll(selector)];
 const esc = value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizeTerm=value=>value.normalize('NFKC').toLocaleLowerCase().replace(/[國寶佛圓瀧釋峯]/g,c=>({'國':'国','寶':'宝','佛':'仏','圓':'円','瀧':'滝','釋':'釈','峯':'峰'}[c]));
-let carData=null,parkingPoints=[],parkingFor=()=>null;
+let carData=null,parkingPoints=[],parkingFor=()=>null,ratingRows=[],ratings=new Map();
+const vehicleKey='ohenro-vehicle:'+new URL('.',import.meta.url).pathname;
+function getVehicle(){try{const v=localStorage.getItem(vehicleKey);return VEHICLES.some(x=>x.id===v)?v:'standard';}catch{return 'standard';}}
+function setVehicle(v){try{localStorage.setItem(vehicleKey,v);}catch{}if(view==='temples')renderTemples();}
 let temples=[],coast=null,state=null,journeyId='',view='home',initialized=false,connected=false;
 const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,temples:()=>temples,parkingFor:id=>parkingFor(id)});
 const parkingStore=createParkingStore({scope:new URL('.',import.meta.url).pathname});
-async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}parkingFor=createParkingResolver(carData,parkingPoints);}
+async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints);if(initialized&&view==='temples')renderTemples();}
 let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
 let mapPref='',positionStyle='quest',questBackground='';
 attachTheme({scope:new URL('.',import.meta.url).pathname});
@@ -32,15 +35,24 @@ let dialogEpoch=0;
 const photos=createPhotoStore({scope:new URL('.',import.meta.url).pathname});
 const photoUI=createPhotoUI({store:photos,getJourney:()=>currentJourney(),getJourneys:()=>state?.journeys||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast});
 const plans=createPlanStore({scope:new URL('.',import.meta.url).pathname});
-const planUI=createPlanUI({store:plans,getJourney:()=>currentJourney(),getTemples:()=>temples,getVisits:()=>currentVisits(),toast,onStart:plan=>todayUI.startDialog(plan),getParking:id=>parkingFor(id)});
+const planUI=createPlanUI({store:plans,getJourney:()=>currentJourney(),getTemples:()=>temples,getVisits:()=>currentVisits(),toast,onStart:plan=>todayUI.startDialog(plan),getParking:id=>parkingFor(id),carChips:id=>chipsHTML(carUI.flagsFor(id)),carWarnings:plan=>planWarningsHTML(plan)});
 const prayerUI=createPrayerUI({document,openDialog,getEpoch:()=>dialogEpoch,backToTemple:id=>detailDialog(id)});
 const todayStore=createTodayStore({scope:new URL('.',import.meta.url).pathname});
-const todayUI=createTodayUI({document,store:todayStore,plans,getJourney:()=>currentJourney(),getVisits:()=>state?.visits||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onPlans:()=>setView('plan'),onStarted:()=>setView('home'),onPrayer:t=>requireAuth(()=>prayerUI.open(t)),onPhotos:t=>requireAuth(()=>photoUI.album(t)),onGPS:t=>requireAuth(()=>gpsDialog(t)),onManual:t=>requireAuth(()=>manualDialog([t.id])),getParking:id=>parkingFor(id)});
-const carUI=createCarUI({document,store:parkingStore,getCarData:()=>carData,getParkings:()=>parkingPoints,getParkingFor:id=>parkingFor(id),openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onChanged:async()=>{await reloadParkings();if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));},backToTemple:id=>detailDialog(id),japanDate});
+const todayUI=createTodayUI({document,store:todayStore,plans,getJourney:()=>currentJourney(),getVisits:()=>state?.visits||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onPlans:()=>setView('plan'),onStarted:()=>setView('home'),onPrayer:t=>requireAuth(()=>prayerUI.open(t)),onPhotos:t=>requireAuth(()=>photoUI.album(t)),onGPS:t=>requireAuth(()=>gpsDialog(t)),onManual:t=>requireAuth(()=>manualDialog([t.id])),getParking:id=>parkingFor(id),carNotes:t=>todayNotesHTML(t)});
+const carUI=createCarUI({document,store:parkingStore,getCarData:()=>carData,getParkings:()=>parkingPoints,getParkingFor:id=>parkingFor(id),getRatings:()=>ratings,getRatingRows:()=>ratingRows,getVehicle,setVehicle,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onChanged:async()=>{await reloadParkings();if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));},backToTemple:id=>detailDialog(id),japanDate});
 function toast(message,action) {
   clearTimeout(toastTimer);const el=$('#toast');el.replaceChildren(document.createTextNode(message));
   if(action) {const b=document.createElement('button');b.textContent=action.label;b.onclick=action.run;el.append(b);}
   el.hidden=false;toastTimer=setTimeout(()=>{el.hidden=true;},action?15000:5500);
+}
+function planWarningsHTML(plan){
+  const w=planWarnings({stops:plan.stops,date:(plan.departAt||'').slice(0,10),carData,ratings,vehicle:getVehicle(),temples});
+  if(!w.items.length&&!w.needsDate&&!w.costs.length)return plan.stops.length?'<p class="tiny">確認できている車の注意はありません。情報がない札所は、霊場会の案内で駐車場をご確認ください。</p>':'';
+  return `${w.needsDate?'<p class="car-plan-msg warn">冬期に通行止めになる札所が含まれます。出発予定日を入れると、期間に当たるか確認できます。</p>':''}${w.items.map(i=>`<div class="car-plan-item"><strong>${esc(i.name)}</strong>${i.messages.map(m=>`<p class="car-plan-msg ${m.level}">${esc(m.text)}</p>`).join('')}</div>`).join('')}${w.costs.length?`<div class="car-plan-item"><strong>費用がかかる札所</strong>${w.costs.map(c=>`<p class="car-plan-msg info">${esc(c)}</p>`).join('')}<p class="tiny">金額が公式案内で確認できない項目は含めていないため、合計は出していません。</p></div>`:''}<p class="tiny">判定は出発予定日と、霊場会の案内・自分の評価に基づきます。乗っていく車は設定で変更できます（いま：${esc(VEHICLES.find(v=>v.id===getVehicle()).label)}）。</p>`;
+}
+function todayNotesHTML(t){
+  const w=planWarnings({stops:[{templeId:t.id,minutes:0}],date:japanDate(),carData,ratings,vehicle:getVehicle(),temples});
+  return `${chipsHTML(carUI.flagsFor(t.id))}${w.items.flatMap(i=>i.messages).filter(m=>m.level==='warn').map(m=>`<p class="car-plan-msg warn">${esc(m.text)}</p>`).join('')}`;
 }
 function showError(e) {const el=$('#dialog-error');if($('#dialog').open){el.textContent=e.message;el.hidden=false;}else toast(e.message);}
 async function api(route,data){return personal.call(route,data);}
@@ -91,13 +103,15 @@ function render(){
 }
 function renderTemples(){
   const done=new Set(currentVisits().map(v=>v.templeId)),term=normalizeTerm($('#search').value.trim()),pref=$('#pref-filter').value,status=state?$('#status-filter').value:'';
-  const rows=temples.filter(t=>(!term||normalizeTerm(`${t.id} ${t.name} ${t.kana} ${t.address}`).includes(term))&&(!pref||t.prefecture===pref)&&(!status||(status==='visited'?done.has(t.id):!done.has(t.id))));
+  const carFilter=$('#car-filter')?.value||'',flags=new Map(temples.map(t=>[t.id,carUI.flagsFor(t.id)]));
+  const carOK=t=>{const f=flags.get(t.id);return !carFilter||(carFilter==='warn'?hasWarn(f):carFilter==='clear'?!hasWarn(f):carFilter==='rated'?(ratings.get(t.id)??-1)>=2:true);};
+  const rows=temples.filter(t=>(!term||normalizeTerm(`${t.id} ${t.name} ${t.kana} ${t.address}`).includes(term))&&(!pref||t.prefecture===pref)&&(!status||(status==='visited'?done.has(t.id):!done.has(t.id)))&&carOK(t));
   $('#result-count').textContent=`${rows.length} 件の札所${!state?' · 保存領域を確認してください':''}`;
   $('#status-filter').disabled=!state;
-  $('#temple-list').innerHTML=rows.length?rows.map(t=>`<button class="temple-card" data-temple="${t.id}"><span class="temple-number">${t.id.toString().padStart(2,'0')}</span>${done.has(t.id)?'<span class="status-tag">✓ 訪問済み</span>':''}<small>${esc(t.prefecture)} · 第${t.id}番</small><h2>${esc(t.name)}</h2><p>${esc(t.address)}</p></button>`).join(''):'<div class="empty">該当する札所がありません。検索条件を変えてください。</div>';
+  $('#temple-list').innerHTML=rows.length?rows.map(t=>`<button class="temple-card" data-temple="${t.id}"><span class="temple-number">${t.id.toString().padStart(2,'0')}</span>${done.has(t.id)?'<span class="status-tag">✓ 訪問済み</span>':''}<small>${esc(t.prefecture)} · 第${t.id}番</small><h2>${esc(t.name)}</h2><p>${esc(t.address)}</p>${chipsHTML(flags.get(t.id))}</button>`).join(''):'<div class="empty">該当する札所がありません。検索条件を変えてください。</div>';
   $$('#temple-list [data-temple]').forEach(el=>el.onclick=()=>detailDialog(Number(el.dataset.temple)));
 }
-$('#search').oninput=renderTemples;$('#pref-filter').onchange=renderTemples;$('#status-filter').onchange=renderTemples;
+$('#search').oninput=renderTemples;$('#pref-filter').onchange=renderTemples;$('#car-filter').onchange=renderTemples;$('#status-filter').onchange=renderTemples;
 function renderHistory(){
   const visits=currentVisits();$('#history-count').textContent=`${currentJourney()?.name||'巡礼の記録'} · ${visits.length}件`;
   $('#history-list').innerHTML=!state?'<div class="empty">このブラウザでは記録の保存領域を利用できません。通常のSafariで開いてください。</div>':!visits.length?'<div class="empty">まだ記録はありません。<br>過去の訪問も、まとめて登録できます。</div>':visits.map(v=>{const t=temples.find(t=>t.id===v.templeId);return `<article class="history-item"><button class="temple-number" data-temple="${t.id}" aria-label="第${t.id}番 ${esc(t.name)}の詳細">${t.id}</button><div class="content"><h3>${esc(t.name)}</h3><p>${esc(v.author)} · ${v.method==='gps-self-reported'?'GPS自己申告（近接判定）':v.method==='imported-manual'?'バックアップからの手動記録':'手動記録'}${v.accuracy!==null?` · 誤差${v.accuracy}m`:''}</p>${v.note?`<p>${esc(v.note)}</p>`:''}</div><time>${v.date?esc(v.date):'訪問日不明'}</time><button class="quiet" data-void="${esc(v.id)}">取り消す</button></article>`;}).join('');
