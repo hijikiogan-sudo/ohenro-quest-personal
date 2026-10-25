@@ -31,3 +31,26 @@
 .car-plan-msg{font-size:12.5px;line-height:1.75;margin:6px 0 0;padding-left:12px;border-left:3px solid var(--line)}
 .car-plan-msg.warn{border-left-color:var(--gold);color:var(--ink)}
 .today-next .car-plan-msg{margin-top:8px}
+.car-memos{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.car-memo{padding:10px 0;border-bottom:1px dashed var(--line)}
+.car-memo time{font-size:11px;color:var(--muted)}
+.car-memo p{font-size:12.5px;line-height:1.7;margin:2px 0;color:var(--ink)}
+.car-memo .car-memo-note{color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
+.car-suggest{font-size:12.5px;margin:10px 0 0;color:var(--ink)}
+.car-suggest .text-button{padding:4px 0}
+.car-memo-form{display:grid;gap:14px}
+.car-memo-form fieldset{border:0;padding:0;margin:0}
+.car-memo-form legend{font-size:12px;font-weight:700;margin-bottom:6px}
+.car-memo-form label{display:grid;gap:6px;font-size:12px}
+.car-seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px}
+.car-seg button{min-height:48px;padding:8px 6px;border:1px solid var(--line);border-radius:10px;background:var(--white);color:var(--ink);font-size:13px}
+.car-seg button[aria-pressed=true]{background:var(--green);border-color:var(--green);color:var(--white);font-weight:700}
+.stop-mode{display:grid;gap:12px}
+.stop-warning{font-size:12px;margin:0;padding:8px 12px;border-left:4px solid var(--gold);background:var(--soft);color:var(--ink);border-radius:4px}
+.stop-target{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:4px 0}
+.stop-target span{font-size:13px;color:var(--muted)}.stop-target strong{font-size:28px;line-height:1.3}
+.stop-target .car-chips{flex-basis:100%}
+.stop-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:84px;border-radius:16px;font-size:22px;font-weight:800;text-decoration:none}
+.stop-btn:not(.primary){border:1px solid var(--line);background:var(--white);color:var(--ink)}
+.stop-btn small{font-size:12px;font-weight:500;color:inherit;opacity:.75}
+.stop-btn.quiet-stop{min-height:56px;font-size:15px;font-weight:600}

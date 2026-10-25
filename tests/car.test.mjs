@@ -184,7 +184,39 @@ test('自分の評価は0〜3のみ、バックアップv2に含まれ、v1も�
   const points = [validateUserParking({templeId: 60, lat: 33.84, lng: 133.11, accuracy: 9, savedAt: NOW})];
   const rs = [validateRating({templeId: 12, level: 2, savedAt: NOW})];
   const back = readParkingsJSON(exportParkings(points, rs));
-  assert.deepEqual(back, {points, ratings: rs});
+  assert.deepEqual(back, {points, ratings: rs, memos: []});
   const v1 = JSON.stringify({format: 'ohenro-quest-parkings', version: 1, points});
-  assert.deepEqual(readParkingsJSON(v1), {points, ratings: []});
+  assert.deepEqual(readParkingsJSON(v1), {points, ratings: [], memos: []});
+});
+
+// ---- STEP 3 ----
+import {validateMemo, memoText, suggestRating, MEMO_FIELDS} from '../car-domain.mjs';
+
+test('車メモ：選択肢以外・空のメモは拒否、未選択はnull', () => {
+  const m = validateMemo({id: 'm1', templeId: 60, date: '2026-10-25', savedAt: NOW, road: 'narrow', passing: '3-5'});
+  assert.equal(m.parking, null);
+  assert.equal(m.note, '');
+  assert.deepEqual(memoText(m), ['道幅：せまい区間が続く', '対向車とのすれ違い：3〜5回']);
+  assert.throws(() => validateMemo({id: 'm2', templeId: 60, date: '2026-10-25', savedAt: NOW, road: 'very-narrow'}));
+  assert.throws(() => validateMemo({id: 'm3', templeId: 60, date: '2026-10-25', savedAt: NOW}));
+  assert.throws(() => validateMemo({id: 'm4', templeId: 60, date: '2026/10/25', savedAt: NOW, road: 'wide'}));
+  assert.equal(validateMemo({id: 'm5', templeId: 1, date: '2026-10-25', savedAt: NOW, note: ' 待避所3か所 '}).note, '待避所3か所');
+  assert.equal(MEMO_FIELDS.length, 5);
+});
+
+test('評価の目安：記録のうち一番きびしいものを採る', () => {
+  assert.equal(suggestRating([]), null);
+  assert.equal(suggestRating([{road: 'wide', passing: '0', reverse: 'no', parking: 'empty'}]).level, 0);
+  assert.equal(suggestRating([{road: 'some', passing: null, reverse: null, parking: null}]).level, 1);
+  const s = suggestRating([{road: 'some', passing: '1-2', reverse: null, parking: null}, {road: 'narrow', passing: '6+', reverse: 'yes', parking: 'full'}]);
+  assert.equal(s.level, 3);
+  assert.ok(s.reasons.includes('すれ違い6回以上'));
+  assert.ok(s.reasons.includes('バックで譲った'));
+});
+
+test('バックアップv3：車メモを含めて往復', () => {
+  const memos = [validateMemo({id: 'm1', templeId: 12, date: '2026-10-25', savedAt: NOW, road: 'some', toilet: 'yes'})];
+  const back = readParkingsJSON(exportParkings([], [], memos));
+  assert.deepEqual(back.memos, memos);
+  assert.throws(() => readParkingsJSON(JSON.stringify({format: 'ohenro-quest-parkings', version: 3, points: [], ratings: [], memos: [...memos, ...memos]})));
 });

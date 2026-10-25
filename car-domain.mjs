@@ -67,19 +67,21 @@ export function parkingQuery(parking) {
   return `${parking.lat.toFixed(6)},${parking.lng.toFixed(6)}`;
 }
 
-export function exportParkings(points, ratings = []) {
-  return JSON.stringify({format: 'ohenro-quest-parkings', version: 2, exportedAt: new Date().toISOString(), points: points.map(validateUserParking), ratings: ratings.map(validateRating)}, null, 2);
+export function exportParkings(points, ratings = [], memos = []) {
+  return JSON.stringify({format: 'ohenro-quest-parkings', version: 3, exportedAt: new Date().toISOString(), points: points.map(validateUserParking), ratings: ratings.map(validateRating), memos: memos.map(validateMemo)}, null, 2);
 }
 
 export function readParkingsJSON(value) {
   if (typeof value !== 'string' || value.length > 256 * 1024) fail('駐車場地点のJSONは256KB以内にしてください。');
   let data; try { data = JSON.parse(value); } catch { fail('JSONファイルを読み込めません。'); }
-  if (data?.format !== 'ohenro-quest-parkings' || ![1, 2].includes(data.version) || !Array.isArray(data.points) || data.points.length > 88 || (data.version === 2 && (!Array.isArray(data.ratings) || data.ratings.length > 88))) fail('対応する駐車場地点のバックアップではありません。');
+  if (data?.format !== 'ohenro-quest-parkings' || ![1, 2, 3].includes(data.version) || !Array.isArray(data.points) || data.points.length > 88 || (data.version >= 2 && (!Array.isArray(data.ratings) || data.ratings.length > 88)) || (data.version === 3 && (!Array.isArray(data.memos) || data.memos.length > 5000))) fail('対応する駐車場地点のバックアップではありません。');
   const points = data.points.map(validateUserParking);
   if (new Set(points.map(p => p.templeId)).size !== points.length) fail('同じ札所の駐車場地点が重複しています。');
-  const ratings = data.version === 2 ? data.ratings.map(validateRating) : [];
+  const ratings = data.version >= 2 ? data.ratings.map(validateRating) : [];
   if (new Set(ratings.map(r => r.templeId)).size !== ratings.length) fail('同じ札所の評価が重複しています。');
-  return {points, ratings};
+  const memos = data.version === 3 ? data.memos.map(validateMemo) : [];
+  if (new Set(memos.map(m => m.id)).size !== memos.length) fail('車メモのIDが重複しています。');
+  return {points, ratings, memos};
 }
 
 // ---- STEP 2：注意表示・季節・車のサイズ・自分の評価 ----
@@ -164,4 +166,49 @@ export function planWarnings({stops, date = '', carData, ratings = new Map(), ve
     if (messages.length) items.push({templeId: s.templeId, name: name(s.templeId), messages});
   }
   return {items, needsDate, costs, warnCount: items.reduce((n, i) => n + i.messages.filter(m => m.level === 'warn').length, 0)};
+}
+
+// ---- STEP 3：車メモ（現地で数タップ記録） ----
+
+export const MEMO_FIELDS = [
+  {key: 'road', label: '道幅', options: [['wide', '広い・困らない'], ['some', '一部せまい'], ['narrow', 'せまい区間が続く']]},
+  {key: 'passing', label: '対向車とのすれ違い', options: [['0', 'なし'], ['1-2', '1〜2回'], ['3-5', '3〜5回'], ['6+', '6回以上']]},
+  {key: 'reverse', label: 'バックで譲った', options: [['no', 'なし'], ['yes', 'あり']]},
+  {key: 'parking', label: '駐車場の混み具合', options: [['empty', '空いていた'], ['some', 'やや混雑'], ['full', '満車・待ち']]},
+  {key: 'toilet', label: '駐車場付近のトイレ', options: [['yes', 'あった'], ['no', '見当たらない']]},
+];
+const memoValue = (key, v) => v === null || MEMO_FIELDS.find(f => f.key === key).options.some(([id]) => id === v);
+const optionLabel = (key, v) => MEMO_FIELDS.find(f => f.key === key)?.options.find(([id]) => id === v)?.[1] || '';
+
+export function validateMemo(m) {
+  if (!m || typeof m.id !== 'string' || !m.id || m.id.length > 100 || !Number.isInteger(m.templeId) || m.templeId < 1 || m.templeId > 88 ||
+      typeof m.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(m.date) || !Number.isFinite(m.savedAt) ||
+      typeof (m.note ?? '') !== 'string' || (m.note ?? '').length > 200) fail('車メモの形式を確認できません。');
+  const out = {id: m.id, templeId: m.templeId, date: m.date, savedAt: m.savedAt, note: (m.note || '').trim()};
+  for (const f of MEMO_FIELDS) {
+    const v = m[f.key] ?? null;
+    if (!memoValue(f.key, v)) fail(`車メモの「${f.label}」を確認できません。`);
+    out[f.key] = v;
+  }
+  if (MEMO_FIELDS.every(f => out[f.key] === null) && !out.note) fail('車メモに1つ以上入力してください。');
+  return out;
+}
+
+export const memoText = m => MEMO_FIELDS.filter(f => m[f.key] !== null).map(f => `${f.label}：${optionLabel(f.key, m[f.key])}`);
+
+// 記録から自分の評価の目安を出す（自動では設定しない）。
+export function suggestRating(memos) {
+  if (!memos.length) return null;
+  let level = 0;
+  const reasons = [];
+  for (const m of memos) {
+    if (m.road === 'narrow') { level = Math.max(level, 2); reasons.push('せまい区間が続く'); }
+    else if (m.road === 'some') { level = Math.max(level, 1); reasons.push('一部せまい'); }
+    if (m.passing === '6+') { level = Math.max(level, 3); reasons.push('すれ違い6回以上'); }
+    else if (m.passing === '3-5') { level = Math.max(level, 2); reasons.push('すれ違い3〜5回'); }
+    else if (m.passing === '1-2') { level = Math.max(level, 1); }
+    if (m.reverse === 'yes') { level = Math.max(level, 2); reasons.push('バックで譲った'); }
+    if (m.parking === 'full') { level = Math.max(level, 1); reasons.push('駐車場が満車'); }
+  }
+  return {level, reasons: [...new Set(reasons)]};
 }

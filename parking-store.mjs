@@ -1,5 +1,5 @@
 // 自分で登録した駐車場地点の端末内保存。訪問記録・写真・予定とは別の保存領域。
-import {validateUserParking, validateRating} from './car-domain.mjs';
+import {validateUserParking, validateRating, validateMemo} from './car-domain.mjs';
 
 export function createParkingStore({indexedDB = globalThis.indexedDB, scope = '/'} = {}) {
   let db, pending;
@@ -9,8 +9,8 @@ export function createParkingStore({indexedDB = globalThis.indexedDB, scope = '/
     if (pending) return pending;
     pending = new Promise((resolve, reject) => {
       let abandoned = false;
-      const r = indexedDB.open('ohenro-parking:' + scope, 2);
-      r.onupgradeneeded = () => { if (abandoned) { r.transaction.abort(); return; } const names = r.result.objectStoreNames; if (!names.contains('points')) r.result.createObjectStore('points', {keyPath: 'templeId'}); if (!names.contains('ratings')) r.result.createObjectStore('ratings', {keyPath: 'templeId'}); };
+      const r = indexedDB.open('ohenro-parking:' + scope, 3);
+      r.onupgradeneeded = () => { if (abandoned) { r.transaction.abort(); return; } const names = r.result.objectStoreNames; if (!names.contains('points')) r.result.createObjectStore('points', {keyPath: 'templeId'}); if (!names.contains('ratings')) r.result.createObjectStore('ratings', {keyPath: 'templeId'}); if (!names.contains('memos')) r.result.createObjectStore('memos', {keyPath: 'id'}); };
       r.onsuccess = () => { if (abandoned) { r.result.close(); return; } db = r.result; db.onversionchange = () => { db.close(); db = null; pending = null; }; resolve(db); };
       r.onerror = () => { pending = null; reject(new Error('駐車場地点を読み込めません。ほかの記録は変更していません。')); };
       r.onblocked = () => { abandoned = true; pending = null; reject(new Error('ほかのタブを閉じて再読み込みしてください。')); };
@@ -41,6 +41,17 @@ export function createParkingStore({indexedDB = globalThis.indexedDB, scope = '/
   }
   const list = () => readAll('points', validateUserParking);
   const listRatings = () => readAll('ratings', validateRating);
+  const listMemos = async () => (await readAll('memos', validateMemo)).sort((a, b) => b.date.localeCompare(a.date) || b.savedAt - a.savedAt);
+  async function saveMemo(memo) {
+    const value = validateMemo(memo);
+    if ((await listMemos()).filter(m => m.id !== value.id).length >= 5000) throw new Error('車メモは5000件までです。古いメモを整理してください。');
+    await transact(true, store => store.put(value), 'memos');
+    return value;
+  }
+  async function removeMemo(id) {
+    if (typeof id !== 'string' || !id) throw new Error('車メモを確認できません。');
+    await transact(true, store => store.delete(id), 'memos');
+  }
   async function saveRating(rating) {
     const value = validateRating(rating);
     await transact(true, store => store.put(value), 'ratings');
@@ -60,13 +71,16 @@ export function createParkingStore({indexedDB = globalThis.indexedDB, scope = '/
     await transact(true, store => store.delete(templeId));
   }
   // 復元は追加のみ。すでに登録がある札所は上書きしない。
-  async function importPoints(points, ratings = []) {
+  async function importPoints(points, ratings = [], memos = []) {
+    const memoIds = new Set((await listMemos()).map(m => m.id));
+    const mValues = memos.map(validateMemo).filter(m => !memoIds.has(m.id));
+    if (mValues.length) await transact(true, store => mValues.forEach(v => store.put(v)), 'memos');
     const existing = new Set((await list()).map(p => p.templeId)), rated = new Set((await listRatings()).map(r => r.templeId));
     const values = points.map(validateUserParking).filter(p => !existing.has(p.templeId));
     const rValues = ratings.map(validateRating).filter(r => !rated.has(r.templeId));
     if (values.length) await transact(true, store => values.forEach(v => store.put(v)));
     if (rValues.length) await transact(true, store => rValues.forEach(v => store.put(v)), 'ratings');
-    return {added: values.length, skipped: points.length - values.length, ratingsAdded: rValues.length, ratingsSkipped: ratings.length - rValues.length};
+    return {added: values.length, skipped: points.length - values.length, ratingsAdded: rValues.length, ratingsSkipped: ratings.length - rValues.length, memosAdded: mValues.length, memosSkipped: memos.length - mValues.length};
   }
-  return {list, save, remove, importPoints, listRatings, saveRating, removeRating};
+  return {list, save, remove, importPoints, listRatings, saveRating, removeRating, listMemos, saveMemo, removeMemo};
 }

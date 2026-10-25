@@ -19,14 +19,14 @@ const $ = selector=>document.querySelector(selector);
 const $$ = selector=>[...document.querySelectorAll(selector)];
 const esc = value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizeTerm=value=>value.normalize('NFKC').toLocaleLowerCase().replace(/[國寶佛圓瀧釋峯]/g,c=>({'國':'国','寶':'宝','佛':'仏','圓':'円','瀧':'滝','釋':'釈','峯':'峰'}[c]));
-let carData=null,parkingPoints=[],parkingFor=()=>null,ratingRows=[],ratings=new Map();
+let carData=null,parkingPoints=[],parkingFor=()=>null,ratingRows=[],ratings=new Map(),memoRows=[];
 const vehicleKey='ohenro-vehicle:'+new URL('.',import.meta.url).pathname;
 function getVehicle(){try{const v=localStorage.getItem(vehicleKey);return VEHICLES.some(x=>x.id===v)?v:'standard';}catch{return 'standard';}}
 function setVehicle(v){try{localStorage.setItem(vehicleKey,v);}catch{}if(view==='temples')renderTemples();}
 let temples=[],coast=null,state=null,journeyId='',view='home',initialized=false,connected=false;
 const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,temples:()=>temples,parkingFor:id=>parkingFor(id)});
 const parkingStore=createParkingStore({scope:new URL('.',import.meta.url).pathname});
-async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints);if(initialized&&view==='temples')renderTemples();}
+async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}try{memoRows=await parkingStore.listMemos();}catch{memoRows=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints);if(initialized&&view==='temples')renderTemples();}
 let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
 let mapPref='',positionStyle='quest',questBackground='';
 attachTheme({scope:new URL('.',import.meta.url).pathname});
@@ -38,8 +38,8 @@ const plans=createPlanStore({scope:new URL('.',import.meta.url).pathname});
 const planUI=createPlanUI({store:plans,getJourney:()=>currentJourney(),getTemples:()=>temples,getVisits:()=>currentVisits(),toast,onStart:plan=>todayUI.startDialog(plan),getParking:id=>parkingFor(id),carChips:id=>chipsHTML(carUI.flagsFor(id)),carWarnings:plan=>planWarningsHTML(plan)});
 const prayerUI=createPrayerUI({document,openDialog,getEpoch:()=>dialogEpoch,backToTemple:id=>detailDialog(id)});
 const todayStore=createTodayStore({scope:new URL('.',import.meta.url).pathname});
-const todayUI=createTodayUI({document,store:todayStore,plans,getJourney:()=>currentJourney(),getVisits:()=>state?.visits||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onPlans:()=>setView('plan'),onStarted:()=>setView('home'),onPrayer:t=>requireAuth(()=>prayerUI.open(t)),onPhotos:t=>requireAuth(()=>photoUI.album(t)),onGPS:t=>requireAuth(()=>gpsDialog(t)),onManual:t=>requireAuth(()=>manualDialog([t.id])),getParking:id=>parkingFor(id),carNotes:t=>todayNotesHTML(t)});
-const carUI=createCarUI({document,store:parkingStore,getCarData:()=>carData,getParkings:()=>parkingPoints,getParkingFor:id=>parkingFor(id),getRatings:()=>ratings,getRatingRows:()=>ratingRows,getVehicle,setVehicle,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onChanged:async()=>{await reloadParkings();if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));},backToTemple:id=>detailDialog(id),japanDate});
+const todayUI=createTodayUI({document,store:todayStore,plans,getJourney:()=>currentJourney(),getVisits:()=>state?.visits||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onPlans:()=>setView('plan'),onStarted:()=>setView('home'),onPrayer:t=>requireAuth(()=>prayerUI.open(t)),onPhotos:t=>requireAuth(()=>photoUI.album(t)),onGPS:t=>requireAuth(()=>gpsDialog(t)),onManual:t=>requireAuth(()=>manualDialog([t.id])),getParking:id=>parkingFor(id),carNotes:t=>todayNotesHTML(t),onStopMode:t=>carUI.stopMode(t)});
+const carUI=createCarUI({document,store:parkingStore,getCarData:()=>carData,getParkings:()=>parkingPoints,getParkingFor:id=>parkingFor(id),getRatings:()=>ratings,getRatingRows:()=>ratingRows,getMemos:()=>memoRows,onGPS:t=>requireAuth(()=>gpsDialog(t)),onPhotos:t=>requireAuth()&&photoUI.album(t),getVehicle,setVehicle,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onChanged:async()=>{await reloadParkings();if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));},backToTemple:id=>detailDialog(id),japanDate});
 function toast(message,action) {
   clearTimeout(toastTimer);const el=$('#toast');el.replaceChildren(document.createTextNode(message));
   if(action) {const b=document.createElement('button');b.textContent=action.label;b.onclick=action.run;el.append(b);}
@@ -163,7 +163,7 @@ function gpsDialog(t){
       const assessment=assessGPS(position,t,Date.now(),parkingFor(t.id));if(!assessment.ok)throw new Error(assessment.message);
       $('#gps-result').hidden=false;$('#gps-result').textContent=assessment.near==='parking'?`駐車場まで約${assessment.parkingDistance}m（札所まで約${assessment.distance}m）/ 測位誤差 約${assessment.accuracy}m。駐車場での近接判定の範囲内です。`:`札所まで約${assessment.distance}m / 測位誤差 約${assessment.accuracy}m。近接判定の範囲内です。`;
       e.target.textContent='チェックインを保存';e.target.disabled=false;
-      e.target.onclick=async event=>{event.target.disabled=true;try{const saved=await api('gps/checkin',{challengeId:challenge.id,position});closeDialog();await refresh();toast(saved.added?'GPS自己申告の訪問を保存しました。':'本日の訪問は登録済みです。');}catch(err){showError(err);event.target.disabled=false;}};
+      e.target.onclick=async event=>{event.target.disabled=true;try{const saved=await api('gps/checkin',{challengeId:challenge.id,position});closeDialog();await refresh();toast(saved.added?'GPS自己申告の訪問を保存しました。':'本日の訪問は登録済みです。');if(saved.added)carUI.memoDialog(t,{afterCheckin:true});}catch(err){showError(err);event.target.disabled=false;}};
     }catch(err){if(epoch!==dialogEpoch)return;const messages={1:'位置情報が許可されていません。端末設定で許可するか、手動登録をご利用ください。',2:'現在地を取得できませんでした。屋外で再度お試しいただくか、手動登録をご利用ください。',3:'測位に時間がかかりました。再測位するか、手動登録をご利用ください。'};showError(new Error(messages[err.code]||err.message));e.target.disabled=false;e.target.textContent='現在地を取得する';}
   };
 }
