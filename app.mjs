@@ -8,8 +8,9 @@ import {createPhotoUI} from './photo-ui.mjs';
 import {groupNearby,templeGlyph} from './temple-marker.mjs';
 import {attachTheme, fittedMapBox} from './display.mjs';
 import {createRoadMap} from './road-map.mjs';
-import {questTerrain,questTempleGlyph} from './quest-map.mjs';
-import {progress, routeUrl, japanDate, assessGPS} from './domain.mjs';
+import {routePoints,routeZigzag} from './map-route.mjs';
+import {outingProgress} from './today-store.mjs';
+import {progress, routeUrl, japanDate, assessGPS, distanceMeters} from './domain.mjs';
 import {createPersonalStore} from './personal-store.mjs';
 import {createParkingStore} from './parking-store.mjs';
 import {createCarUI, chipsHTML} from './car-ui.mjs';
@@ -32,9 +33,11 @@ const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,
 const parkingStore=createParkingStore({scope:new URL('.',import.meta.url).pathname});
 async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}try{memoRows=await parkingStore.listMemos();}catch{memoRows=[];}try{sharedPacks=await parkingStore.listShared();}catch{sharedPacks=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints,sharedPacks);if(initialized)renderBadges();if(initialized&&view==='temples')renderTemples();}
 let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
-let mapPref='',positionStyle='quest',questBackground='';
+let mapPref='',positionStyle='plain',routeChoice='',routeOptions=[],routeStops=[];
+const routeKey='ohenro-map-route:'+new URL('.',import.meta.url).pathname;
+try{routeChoice=localStorage.getItem(routeKey)||'';}catch{}
 attachTheme({scope:new URL('.',import.meta.url).pathname});
-const roadMap=createRoadMap({scope:new URL('.',import.meta.url).pathname,onTemple:id=>detailDialog(id),onCluster:ids=>clusterDialog(ids),onPositionStyle:style=>{positionStyle=style;if(coast)drawMap(new Set(currentVisits().map(v=>v.templeId)));}});
+const roadMap=createRoadMap({scope:new URL('.',import.meta.url).pathname,onTemple:id=>detailDialog(id),onCluster:ids=>clusterDialog(ids),onKind:()=>{if(coast)drawMap(new Set(currentVisits().map(v=>v.templeId)));}});
 let dialogEpoch=0;
 const photos=createPhotoStore({scope:new URL('.',import.meta.url).pathname});
 const photoUI=createPhotoUI({store:photos,getJourney:()=>currentJourney(),getJourneys:()=>state?.journeys||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast});
@@ -43,7 +46,7 @@ const planUI=createPlanUI({store:plans,getJourney:()=>currentJourney(),getTemple
 const prayerUI=createPrayerUI({document,openDialog,getEpoch:()=>dialogEpoch,backToTemple:id=>detailDialog(id)});
 const todayStore=createTodayStore({scope:new URL('.',import.meta.url).pathname});
 const todayUI=createTodayUI({document,store:todayStore,plans,getJourney:()=>currentJourney(),getVisits:()=>state?.visits||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onPlans:()=>setView('plan'),onStarted:()=>setView('home'),onPrayer:t=>requireAuth(()=>prayerUI.open(t)),onPhotos:t=>requireAuth(()=>photoUI.album(t)),onGPS:t=>requireAuth(()=>gpsDialog(t)),onManual:t=>requireAuth(()=>manualDialog([t.id])),getParking:id=>parkingFor(id),carNotes:t=>todayNotesHTML(t),onStopMode:t=>carUI.stopMode(t)});
-const carUI=createCarUI({document,store:parkingStore,getCarData:()=>carData,getParkings:()=>parkingPoints,getParkingFor:id=>parkingFor(id),getRatings:()=>ratings,getRatingRows:()=>ratingRows,getMemos:()=>memoRows,getShared:()=>sharedPacks,getSpeed,setSpeed,getTemples:()=>temples,onGPS:t=>requireAuth(()=>gpsDialog(t)),onPhotos:t=>requireAuth()&&photoUI.album(t),getVehicle,setVehicle,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onChanged:async()=>{await reloadParkings();if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));},backToTemple:id=>detailDialog(id),japanDate});
+const carUI=createCarUI({document,store:parkingStore,getCarData:()=>carData,getParkings:()=>parkingPoints,getParkingFor:id=>parkingFor(id),getRatings:()=>ratings,getRatingRows:()=>ratingRows,getMemos:()=>memoRows,getShared:()=>sharedPacks,getSpeed,setSpeed,getTemples:()=>temples,onGPS:t=>requireAuth(()=>gpsDialog(t)),onPhotos:t=>requireAuth()&&photoUI.album(t),onPhotoMap:t=>{closeDialog();setView('home');mapPref='';fitMapCounty();renderMapPanel(new Set(currentVisits().map(v=>v.templeId)));roadMap.focus(t);setTimeout(()=>$('#road-map')?.scrollIntoView({block:'center'}),150);},getVehicle,setVehicle,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onChanged:async()=>{await reloadParkings();if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));},backToTemple:id=>detailDialog(id),japanDate});
 function toast(message,action) {
   clearTimeout(toastTimer);const el=$('#toast');el.replaceChildren(document.createTextNode(message));
   if(action) {const b=document.createElement('button');b.textContent=action.label;b.onclick=action.run;el.append(b);}
@@ -131,7 +134,7 @@ function render(){
   $('#next-temple').innerHTML=next?`<div class="next-top"><div class="temple-number">${next.id.toString().padStart(2,'0')}</div><div><small>${esc(next.prefecture)} · 第${next.id}番札所</small><h2>${esc(next.name)}</h2></div></div><p>${esc(next.address)}<br>未訪問の番号が小さい札所を表示しています。</p><button class="primary" id="next-detail">札所の詳細・チェックイン →</button><a class="text-button" href="${esc(routeUrl(next,'google',parkingFor(next.id)))}" target="_blank" rel="noopener noreferrer">${parkingFor(next.id)?'駐車場へのルートをGoogleマップで開く ↗':'車のルートをGoogleマップで開く ↗'}</a>`:'<div class="next-top"><div class="temple-number">祝</div><h2>結願</h2></div><p>すべての札所をめぐりました。<br>グループ・設定から新しい巡礼を始められます。</p>';
   if(next)$('#next-detail').onclick=()=>detailDialog(next.id);
   renderBadges();
-  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();photoUI.stats();photos.status().then(st=>{if(photoCount!==st.count){photoCount=st.count;renderBadges();}}).catch(()=>{});if(view==='album')photoUI.library({soft:true});if(view==='plan')planUI.render({soft:true});if(view==='home')todayUI.render();
+  drawMap(done);renderMapPanel(done);refreshRouteOptions();renderTemples();renderHistory();renderFamily();photoUI.stats();photos.status().then(st=>{if(photoCount!==st.count){photoCount=st.count;renderBadges();}}).catch(()=>{});if(view==='album')photoUI.library({soft:true});if(view==='plan')planUI.render({soft:true});if(view==='home')todayUI.render();
   $('#install-note').textContent=window.isSecureContext?'この画面はPWA・位置情報が使える接続です（対応ブラウザ・端末の許可が必要）。':'この接続ではGPS・PWA機能に制限があります。iPhoneでの本利用には、信頼されたHTTPS接続が必要です。';
 }
 function renderTemples(){
@@ -233,14 +236,42 @@ const mercator=lat=>180/Math.PI*Math.log(Math.tan(Math.PI/4+lat*Math.PI/360));
 const projection=([lng,lat])=>[130+(lng-131.9)*190,20+(mercator(34.55)-mercator(lat))*190];
 function drawMap(done){if(!coast)return;const svg=$('#map');svg.setAttribute('viewBox',mapBox.join(' '));
   svg.dataset.style=positionStyle;
-  let html='';if(positionStyle==='quest'){questBackground||=questTerrain(coast,projection);html=questBackground;}
-  else for(const polygon of coast.geometry.coordinates){html+=`<path class="land" d="${polygon.map(ring=>ring.map((p,i)=>{const [x,y]=projection(p);return `${i?'L':'M'}${x.toFixed(2)},${y.toFixed(2)}`;}).join('')+'Z').join('')}"/>`;}
+  let html='';
+  for(const polygon of coast.geometry.coordinates){html+=`<path class="land" d="${polygon.map(ring=>ring.map((p,i)=>{const [x,y]=projection(p);return `${i?'L':'M'}${x.toFixed(2)},${y.toFixed(2)}`;}).join('')+'Z').join('')}"/>`;}
   html+='<text x="240" y="105" class="water-label">瀬戸内海</text><text x="470" y="385" class="water-label">太平洋</text>';
   for(const [name,coord] of [['徳島',[134.12,33.95]],['高知',[133.35,33.45]],['愛媛',[132.95,33.85]],['香川',[133.91,34.27]]]){const [x,y]=projection(coord);html+=`<text x="${x}" y="${y}" class="map-label">${name}</text>`;}
   const markerScale=mapBox[2]/(svg.clientWidth||600);
   const groups=groupNearby(mapTemples(),t=>projection([t.lng,t.lat]).map(v=>v/markerScale),48);
-  html+=groups.map(group=>{const t=group[0],multiple=group.length>1,[x,y]=projection([group.reduce((s,t)=>s+t.lng,0)/group.length,group.reduce((s,t)=>s+t.lat,0)/group.length]);return `<g class="pin temple-position ${group.every(t=>done.has(t.id))?'visited':''}" transform="translate(${x},${y}) scale(${markerScale})" tabindex="0" role="button" aria-label="${multiple?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+esc(t.name)}" ${multiple?`data-map-cluster="${group.map(t=>t.id).join(',')}"`:`data-map-temple="${t.id}"`}><g transform="translate(-22,-47)">${(positionStyle==='quest'?questTempleGlyph:templeGlyph)(multiple?group.length+'寺':t.id)}</g></g>`;}).join('');
+  html+=groups.map(group=>{const t=group[0],multiple=group.length>1,[x,y]=projection([group.reduce((s,t)=>s+t.lng,0)/group.length,group.reduce((s,t)=>s+t.lat,0)/group.length]);return `<g class="pin temple-position ${group.every(t=>done.has(t.id))?'visited':''}" transform="translate(${x},${y}) scale(${markerScale})" tabindex="0" role="button" aria-label="${multiple?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+esc(t.name)}" ${multiple?`data-map-cluster="${group.map(t=>t.id).join(',')}"`:`data-map-temple="${t.id}"`}><g transform="translate(-22,-47)">${templeGlyph(multiple?group.length+'寺':t.id)}</g></g>`;}).join('');
+  const route=currentRoute(done);
+  if(route.length){const pts=route.map(p=>projection([p.lng,p.lat]));if(pts.length>1)html=html.replace('<g class="pin','<polyline class="route-line" points="'+pts.map(([x,y])=>`${x.toFixed(1)},${y.toFixed(1)}`).join(' ')+'"/><g class="pin');html+=route.map((p,i)=>`<g class="route-order-svg route-${p.status}" transform="translate(${pts[i][0]+10*markerScale},${pts[i][1]-30*markerScale}) scale(${markerScale})" aria-hidden="true"><circle r="10"/><text>${p.order}</text></g>`).join('');}
   svg.innerHTML=html;$$('[data-map-temple],[data-map-cluster]').forEach(el=>{const activate=()=>el.dataset.mapCluster?clusterDialog(el.dataset.mapCluster.split(',').map(Number)):detailDialog(Number(el.dataset.mapTemple));el.onclick=activate;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};});
+}
+function currentRoute(done){
+  if(!routeChoice||!routeStops.length)return [];
+  return routePoints(routeStops,temples,done);
+}
+function renderRouteControl(done){
+  const el=$('#map-route');if(!el)return;
+  el.innerHTML=`<option value="">表示しない</option>${routeOptions.map(o=>`<option value="${esc(o.id)}"${o.id===routeChoice?' selected':''}>${esc(o.label)}</option>`).join('')}`;
+  el.disabled=!routeOptions.length;
+  const route=currentRoute(done),note=$('#map-route-note');
+  if(!note)return;
+  if(!routeOptions.length){note.textContent='行き先予定をつくると、めぐる順番を地図に表示できます。';return;}
+  if(!route.length){note.textContent='';return;}
+  const zig=routeZigzag(route,(a,b)=>distanceMeters(a,b));
+  note.textContent=`${route.length}寺の順番を直線で結んでいます（実際の道のりではありません）。${route.some(p=>p.status==='next')?'青い番号がつぎの札所です。':''}${zig?' 行ったり来たりしている区間があるようです。順番を見直すと移動が短くなるかもしれません。':''}`;
+}
+async function refreshRouteOptions(){
+  const j=currentJourney();if(!j)return;
+  const opts=[];let stopsById=new Map();
+  try{const s=await todayStore.get(j.id);if(s&&s.status==='active'){const p=outingProgress(s,state?.visits||[]);opts.push({id:'today',label:`今日の巡礼：${s.name}`});stopsById.set('today',p.rows.map(r=>({templeId:r.templeId,status:r.status})));}}catch{}
+  try{const rows=await plans.list(j.id);for(const pl of rows.sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')))){if(!pl.stops.length)continue;opts.push({id:'plan:'+pl.id,label:`予定：${pl.name}（${pl.stops.length}寺）`});stopsById.set('plan:'+pl.id,pl.stops.map(st=>({templeId:st.templeId})));}}catch{}
+  routeOptions=opts;
+  if(routeChoice&&!stopsById.has(routeChoice))routeChoice='';
+  routeStops=routeChoice?stopsById.get(routeChoice):[];
+  const done=new Set(currentVisits().map(v=>v.templeId));
+  drawMap(done);renderMapPanel(done,{fit:false});
 }
 function mapTemples(){return temples.filter(t=>!mapPref||t.prefecture===mapPref);}
 function fitMapCounty(){mapBox=mapPref?fittedMapBox(mapTemples().map(t=>projection([t.lng,t.lat]))):[0,0,800,480];}
@@ -251,8 +282,10 @@ function renderMapPanel(done,{fit=false}={}){
   $$('[data-map-pref]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mapPref===mapPref)));
   $('#map-temple-list').innerHTML=rows.map(t=>`<button class="map-temple-chip ${done.has(t.id)?'visited':''}" data-map-list-temple="${t.id}"><span>${t.id}</span>${esc(t.name)}${done.has(t.id)?' ✓':''}</button>`).join('');
   $$('[data-map-list-temple]').forEach(b=>b.onclick=()=>detailDialog(Number(b.dataset.mapListTemple)));
-  roadMap.update(rows,done,{fit});
+  roadMap.update(rows,done,{fit,routePoints:currentRoute(done)});
+  renderRouteControl(done);
 }
+$('#map-route').onchange=async e=>{routeChoice=e.target.value;try{localStorage.setItem(routeKey,routeChoice);}catch{}await refreshRouteOptions();const done=new Set(currentVisits().map(v=>v.templeId)),r=currentRoute(done);if(r.length){mapPref='';mapBox=fittedMapBox(r.map(p=>projection([p.lng,p.lat])));drawMap(done);renderMapPanel(done,{fit:true});}};
 $$('[data-map-pref]').forEach(b=>b.onclick=()=>{mapPref=b.dataset.mapPref;fitMapCounty();drawMap(new Set(currentVisits().map(v=>v.templeId)));renderMapPanel(new Set(currentVisits().map(v=>v.templeId)),{fit:true});});
 function redrawMap(){const done=new Set(currentVisits().map(v=>v.templeId));drawMap(done);renderMapPanel(done);}
 let mapResizeTimer;

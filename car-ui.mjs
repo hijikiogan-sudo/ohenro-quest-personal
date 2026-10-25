@@ -9,7 +9,7 @@ export function chipsHTML(flags) {
   return flags.length ? `<span class="car-chips">${flags.map(f => `<span class="car-chip ${f.level === 'warn' ? 'warn' : ''}">${esc(f.label)}</span>`).join('')}</span>` : '';
 }
 
-export function createCarUI({document = globalThis.document, store, getCarData, getParkings, getParkingFor, getRatings = () => new Map(), getRatingRows = () => [], getMemos = () => [], getShared = () => [], getSpeed = () => 'normal', setSpeed = () => {}, getTemples = () => [], onGPS = () => {}, onPhotos = () => {}, getVehicle = () => 'standard', setVehicle = () => {}, openDialog, closeDialog, getEpoch, showError, toast, onChanged, backToTemple, japanDate}) {
+export function createCarUI({document = globalThis.document, store, getCarData, getParkings, getParkingFor, getRatings = () => new Map(), getRatingRows = () => [], getMemos = () => [], getShared = () => [], getSpeed = () => 'normal', setSpeed = () => {}, getTemples = () => [], onPhotoMap = () => {}, onGPS = () => {}, onPhotos = () => {}, getVehicle = () => 'standard', setVehicle = () => {}, openDialog, closeDialog, getEpoch, showError, toast, onChanged, backToTemple, japanDate}) {
   const $ = s => document.querySelector(s);
 
   function rows(info) {
@@ -40,7 +40,7 @@ export function createCarUI({document = globalThis.document, store, getCarData, 
     const memoBlock = `<div class="car-memos"><div class="car-rating-head"><strong>車メモ</strong><small>${memos.length ? `${memos.length}件` : 'まだありません'}</small></div>${memos.slice(0, 2).map(m => `<div class="car-memo"><time>${esc(m.date)}</time><p>${esc(memoText(m).join(' · ') || '（選択なし）')}</p>${m.note ? `<p class="car-memo-note">${esc(m.note)}</p>` : ''}</div>`).join('')}${sug && sug.level !== rating ? `<p class="car-suggest">記録からの目安：<strong>${sug.level} ${esc(ratingLabel(sug.level))}</strong>${sug.reasons.length ? `（${esc(sug.reasons.join('・'))}）` : ''} <button type="button" class="text-button" id="car-apply-suggest" data-level="${sug.level}">この評価にする</button></p>` : ''}<div class="car-actions"><button type="button" class="secondary" id="car-memo">車メモを書く</button>${memos.length > 2 ? '<button type="button" class="quiet" id="car-memo-all">すべて見る</button>' : memos.length ? '<button type="button" class="quiet" id="car-memo-all">編集・削除</button>' : ''}</div></div>`;
     const shared = getShared().map(p => ({name: p.name, rating: p.ratings.find(r => r.templeId === t.id), memos: p.memos.filter(m => m.templeId === t.id)})).filter(x => x.rating || x.memos.length);
     const sharedBlock = shared.length ? `<div class="car-memos car-shared"><div class="car-rating-head"><strong>共有されたメモ</strong><small>家族・友人から受け取った記録</small></div>${shared.map(x => `<div class="car-memo"><time>${esc(x.name)}さん${x.rating ? ` · 評価 ${x.rating.level} ${esc(ratingLabel(x.rating.level))}` : ''}</time>${x.memos.slice(0, 2).map(m => `<p>${esc(m.date)}：${esc(memoText(m).join(' · ') || '（選択なし）')}</p>${m.note ? `<p class="car-memo-note">${esc(m.note)}</p>` : ''}`).join('')}</div>`).join('')}</div>` : '';
-    return `<section class="car-card${warn || blocked ? ' car-warn' : ''}"><div class="car-card-label">車でのアクセス</div>${warn ? '<p class="car-alert">事前の確認が必要な札所です。</p>' : ''}${blocked}${dest}${body}${rate}${memoBlock}${sharedBlock}<div class="car-actions"><button class="secondary" id="car-stop-mode">停車中モード</button><button class="secondary" id="car-register">${user ? '駐車場の位置を登録し直す' : '現在地を駐車場として登録'}</button>${user ? '<button class="quiet" id="car-unregister">登録を解除</button>' : ''}</div><p class="tiny">駐車場に着いたら停車中に登録すると、次回からナビが駐車場へ案内します。チェックインは本堂の近くで行います。登録した位置はこの端末だけに保存します。</p></section>`;
+    return `<section class="car-card${warn || blocked ? ' car-warn' : ''}"><div class="car-card-label">車でのアクセス</div>${warn ? '<p class="car-alert">事前の確認が必要な札所です。</p>' : ''}${blocked}${dest}${body}${rate}${memoBlock}${sharedBlock}<div class="car-actions"><button class="secondary" id="car-photo-map">航空写真で駐車場・道を見る</button><button class="secondary" id="car-stop-mode">停車中モード</button><button class="secondary" id="car-register">${user ? '駐車場の位置を登録し直す' : '現在地を駐車場として登録'}</button>${user ? '<button class="quiet" id="car-unregister">登録を解除</button>' : ''}</div><p class="tiny">駐車場に着いたら停車中に登録すると、次回からナビが駐車場へ案内します。チェックインは本堂の近くで行います。登録した位置はこの端末だけに保存します。</p></section>`;
   }
 
   function bind(t) {
@@ -54,6 +54,7 @@ export function createCarUI({document = globalThis.document, store, getCarData, 
     $('#car-memo')?.addEventListener('click', () => memoDialog(t));
     $('#car-memo-all')?.addEventListener('click', () => memoListDialog(t));
     $('#car-stop-mode')?.addEventListener('click', () => stopMode(t));
+    $('#car-photo-map')?.addEventListener('click', () => onPhotoMap(t));
     $('#car-apply-suggest')?.addEventListener('click', async e => {
       const level = Number(e.target.dataset.level);
       try { await store.saveRating({templeId: t.id, level, savedAt: Date.now()}); await onChanged(); backToTemple(t.id); toast(`自分の評価を「${RATINGS[level].label}」にしました。`); } catch (err) { showError(err); }

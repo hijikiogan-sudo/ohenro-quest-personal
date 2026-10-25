@@ -1,0 +1,25 @@
+/* 地図の切り替え（全体図・地図・写真）と予定のルート表示 */
+.map-controls{display:grid;gap:10px;padding:14px 22px 6px}
+.map-kind{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:14px;background:var(--soft)}
+.map-kind button{min-height:44px;border-radius:10px;font-size:14px;font-weight:700;color:var(--muted)}
+.map-kind button[aria-pressed=true]{background:var(--white);color:var(--ink);box-shadow:0 1px 4px #0000001a}
+.map-sub{display:flex;gap:6px}
+.map-sub button{flex:1;min-height:38px;border:1px solid var(--line);border-radius:10px;font-size:12.5px;background:var(--white);color:var(--muted)}
+.map-sub button[aria-pressed=true]{border-color:var(--green);color:var(--green);font-weight:700}
+.map-route-pick{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.map-route-pick select{min-height:40px;font-size:13px;padding:8px 10px;width:100%}
+.map-controls .tiny{margin:0}
+/* 予定のルート：直線（実際の道のりではない） */
+.route-line{fill:none;stroke:#2f6fd6;stroke-width:3;stroke-dasharray:7 6;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+#map .route-line{stroke-width:2.2}
+.route-order{display:grid!important;place-items:center;width:24px!important;height:24px!important;border-radius:50%;background:#fff;color:#2f6fd6;border:2px solid #2f6fd6;font-size:12px;font-weight:800;box-shadow:0 1px 4px #0003}
+.route-order.route-next{background:#2f6fd6;color:#fff}
+.route-order.route-visited{background:#e7efe9;color:#4b6b57;border-color:#7fa58c}
+.route-order.route-skipped{background:#f3f3f3;color:#999;border-color:#bbb;text-decoration:line-through}
+.route-order-svg circle{fill:#fff;stroke:#2f6fd6;stroke-width:2}
+.route-order-svg text{fill:#2f6fd6;font-size:11px;font-weight:800;text-anchor:middle;dominant-baseline:central}
+.route-order-svg.route-next circle{fill:#2f6fd6}.route-order-svg.route-next text{fill:#fff}
+.route-order-svg.route-visited circle{fill:#e7efe9;stroke:#7fa58c}.route-order-svg.route-visited text{fill:#4b6b57}
+.route-order-svg.route-skipped circle{fill:#f3f3f3;stroke:#bbb}.route-order-svg.route-skipped text{fill:#999}
+:root[data-theme=dark] .route-line{stroke:#7fb0ff}
+:root[data-theme=dark] .route-order,:root[data-theme=dark] .route-order-svg circle{background:#1a303e;fill:#1a303e}
