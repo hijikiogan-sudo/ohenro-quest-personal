@@ -189,7 +189,7 @@ function renderHistory(){
 function renderFamily(){
   const last=state?.lastExportAt?new Date(state.lastExportAt).toLocaleString('ja-JP'):'まだ書き出していません';
   if($('#all-backup-last'))$('#all-backup-last').textContent=`前回のバックアップ：${last}`;
-  $('#family-content').innerHTML=`<p>自分のペースで、八十八の出会いを。</p><p class="small">ログイン不要の個人版です。記録はこの端末・このブラウザに保存します。家族や別の端末とは自動共有しません。</p><button class="secondary" id="new-journey">新しい巡礼を作成</button><button class="quiet" id="settings-history">訪問の記録を見る</button><p class="small">前回のバックアップ書き出し：${esc(last)}</p><p class="tiny">プライベートブラウズは使わず、先にホーム画面へ追加してください。端末の容量不足・ブラウザのデータ削除・機種変更で記録が失われる場合があります。JSONバックアップを「ファイル」などに保存してください。</p>`;
+  $('#family-content').innerHTML=`<p>自分のペースで、八十八の出会いを。</p><p class="version" id="settings-version">${esc($('.side-footer .version')?.textContent||'')}</p><p class="small">ログイン不要の個人版です。記録はこの端末・このブラウザに保存します。家族や別の端末とは自動共有しません。</p><button class="secondary" id="new-journey">新しい巡礼を作成</button><button class="quiet" id="settings-history">訪問の記録を見る</button><p class="small">前回のバックアップ書き出し：${esc(last)}</p><p class="tiny">プライベートブラウズは使わず、先にホーム画面へ追加してください。端末の容量不足・ブラウザのデータ削除・機種変更で記録が失われる場合があります。JSONバックアップを「ファイル」などに保存してください。</p>`;
   if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));$('#new-journey').onclick=()=>requireAuth(()=>newJourneyDialog());$('#settings-history').onclick=()=>setView('history');
 }
 let detailTab='basic';
