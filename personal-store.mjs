@@ -5,7 +5,7 @@ const nameOK=(v,max)=>typeof v==='string'&&v.trim().length>0&&v.trim().length<=m
 const fail=message=>{throw new Error(message);};
 const validID=v=>typeof v==='string'&&v.length>0&&v.length<=100;
 
-export function createPersonalStore({indexedDB=globalThis.indexedDB,scope='/',temples,parkingFor=()=>null,now=()=>Date.now(),uuid=()=>crypto.randomUUID()}={}) {
+export function createPersonalStore({indexedDB=globalThis.indexedDB,scope='/',temples,now=()=>Date.now(),uuid=()=>crypto.randomUUID()}={}) {
   let dbPromise;
   const challenges=new Map();
   function fresh() {
@@ -108,7 +108,7 @@ export function createPersonalStore({indexedDB=globalThis.indexedDB,scope='/',te
       if(route==='gps/checkin'){
         const c=challenges.get(b.challengeId);
         if(!c||c.expires<now()||c.pending)fail('測位の有効期限が切れました。再度チェックインしてください。');
-        const assessed=assessGPS(b.position,temples().find(t=>t.id===c.templeId),now(),parkingFor(c.templeId));
+        const assessed=assessGPS(b.position,temples().find(t=>t.id===c.templeId),now());
         if(!assessed.ok)fail(assessed.message);
         c.pending=true;
         try {const result=await withState(s=>insert(s,c.journeyId,[{templeId:c.templeId,date:japanDate(now()),note:''}],'gps-self-reported',assessed),true);challenges.delete(b.challengeId);return {...result,...assessed};}

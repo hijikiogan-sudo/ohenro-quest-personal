@@ -27,7 +27,7 @@ const vehicleKey='ohenro-vehicle:'+new URL('.',import.meta.url).pathname;
 function getVehicle(){try{const v=localStorage.getItem(vehicleKey);return VEHICLES.some(x=>x.id===v)?v:'standard';}catch{return 'standard';}}
 function setVehicle(v){try{localStorage.setItem(vehicleKey,v);}catch{}if(view==='temples')renderTemples();}
 let temples=[],coast=null,state=null,journeyId='',view='home',initialized=false,connected=false;
-const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,temples:()=>temples,parkingFor:id=>parkingFor(id)});
+const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,temples:()=>temples});
 const parkingStore=createParkingStore({scope:new URL('.',import.meta.url).pathname});
 async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}try{memoRows=await parkingStore.listMemos();}catch{memoRows=[];}try{sharedPacks=await parkingStore.listShared();}catch{sharedPacks=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints,sharedPacks);if(initialized&&view==='temples')renderTemples();}
 let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
@@ -159,7 +159,7 @@ function confirmVisits(ids,date,note){
   $('#save-manual').onclick=async e=>{e.target.disabled=true;try{const r=await api('visits',{journeyId:target,visits:ids.map(templeId=>({templeId,date,note}))});closeDialog();await refresh();toast(`${r.added}件を保存しました。${r.skipped?` 重複${r.skipped}件は登録済みです。`:''}`);}catch(err){showError(err);e.target.disabled=false;}};
 }
 function gpsDialog(t){
-  openDialog('現地でチェックイン',`<p>第${t.id}番 ${esc(t.name)} にチェックインします。</p><p class="small">ボタンを押したときだけ位置情報を取得します。札所から誤差を含め300m以内${parkingFor(t.id)?'、または登録した駐車場から150m以内':''}、測位誤差100m以内で近接判定します。現在地の緯度・経度は記録に保存しません。</p><p class="small">GPSは端末の自己申告です。位置偽装を完全には防げず、参拝の証明にはなりません。</p><div id="gps-result" class="gps-result" hidden></div><div class="dialog-actions"><button class="secondary" id="gps-manual">手動で記録する</button><button class="primary" id="gps-measure">現在地を取得する</button></div>`);
+  openDialog('現地でチェックイン',`<p>第${t.id}番 ${esc(t.name)} にチェックインします。</p><p class="small">ボタンを押したときだけ位置情報を取得します。本堂（札所の位置）から誤差を含め300m以内、測位誤差100m以内で近接判定します。駐車場では判定されないので、本堂の近くで測位してください。現在地の緯度・経度は記録に保存しません。</p><p class="small">GPSは端末の自己申告です。位置偽装を完全には防げず、参拝の証明にはなりません。</p><div id="gps-result" class="gps-result" hidden></div><div class="dialog-actions"><button class="secondary" id="gps-manual">手動で記録する</button><button class="primary" id="gps-measure">現在地を取得する</button></div>`);
   $('#gps-manual').onclick=()=>manualDialog([t.id]);
   $('#gps-measure').onclick=async e=>{
     if(!window.isSecureContext){showError(new Error('GPSはHTTPSまたはlocalhostで利用できます。手動登録をご利用ください。'));return;}
@@ -170,8 +170,8 @@ function gpsDialog(t){
       const result=await new Promise((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,maximumAge:0,timeout:20000}));
       if(epoch!==dialogEpoch)return;
       const position={lat:result.coords.latitude,lng:result.coords.longitude,accuracy:result.coords.accuracy,timestamp:result.timestamp};
-      const assessment=assessGPS(position,t,Date.now(),parkingFor(t.id));if(!assessment.ok)throw new Error(assessment.message);
-      $('#gps-result').hidden=false;$('#gps-result').textContent=assessment.near==='parking'?`駐車場まで約${assessment.parkingDistance}m（札所まで約${assessment.distance}m）/ 測位誤差 約${assessment.accuracy}m。駐車場での近接判定の範囲内です。`:`札所まで約${assessment.distance}m / 測位誤差 約${assessment.accuracy}m。近接判定の範囲内です。`;
+      const assessment=assessGPS(position,t);if(!assessment.ok)throw new Error(assessment.message);
+      $('#gps-result').hidden=false;$('#gps-result').textContent=`札所まで約${assessment.distance}m / 測位誤差 約${assessment.accuracy}m。近接判定の範囲内です。`;
       e.target.textContent='チェックインを保存';e.target.disabled=false;
       e.target.onclick=async event=>{event.target.disabled=true;try{const saved=await api('gps/checkin',{challengeId:challenge.id,position});closeDialog();await refresh();toast(saved.added?'GPS自己申告の訪問を保存しました。':'本日の訪問は登録済みです。');if(saved.added)carUI.memoDialog(t,{afterCheckin:true});}catch(err){showError(err);event.target.disabled=false;}};
     }catch(err){if(epoch!==dialogEpoch)return;const messages={1:'位置情報が許可されていません。端末設定で許可するか、手動登録をご利用ください。',2:'現在地を取得できませんでした。屋外で再度お試しいただくか、手動登録をご利用ください。',3:'測位に時間がかかりました。再測位するか、手動登録をご利用ください。'};showError(new Error(messages[err.code]||err.message));e.target.disabled=false;e.target.textContent='現在地を取得する';}

@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {assessGPS, routeUrl, distanceMeters, PARKING_RADIUS} from '../domain.mjs';
+import {assessGPS, routeUrl, distanceMeters} from '../domain.mjs';
 import {validateCarData, validateUserParking, assessParkingRegistration, createParkingResolver, carInfoFor, exportParkings, readParkingsJSON} from '../car-domain.mjs';
 import {planLocation, navigationSections} from '../plan-domain.mjs';
 
@@ -37,36 +37,27 @@ test('壊れた車データは拒否する', () => {
   assert.throws(() => validateCarData(coord));
 });
 
-test('駐車場なし：従来どおり本堂300m判定', () => {
-  assert.equal(assessGPS(pos(north(yokomine, 200)), yokomine, NOW).ok, true);
-  assert.equal(assessGPS(pos(north(yokomine, 200)), yokomine, NOW).near, 'temple');
+test('チェックインは本堂（札所の位置）から誤差込み300m以内', () => {
+  const r = assessGPS(pos(north(yokomine, 200)), yokomine, NOW);
+  assert.equal(r.ok, true);
+  assert.equal(r.distance, 200);
+  assert.equal(assessGPS(pos(north(yokomine, 280), 30), yokomine, NOW).ok, false);
   const far = assessGPS(pos(north(yokomine, 500)), yokomine, NOW);
   assert.equal(far.ok, false);
   assert.match(far.message, /300m/);
+  assert.match(far.message, /本堂/);
 });
 
-test('駐車場あり：本堂から500mでも駐車場の近くなら通る', () => {
+test('駐車場を登録していても、駐車場（本堂から約500m）ではチェックインできない', () => {
   const parking = north(yokomine, 500);
-  const r = assessGPS(pos(north(yokomine, 520), 20), yokomine, NOW, parking);
-  assert.equal(r.ok, true);
-  assert.equal(r.near, 'parking');
-  assert.ok(r.parkingDistance <= 25);
-  assert.ok(r.distance > 500);
+  // 第4引数を渡しても判定は本堂基準のまま
+  assert.equal(assessGPS(pos(parking, 10), yokomine, NOW, parking).ok, false);
+  assert.equal(assessGPS(pos(north(yokomine, 100)), yokomine, NOW, parking).ok, true);
 });
 
-test('駐車場あり：誤差込みで150mを超えると通らない', () => {
-  const parking = north(yokomine, 500);
-  const r = assessGPS(pos(north(yokomine, 640), 20), yokomine, NOW, parking);
-  assert.equal(r.ok, false);
-  assert.match(r.message, new RegExp(`${PARKING_RADIUS}m`));
-  // 本堂300m判定は駐車場があっても優先される
-  assert.equal(assessGPS(pos(north(yokomine, 100)), yokomine, NOW, parking).near, 'temple');
-});
-
-test('測位誤差100m超・古い位置は駐車場があっても拒否', () => {
-  const parking = north(yokomine, 500);
-  assert.equal(assessGPS(pos(parking, 120), yokomine, NOW, parking).ok, false);
-  assert.equal(assessGPS({...parking, accuracy: 5, timestamp: NOW - 120000}, yokomine, NOW, parking).ok, false);
+test('測位誤差100m超・古い位置は拒否', () => {
+  assert.equal(assessGPS(pos(yokomine, 120), yokomine, NOW).ok, false);
+  assert.equal(assessGPS({lat: yokomine.lat, lng: yokomine.lng, accuracy: 5, timestamp: NOW - 120000}, yokomine, NOW).ok, false);
 });
 
 test('ルートURL：駐車場があれば座標、なければ名称＋住所', () => {

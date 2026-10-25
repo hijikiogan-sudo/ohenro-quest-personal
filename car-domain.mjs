@@ -1,6 +1,5 @@
 // 車遍路向けの判定・データ検証（DOMやIndexedDBに依存しない純粋関数）。
-import {distanceMeters, PARKING_RADIUS} from './domain.mjs';
-export {PARKING_RADIUS};
+import {distanceMeters} from './domain.mjs';
 // 自分で駐車場を登録できるのは札所マーカーから3km以内・測位誤差50m以内。
 export const PARKING_REGISTER_MAX_DISTANCE = 3000;
 export const PARKING_REGISTER_MAX_ACCURACY = 50;
