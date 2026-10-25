@@ -9,6 +9,8 @@ import {groupNearby,templeGlyph} from './temple-marker.mjs';
 import {attachTheme, fittedMapBox} from './display.mjs';
 import {createRoadMap} from './road-map.mjs';
 import {routePoints,routeZigzag} from './map-route.mjs';
+import {createMiniMap} from './mini-map.mjs';
+import {DOJO} from './badges.mjs';
 import {outingProgress} from './today-store.mjs';
 import {progress, routeUrl, japanDate, assessGPS, distanceMeters} from './domain.mjs';
 import {createPersonalStore} from './personal-store.mjs';
@@ -33,6 +35,10 @@ const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,
 const parkingStore=createParkingStore({scope:new URL('.',import.meta.url).pathname});
 async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}try{memoRows=await parkingStore.listMemos();}catch{memoRows=[];}try{sharedPacks=await parkingStore.listShared();}catch{sharedPacks=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints,sharedPacks);if(initialized)renderBadges();if(initialized&&view==='temples')renderTemples();}
 let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
+const miniMap=createMiniMap();let miniKind='pale';
+const overlayKey='ohenro-map-overlay:'+new URL('.',import.meta.url).pathname;let mapOverlay={warn:true,dojo:false};try{mapOverlay={...mapOverlay,...JSON.parse(localStorage.getItem(overlayKey)||'{}')};}catch{}
+const dojoOf=id=>DOJO.find(d=>id>=d.from&&id<=d.to)?.id;
+function warnSet(){return mapOverlay.warn?new Set(temples.filter(t=>hasWarn(carUI.flagsFor(t.id))).map(t=>t.id)):new Set();}
 let mapPref='',positionStyle='plain',routeChoice='',routeOptions=[],routeStops=[];
 const routeKey='ohenro-map-route:'+new URL('.',import.meta.url).pathname;
 try{routeChoice=localStorage.getItem(routeKey)||'';}catch{}
@@ -162,7 +168,7 @@ function renderFamily(){
 function detailDialog(id){
   const t=temples.find(t=>t.id===id),visits=currentVisits().filter(v=>v.templeId===id);
   openDialog(`${t.name}`,`<div class="detail-number">${esc(t.prefecture)} · 第${t.id}番札所</div><div class="detail-name">${esc(t.kana)}</div><div class="detail-meta">${esc(t.address)}<br>${visits.length?`✓ ${visits.length}回の訪問を記録`:'この巡礼では未訪問'}</div><div class="detail-actions"><button class="primary" id="gps-start">現在地でチェックイン</button><button class="secondary" id="single-manual">過去の訪問を記録</button><button class="secondary" id="add-to-plan">行き先予定に追加</button><a class="secondary" href="${esc(routeUrl(t,'google',parkingFor(t.id)))}" target="_blank" rel="noopener noreferrer">Googleマップで${parkingFor(t.id)?'駐車場へ':'車ルート'} ↗</a><a class="secondary" href="${esc(routeUrl(t,'apple',parkingFor(t.id)))}" target="_blank" rel="noopener noreferrer">Appleマップで${parkingFor(t.id)?'駐車場へ':'車ルート'} ↗</a></div><p class="small">${parkingFor(t.id)?'ルート先は登録された駐車場の位置です。':'ルート先は札所名・住所で検索します。'}入口や通行規制は公式案内で確認し、安全な場所に停車して操作してください。</p>${carUI.card(t)}${templePrayerCard(t)}<section class="temple-album-card"><div class="album-section-title"><span>この札所の写真</span><span id="album-count">確認中</span></div><div id="album-preview" class="album-preview"></div><button class="secondary" id="open-album">写真を撮る・アルバムを開く →</button></section><details><summary>情報の出典・座標を確認</summary><div class="source-links"><p>緯度 ${t.lat} / 経度 ${t.lng}<br>公式公開地図と照合：${t.verifiedAt}<br>${esc(t.coordinateNote)}</p><a href="${esc(t.associationSourceUrl)}" target="_blank" rel="noopener noreferrer">霊場会の札所案内 ↗</a><br><a href="${esc(t.sourceUrl)}" target="_blank" rel="noopener noreferrer">日本遺産の札所案内 ↗</a>${t.addressSupplementSourceUrl?`<br><a href="${esc(t.addressSupplementSourceUrl)}" target="_blank" rel="noopener noreferrer">所在地の補足確認 ↗</a>`:''}${t.address!==t.heritageAddress?`<p>所在地は出典間に表記差があります。日本遺産掲載値：${esc(t.heritageAddress)}。採用理由は検証記録を参照してください。</p>`:''}</div></details>`);
-  $('#add-to-plan').onclick=()=>{if(!requireAuth())return;closeDialog();setView('plan');planUI.addTemple(id);};$('#prayer-open').onclick=()=>prayerUI.open(t);$('#single-manual').onclick=()=>requireAuth(()=>manualDialog([id]));$('#gps-start').onclick=()=>requireAuth(()=>gpsDialog(t));$('#open-album').onclick=()=>requireAuth()&&photoUI.album(t);carUI.bind(t);photoUI.cover(t);
+  $('#add-to-plan').onclick=()=>{if(!requireAuth())return;closeDialog();setView('plan');planUI.addTemple(id);};$('#prayer-open').onclick=()=>prayerUI.open(t);$('#single-manual').onclick=()=>requireAuth(()=>manualDialog([id]));$('#gps-start').onclick=()=>requireAuth(()=>gpsDialog(t));$('#open-album').onclick=()=>requireAuth()&&photoUI.album(t);carUI.bind(t);const drawMini=()=>miniMap.render(document.querySelector('#dialog .mini-map-box'),t,parkingFor(t.id),miniKind);$$('#dialog [data-mini-kind]').forEach(b=>b.onclick=()=>{miniKind=b.dataset.miniKind;drawMini();});drawMini();photoUI.cover(t);
 }
 function clusterDialog(ids){
   openDialog('この周辺の札所',`<p class="small">近い位置にある${ids.length}つの札所です。開きたい札所を選んでください。</p><div class="cluster-list">${ids.map(id=>{const t=temples.find(t=>t.id===id);return `<button class="cluster-temple" data-cluster-temple="${id}"><span>${templeGlyph(id)}</span><div><small>第${id}番 · ${esc(t.prefecture)}</small><strong>${esc(t.name)}</strong></div><span>→</span></button>`;}).join('')}</div>`);
@@ -240,9 +246,9 @@ function drawMap(done){if(!coast)return;const svg=$('#map');svg.setAttribute('vi
   for(const polygon of coast.geometry.coordinates){html+=`<path class="land" d="${polygon.map(ring=>ring.map((p,i)=>{const [x,y]=projection(p);return `${i?'L':'M'}${x.toFixed(2)},${y.toFixed(2)}`;}).join('')+'Z').join('')}"/>`;}
   html+='<text x="240" y="105" class="water-label">瀬戸内海</text><text x="470" y="385" class="water-label">太平洋</text>';
   for(const [name,coord] of [['徳島',[134.12,33.95]],['高知',[133.35,33.45]],['愛媛',[132.95,33.85]],['香川',[133.91,34.27]]]){const [x,y]=projection(coord);html+=`<text x="${x}" y="${y}" class="map-label">${name}</text>`;}
-  const markerScale=mapBox[2]/(svg.clientWidth||600);
+  const markerScale=mapBox[2]/(svg.clientWidth||600),warnIds=warnSet();svg.classList.toggle('dojo-mode',!!mapOverlay.dojo);
   const groups=groupNearby(mapTemples(),t=>projection([t.lng,t.lat]).map(v=>v/markerScale),48);
-  html+=groups.map(group=>{const t=group[0],multiple=group.length>1,[x,y]=projection([group.reduce((s,t)=>s+t.lng,0)/group.length,group.reduce((s,t)=>s+t.lat,0)/group.length]);return `<g class="pin temple-position ${group.every(t=>done.has(t.id))?'visited':''}" transform="translate(${x},${y}) scale(${markerScale})" tabindex="0" role="button" aria-label="${multiple?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+esc(t.name)}" ${multiple?`data-map-cluster="${group.map(t=>t.id).join(',')}"`:`data-map-temple="${t.id}"`}><g transform="translate(-22,-47)">${templeGlyph(multiple?group.length+'寺':t.id)}</g></g>`;}).join('');
+  html+=groups.map(group=>{const t=group[0],multiple=group.length>1,[x,y]=projection([group.reduce((s,t)=>s+t.lng,0)/group.length,group.reduce((s,t)=>s+t.lat,0)/group.length]);const warn=warnIds.has(t.id)||group.some(x=>warnIds.has(x.id)),dj=mapOverlay.dojo&&new Set(group.map(x=>dojoOf(x.id))).size===1?' dojo-'+dojoOf(t.id):'';return `<g class="pin temple-position ${group.every(t=>done.has(t.id))?'visited':''}${dj}${warn?' car-warn':''}" transform="translate(${x},${y}) scale(${markerScale})" tabindex="0" role="button" aria-label="${multiple?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+esc(t.name)}" ${multiple?`data-map-cluster="${group.map(t=>t.id).join(',')}"`:`data-map-temple="${t.id}"`}><g transform="translate(-22,-47)">${templeGlyph(multiple?group.length+'寺':t.id)}</g>${warn?'<g class="warn-badge" transform="translate(15,-44)"><circle r="8"/><text>!</text></g>':''}</g>`;}).join('');
   const route=currentRoute(done);
   if(route.length){const pts=route.map(p=>projection([p.lng,p.lat]));if(pts.length>1)html=html.replace('<g class="pin','<polyline class="route-line" points="'+pts.map(([x,y])=>`${x.toFixed(1)},${y.toFixed(1)}`).join(' ')+'"/><g class="pin');html+=route.map((p,i)=>`<g class="route-order-svg route-${p.status}" transform="translate(${pts[i][0]+10*markerScale},${pts[i][1]-30*markerScale}) scale(${markerScale})" aria-hidden="true"><circle r="10"/><text>${p.order}</text></g>`).join('');}
   svg.innerHTML=html;$$('[data-map-temple],[data-map-cluster]').forEach(el=>{const activate=()=>el.dataset.mapCluster?clusterDialog(el.dataset.mapCluster.split(',').map(Number)):detailDialog(Number(el.dataset.mapTemple));el.onclick=activate;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};});
@@ -282,9 +288,11 @@ function renderMapPanel(done,{fit=false}={}){
   $$('[data-map-pref]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mapPref===mapPref)));
   $('#map-temple-list').innerHTML=rows.map(t=>`<button class="map-temple-chip ${done.has(t.id)?'visited':''}" data-map-list-temple="${t.id}"><span>${t.id}</span>${esc(t.name)}${done.has(t.id)?' ✓':''}</button>`).join('');
   $$('[data-map-list-temple]').forEach(b=>b.onclick=()=>detailDialog(Number(b.dataset.mapListTemple)));
-  roadMap.update(rows,done,{fit,routePoints:currentRoute(done)});
+  roadMap.update(rows,done,{fit,routePoints:currentRoute(done),warn:warnSet(),dojoOf:mapOverlay.dojo?dojoOf:null});
+  if($('#map-overlay-warn'))$('#map-overlay-warn').checked=mapOverlay.warn;if($('#map-overlay-dojo'))$('#map-overlay-dojo').checked=mapOverlay.dojo;if($('#dojo-legend'))$('#dojo-legend').hidden=!mapOverlay.dojo;
   renderRouteControl(done);
 }
+for(const [id,key] of [['#map-overlay-warn','warn'],['#map-overlay-dojo','dojo']])$(id).onchange=e=>{mapOverlay[key]=e.target.checked;try{localStorage.setItem(overlayKey,JSON.stringify(mapOverlay));}catch{}const done=new Set(currentVisits().map(v=>v.templeId));drawMap(done);renderMapPanel(done);};
 $('#map-route').onchange=async e=>{routeChoice=e.target.value;try{localStorage.setItem(routeKey,routeChoice);}catch{}await refreshRouteOptions();const done=new Set(currentVisits().map(v=>v.templeId)),r=currentRoute(done);if(r.length){mapPref='';mapBox=fittedMapBox(r.map(p=>projection([p.lng,p.lat])));drawMap(done);renderMapPanel(done,{fit:true});}};
 $$('[data-map-pref]').forEach(b=>b.onclick=()=>{mapPref=b.dataset.mapPref;fitMapCounty();drawMap(new Set(currentVisits().map(v=>v.templeId)));renderMapPanel(new Set(currentVisits().map(v=>v.templeId)),{fit:true});});
 function redrawMap(){const done=new Set(currentVisits().map(v=>v.templeId));drawMap(done);renderMapPanel(done);}

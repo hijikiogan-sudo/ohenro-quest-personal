@@ -1,10 +1,11 @@
 import {groupNearby,templeGlyph} from './temple-marker.mjs';
 import {MAP_KINDS,readMapKind,isTileKind,GSI} from './map-route.mjs';
+import {loadLeaflet} from './leaflet-loader.mjs';
 // 地図の種類は「全体図・地図・写真」の1か所で切り替える。地図は国土地理院の淡色／標準、写真は国土地理院の写真。
 // 地図タイルは利用者が表示した範囲のみ通常の画像として読み込む。Service Workerやアプリ独自のオフラインキャッシュには保存しない。
 export function createRoadMap({document=globalThis.document,window=globalThis.window,navigator=globalThis.navigator,onTemple=()=>{},onCluster=()=>{},onKind=()=>{},scope='/',storage}={}){
   const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-  let map,baseLayer,photoLayer,markers,routeLayer,loading,rows=[],visited=new Set(),route=[],needsFit=true,lastSignature='',tileFailed=false,pendingView=null;
+  let map,baseLayer,photoLayer,markers,routeLayer,rows=[],overlay={warn:new Set(),dojoOf:null},visited=new Set(),route=[],needsFit=true,lastSignature='',tileFailed=false,pendingView=null;
   try{storage??=window.localStorage;}catch{}
   const kindKey='ohenro-map-style:'+scope;
   let kind=readMapKind(storage,kindKey);
@@ -26,15 +27,7 @@ export function createRoadMap({document=globalThis.document,window=globalThis.wi
     $('#road-note').hidden=!active;$('#gsi-credit').hidden=!active;
     return active;
   }
-  function library(){
-    if(window.L)return Promise.resolve(window.L);
-    if(!loading)loading=new Promise((resolve,reject)=>{
-      const s=document.createElement('script');s.src='./vendor/leaflet/leaflet.js';
-      s.onload=()=>window.L?resolve(window.L):reject(new Error('地図の準備に失敗しました。'));
-      s.onerror=()=>{s.remove();loading=null;reject(new Error('地図を読み込めません。全体図をご利用ください。'));};document.head.append(s);
-    });
-    return loading;
-  }
+  const library=()=>loadLeaflet(document,window);
   const credit='<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">地理院タイル</a>';
   function setBase(L){
     if(baseLayer)map.removeLayer(baseLayer);if(photoLayer){map.removeLayer(photoLayer);photoLayer=null;}
@@ -59,7 +52,7 @@ export function createRoadMap({document=globalThis.document,window=globalThis.wi
       }
       if(map._ohenroKind!==kind){setBase(L);map._ohenroKind=kind;}
       map.invalidateSize();
-      const signature=kind+'|'+map.getZoom()+'|'+rows.map(t=>t.id+':'+visited.has(t.id)).join(',')+'|'+route.map(p=>p.templeId+p.status).join(',');
+      const signature=kind+'|'+map.getZoom()+'|'+rows.map(t=>t.id+':'+visited.has(t.id)).join(',')+'|'+route.map(p=>p.templeId+p.status).join(',')+'|'+[...overlay.warn].join(',')+'|'+(overlay.dojoOf?1:0);
       function renderMarkers(){
         markers.clearLayers();routeLayer.clearLayers();
         if(route.length>1)L.polyline(route.map(p=>[p.lat,p.lng]),{className:'route-line',interactive:false}).addTo(routeLayer);
@@ -75,7 +68,8 @@ export function createRoadMap({document=globalThis.document,window=globalThis.wi
           const content=document.createElement('span');content.innerHTML=templeGlyph(isGroup?group.length+'寺':t.id);
           const lat=group.reduce((s,t)=>s+t.lat,0)/group.length,lng=group.reduce((s,t)=>s+t.lng,0)/group.length;
           const onRoute=group.some(t=>inRoute.has(t.id));
-          const marker=L.marker([lat,lng],{keyboard:true,title:label,alt:label,icon:L.divIcon({className:'temple-map-marker'+(done?' visited':'')+(isGroup?' grouped':'')+(onRoute?' on-route':''),html:content,iconSize:[44,48],iconAnchor:[22,47]})}).addTo(markers);
+          const warn=group.some(t=>overlay.warn.has(t.id)),dojo=overlay.dojoOf&&new Set(group.map(t=>overlay.dojoOf(t.id))).size===1?' dojo-'+overlay.dojoOf(t.id):'';
+          const marker=L.marker([lat,lng],{keyboard:true,title:label+(warn?' 車の注意あり':''),alt:label,icon:L.divIcon({className:'temple-map-marker'+(done?' visited':'')+(isGroup?' grouped':'')+(onRoute?' on-route':'')+(warn?' car-warn':'')+dojo,html:content,iconSize:[44,48],iconAnchor:[22,47]})}).addTo(markers);
           marker.on('click',()=>isGroup?onCluster(group.map(t=>t.id)):onTemple(t.id));
           if(!isGroup&&map.getZoom()>=12){const name=document.createElement('span');name.textContent=t.name;marker.bindTooltip(name,{direction:'right',offset:[12,-22],className:'temple-map-name'});}
         }
@@ -99,7 +93,7 @@ export function createRoadMap({document=globalThis.document,window=globalThis.wi
   $$('[data-map-base]').forEach(b=>b.onclick=()=>choose(b.dataset.mapBase));
   onKind(kind);show();
   return {
-    update(next,done,{fit=false,routePoints=null}={}){rows=next;visited=done;if(routePoints){const changed=routePoints.map(p=>p.templeId).join()!==route.map(p=>p.templeId).join();route=routePoints;needsFit||=changed;}needsFit||=fit;return draw();},
+    update(next,done,{fit=false,routePoints=null,warn=null,dojoOf}={}){rows=next;visited=done;if(warn)overlay.warn=warn;if(dojoOf!==undefined)overlay.dojoOf=dojoOf;$('#road-map').classList.toggle('dojo-mode',!!overlay.dojoOf);if(routePoints){const changed=routePoints.map(p=>p.templeId).join()!==route.map(p=>p.templeId).join();route=routePoints;needsFit||=changed;}needsFit||=fit;return draw();},
     reset(){needsFit=true;return draw();},
     show, choose, focus, getKind:()=>kind
   };

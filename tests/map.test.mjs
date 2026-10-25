@@ -43,3 +43,13 @@ test('行ったり来たりの目安：徳島→高知→徳島→高知は検�
   const straight = routePoints([1, 2, 3, 4, 5].map(templeId => ({templeId})), temples);
   assert.equal(routeZigzag(straight, d), false);
 });
+
+import {parkingWalkNote} from '../mini-map.mjs';
+test('札所のまわり：駐車場からチェックイン範囲までの目安', () => {
+  const t = temples.find(t => t.id === 60);
+  assert.match(parkingWalkNote(t, null), /登録すると/);
+  const near = {lat: t.lat + 200 / 111320, lng: t.lng, label: '自分で登録した駐車場'};
+  assert.match(parkingWalkNote(t, near), /約(199|200)m.*範囲（300m）の中/);
+  const far = {lat: t.lat + 500 / 111320, lng: t.lng, label: '自分で登録した駐車場'};
+  assert.match(parkingWalkNote(t, far), /約(499|500)m（直線）.*約(199|200)m先/);
+});
