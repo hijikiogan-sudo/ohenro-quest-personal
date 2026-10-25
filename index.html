@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>お遍路クエスト | 自分のペースで、八十八の旅</title>
   <link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css"><link rel="stylesheet" href="./style.css?v=personal-12"><link rel="stylesheet" href="./display.css"><link rel="stylesheet" href="./memories.css"><link rel="stylesheet" href="./quest-map.css"><link rel="stylesheet" href="./album.css"><link rel="stylesheet" href="./plan.css"><link rel="stylesheet" href="./prayer.css"><link rel="stylesheet" href="./today.css"><link rel="stylesheet" href="./car.css"><script type="module" src="./app.mjs?v=personal-12"></script>
+  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css"><link rel="stylesheet" href="./style.css?v=personal-13"><link rel="stylesheet" href="./display.css"><link rel="stylesheet" href="./memories.css"><link rel="stylesheet" href="./quest-map.css"><link rel="stylesheet" href="./album.css"><link rel="stylesheet" href="./plan.css"><link rel="stylesheet" href="./prayer.css"><link rel="stylesheet" href="./today.css"><link rel="stylesheet" href="./car.css"><link rel="stylesheet" href="./badges.css"><script type="module" src="./app.mjs?v=personal-13"></script>
 </head>
 <body>
   <a class="skip" href="#main">本文へ移動</a>
@@ -22,7 +22,7 @@
       <button class="nav" data-view="history"><span aria-hidden="true">▤</span>訪問の記録</button>
       <button class="nav" data-view="family"><span aria-hidden="true">♧</span>記録と設定</button>
     </nav>
-    <div class="side-footer"><span class="small-seal">同行二人</span><p>週末に、ひとつ先の景色へ。</p><span class="version">個人テスト版 · v0.14</span></div>
+    <div class="side-footer"><span class="small-seal">同行二人</span><p>週末に、ひとつ先の景色へ。</p><span class="version">個人テスト版 · v0.15</span></div>
   </aside>
   <div class="workspace">
     <header class="topbar"><span class="breadcrumb">四国八十八ヶ所 <span>/</span> 車遍路の記録</span><div class="top-actions"><span id="connection" class="connection">● 保存領域を確認</span><button id="theme-toggle" class="quiet" aria-label="表示モードを切り替える">☾ ダーク</button><button id="account" class="quiet">設定</button></div></header>
@@ -45,7 +45,7 @@
             <div id="map-temple-list" class="map-temple-list" aria-label="地図に表示している札所"></div>
             <p id="gsi-credit" class="map-credit" hidden>淡色地図：地理院タイル。Shoreline data is derived from: United States. National Imagery and Mapping Agency. &quot;Vector Map Level 0 (VMAP0).&quot; Bethesda, MD: Denver, CO: The Agency; USGS Information Services, 1997.</p><div class="map-foot"><span>番号をタップで詳細</span><span>位置図：Natural Earth · <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener noreferrer">道路地図の修正を報告 ↗</a></span></div>
           </section>
-          <section class="card milestones"><div class="section-label">集める、旅のしるし。 <span>称号とバッジ</span></div><div id="badges"></div><p class="small">1寺につき100 XP。同じ巡礼での再訪はXPに重複加算しません。</p><button class="text-button" data-action="history">訪問の記録を見る →</button></section>
+          <section class="card milestones"><div class="section-label">集める、旅のしるし。 <span>称号とバッジ</span></div><div id="badges"></div><p class="small">1寺につき100 XP。バッジは札所・車の記録・写真で段階が上がります。</p><button class="text-button" data-action="history">訪問の記録を見る →</button></section>
         </div>
         <div class="gentle-note"><span>✧</span><p>運転中は操作せず、安全な場所に停車してから。<br><small>山道や駐車場への入口は、札所の公式案内もご確認ください。</small></p></div>
       </section>

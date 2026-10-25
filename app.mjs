@@ -13,6 +13,7 @@ import {progress, routeUrl, japanDate, assessGPS} from './domain.mjs';
 import {createPersonalStore} from './personal-store.mjs';
 import {createParkingStore} from './parking-store.mjs';
 import {createCarUI, chipsHTML} from './car-ui.mjs';
+import {computeBadges, tierKeys, newlyEarned, badgeSummary, featuredBadges} from './badges.mjs';
 import {validateCarData, createParkingResolver, planWarnings, hasWarn, VEHICLES, planSchedule, legHistory, speedOf, SPEEDS, formatMinutes, NOKYO_OPEN, NOKYO_CLOSE} from './car-domain.mjs';
 
 const $ = selector=>document.querySelector(selector);
@@ -29,7 +30,7 @@ function setVehicle(v){try{localStorage.setItem(vehicleKey,v);}catch{}if(view===
 let temples=[],coast=null,state=null,journeyId='',view='home',initialized=false,connected=false;
 const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,temples:()=>temples});
 const parkingStore=createParkingStore({scope:new URL('.',import.meta.url).pathname});
-async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}try{memoRows=await parkingStore.listMemos();}catch{memoRows=[];}try{sharedPacks=await parkingStore.listShared();}catch{sharedPacks=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints,sharedPacks);if(initialized&&view==='temples')renderTemples();}
+async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}try{memoRows=await parkingStore.listMemos();}catch{memoRows=[];}try{sharedPacks=await parkingStore.listShared();}catch{sharedPacks=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints,sharedPacks);if(initialized)renderBadges();if(initialized&&view==='temples')renderTemples();}
 let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
 let mapPref='',positionStyle='quest',questBackground='';
 attachTheme({scope:new URL('.',import.meta.url).pathname});
@@ -47,6 +48,29 @@ function toast(message,action) {
   clearTimeout(toastTimer);const el=$('#toast');el.replaceChildren(document.createTextNode(message));
   if(action) {const b=document.createElement('button');b.textContent=action.label;b.onclick=action.run;el.append(b);}
   el.hidden=false;toastTimer=setTimeout(()=>{el.hidden=true;},action?15000:5500);
+}
+let photoCount=null,badgeTimer=null;
+const badgeSeenKey='ohenro-badges-seen:'+new URL('.',import.meta.url).pathname;
+function currentBadges(){return computeBadges({visits:state?.visits||[],journeyId,carData,ratings,parkings:parkingPoints,memos:memoRows,sharedCount:sharedPacks.length,photoCount});}
+function sealHTML(b,size=''){return `<span class="seal t${b.tier?(3-b.max+b.tier):0}${size}" aria-hidden="true"><span>${esc(b.seal)}</span></span>`;}
+function barHTML(b){return `<svg class="qbar" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true"><rect class="qbar-bg" width="100" height="4" rx="2"/><rect class="qbar-fg" width="${Math.round((b.complete?1:b.progress)*100)}" height="4" rx="2"/></svg>`;}
+function badgeStatus(b){return b.complete?`${b.tierName}・達成`:b.tier?`${b.tierName} · 次は${b.next}${b.unit}（あと${b.next-b.value}）`:`あと${b.next-b.value}${b.unit}で獲得`;}
+function badgeCard(b){return `<button type="button" class="qbadge${b.earned?' earned':''}" data-badge="${esc(b.id)}">${sealHTML(b)}<strong>${esc(b.name)}</strong><small>${esc(badgeStatus(b))}</small>${barHTML(b)}</button>`;}
+function renderBadges(){
+  if(!$('#badges'))return;
+  const list=currentBadges(),sum=badgeSummary(list);
+  $('#badges').innerHTML=`<div class="badge-summary"><strong>${sum.earnedTiers}</strong><span>/ ${sum.totalTiers} 段階</span><small>${sum.earnedBadges}種類のバッジを獲得（全${sum.totalBadges}種類）</small></div><div class="qbadges">${featuredBadges(list,6).map(badgeCard).join('')}</div><button type="button" class="text-button" id="all-badges">すべてのバッジを見る →</button>`;
+  $$('#badges [data-badge]').forEach(el=>el.onclick=()=>badgeDialog(el.dataset.badge));$('#all-badges').onclick=()=>badgeDialog();
+  if(!state)return;
+  let seen=null;try{seen=JSON.parse(localStorage.getItem(badgeSeenKey)||'null');}catch{}
+  const keys=tierKeys(list);
+  if(Array.isArray(seen)){const fresh=newlyEarned(list,seen);if(fresh.length){clearTimeout(badgeTimer);badgeTimer=setTimeout(()=>toast(`バッジを獲得：${fresh.map(f=>`${f.name}（${f.tierName}）`).join('、')}`),400);}}
+  try{localStorage.setItem(badgeSeenKey,JSON.stringify([...new Set([...(Array.isArray(seen)?seen:[]),...keys])]));}catch{}
+}
+function badgeDialog(focus){
+  const list=currentBadges(),groups=[...new Set(list.map(b=>b.group))];
+  openDialog('旅のしるし',`<p class="small">銅→銀→金と段階が上がります。札所の巡りは「${esc(currentJourney()?.name||'')}」、記録の積み重ねは全巡礼で数えます。</p>${groups.map(g=>`<h3 class="badge-group">${esc(g)}</h3><div class="badge-rows">${list.filter(b=>b.group===g).map(b=>`<div class="badge-row${b.id===focus?' focus':''}" id="badge-${esc(b.id)}">${sealHTML(b,' lg')}<div><strong>${esc(b.name)}</strong><small>${esc(b.how)}</small><span class="tier-steps">${b.goals.map((goal,i)=>`<span class="step${i<b.tier?' on':''}">${['銅','銀','金'].slice(3-b.max)[i]} ${goal}${esc(b.unit)}</span>`).join('')}</span>${barHTML(b)}<small>いま ${b.value}${esc(b.unit)} · ${esc(badgeStatus(b))}</small></div></div>`).join('')}</div>`).join('')}`);
+  if(focus)document.getElementById('badge-'+focus)?.scrollIntoView({block:'center'});
 }
 function planWarningsHTML(plan){
   const w=planWarnings({stops:plan.stops,date:(plan.departAt||'').slice(0,10),carData,ratings,vehicle:getVehicle(),temples});
@@ -106,9 +130,8 @@ function render(){
   const next=temples.find(t=>!done.has(t.id));
   $('#next-temple').innerHTML=next?`<div class="next-top"><div class="temple-number">${next.id.toString().padStart(2,'0')}</div><div><small>${esc(next.prefecture)} · 第${next.id}番札所</small><h2>${esc(next.name)}</h2></div></div><p>${esc(next.address)}<br>未訪問の番号が小さい札所を表示しています。</p><button class="primary" id="next-detail">札所の詳細・チェックイン →</button><a class="text-button" href="${esc(routeUrl(next,'google',parkingFor(next.id)))}" target="_blank" rel="noopener noreferrer">${parkingFor(next.id)?'駐車場へのルートをGoogleマップで開く ↗':'車のルートをGoogleマップで開く ↗'}</a>`:'<div class="next-top"><div class="temple-number">祝</div><h2>結願</h2></div><p>すべての札所をめぐりました。<br>グループ・設定から新しい巡礼を始められます。</p>';
   if(next)$('#next-detail').onclick=()=>detailDialog(next.id);
-  const badgeList=[['はじめの一歩','✧'],['十寺巡礼','❀'],['結願','♧']];
-  $('#badges').innerHTML=badgeList.map(([name,icon])=>`<div class="badge ${p.badges.includes(name)?'earned':''}"><span class="badge-icon" aria-hidden="true">${icon}</span><span>${name}</span><span>${p.badges.includes(name)?'獲得済み':'未獲得'}</span></div>`).join('')+p.badges.filter(b=>!badgeList.some(([name])=>name===b)).map(b=>`<div class="badge earned"><span class="badge-icon">❀</span><span>${esc(b)}</span><span>獲得済み</span></div>`).join('');
-  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();photoUI.stats();if(view==='album')photoUI.library({soft:true});if(view==='plan')planUI.render({soft:true});if(view==='home')todayUI.render();
+  renderBadges();
+  drawMap(done);renderMapPanel(done);renderTemples();renderHistory();renderFamily();photoUI.stats();photos.status().then(st=>{if(photoCount!==st.count){photoCount=st.count;renderBadges();}}).catch(()=>{});if(view==='album')photoUI.library({soft:true});if(view==='plan')planUI.render({soft:true});if(view==='home')todayUI.render();
   $('#install-note').textContent=window.isSecureContext?'この画面はPWA・位置情報が使える接続です（対応ブラウザ・端末の許可が必要）。':'この接続ではGPS・PWA機能に制限があります。iPhoneでの本利用には、信頼されたHTTPS接続が必要です。';
 }
 function renderTemples(){
