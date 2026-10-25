@@ -220,3 +220,88 @@ test('バックアップv3：車メモを含めて往復', () => {
   assert.deepEqual(back.memos, memos);
   assert.throws(() => readParkingsJSON(JSON.stringify({format: 'ohenro-quest-parkings', version: 3, points: [], ratings: [], memos: [...memos, ...memos]})));
 });
+
+// ---- STEP 4 ----
+import {estimateLeg, planSchedule, legHistory, exportSharePack, readSharePack, validateSharedPack, shareText, NOKYO_CLOSE} from '../car-domain.mjs';
+
+test('移動の目安：直線×1.4÷速さ、5分単位・最低5分', () => {
+  const a = temples.find(t => t.id === 1), b = temples.find(t => t.id === 2);
+  const leg = estimateLeg(a, b, 35);
+  assert.ok(Math.abs(leg.roadKm - leg.straightKm * 1.4) < 1e-9);
+  assert.equal(leg.minutes % 5, 0);
+  assert.ok(leg.minutes >= 5);
+  assert.ok(estimateLeg(a, b, 30).minutes >= estimateLeg(a, b, 40).minutes);
+});
+
+test('時間割：出発時刻から到着・出発を積み上げ、17時以降は受付時間外', () => {
+  const stops = [{templeId: 1, minutes: 30}, {templeId: 2, minutes: 30}, {templeId: 3, minutes: 30}];
+  const sc = planSchedule({stops, departAt: '2026-11-01T08:00', temples, origin: {kind: 'current'}, returnTo: {kind: 'none'}});
+  assert.equal(sc.unknownFirst, true);
+  assert.equal(sc.rows[0].arriveText, '08:00');
+  assert.equal(sc.rows[0].leaveText, '08:30');
+  assert.equal(sc.rows[1].arrive, 8 * 60 + 30 + sc.rows[1].leg.minutes);
+  assert.equal(sc.outsideCount, 0);
+  const late = planSchedule({stops, departAt: '2026-11-01T16:40', temples, origin: {kind: 'current'}, returnTo: {kind: 'none'}});
+  assert.ok(late.outsideCount >= 2);
+  assert.ok(late.rows.at(-1).arrive > NOKYO_CLOSE);
+  const early = planSchedule({stops: [{templeId: 1, minutes: 30}], departAt: '2026-11-01T07:00', temples});
+  assert.equal(early.rows[0].outside, true);
+  const noTime = planSchedule({stops, temples, origin: {kind: 'temple', templeId: 88}, returnTo: {kind: 'temple', templeId: 88}});
+  assert.equal(noTime.rows[0].arriveText, '');
+  assert.ok(noTime.rows[0].leg && noTime.back);
+  assert.equal(noTime.unknownFirst, false);
+});
+
+test('時間割：駐車場があればその位置で計算', () => {
+  const far = {lat: 33.9, lng: 134.0};
+  const a = planSchedule({stops: [{templeId: 1, minutes: 0}, {templeId: 2, minutes: 0}], temples});
+  const b = planSchedule({stops: [{templeId: 1, minutes: 0}, {templeId: 2, minutes: 0}], temples, parkingFor: id => id === 2 ? far : null});
+  assert.ok(b.rows[1].leg.roadKm > a.rows[1].leg.roadKm);
+});
+
+test('実績：同じ日に続けたGPSチェックインの間隔だけを数える', () => {
+  const base = Date.UTC(2026, 9, 25, 0, 0);
+  const v = (templeId, min, extra = {}) => ({templeId, journeyId: 'j', date: '2026-10-25', method: 'gps-self-reported', createdAt: base + min * 60000, deletedAt: null, ...extra});
+  const h = legHistory([v(1, 0), v(2, 45), v(3, 100, {method: 'manual'}), v(4, 160), v(5, 2000, {date: '2026-10-26'})]);
+  assert.deepEqual(h.get('1-2'), [{minutes: 45, date: '2026-10-25'}]);
+  assert.equal(h.get('2-4')[0].minutes, 115);
+  assert.equal(h.has('4-5'), false);
+  assert.equal(h.has('2-3'), false);
+});
+
+test('共有ファイル：名前必須、往復でき、他形式は拒否', () => {
+  const memos = [validateMemo({id: 'm1', templeId: 12, date: '2026-10-25', savedAt: NOW, road: 'narrow', note: '待避所少なめ'})];
+  const ratings = [validateRating({templeId: 12, level: 3, savedAt: NOW})];
+  assert.throws(() => exportSharePack({name: ' ', memos}));
+  assert.throws(() => exportSharePack({name: '父'}));
+  const pack = readSharePack(exportSharePack({name: '父', memos, ratings}));
+  assert.equal(pack.name, '父');
+  assert.deepEqual(pack.memos, memos);
+  assert.throws(() => readSharePack(exportParkings([], ratings, memos)));
+  const stored = validateSharedPack({id: 's1', importedAt: NOW, ...pack});
+  assert.equal(stored.id, 's1');
+  const text = shareText({name: '父', memos, ratings, temples});
+  assert.match(text, /第12番 焼山寺　評価：3 難所/);
+  assert.match(text, /待避所少なめ/);
+});
+
+test('共有された駐車場：自分の登録・公式座標がないときだけ使う', () => {
+  const pack = {id: 's1', name: '父', importedAt: NOW, memos: [], ratings: [], points: [validateUserParking({templeId: 60, lat: 33.842, lng: 133.111, accuracy: 10, savedAt: NOW})]};
+  const r = createParkingResolver(car, [], [pack]);
+  assert.equal(r(60).source, 'shared');
+  assert.match(r(60).label, /父さん/);
+  const mine = createParkingResolver(car, [validateUserParking({templeId: 60, lat: 33.843, lng: 133.111, accuracy: 10, savedAt: NOW})], [pack]);
+  assert.equal(mine(60).source, 'user');
+});
+
+test('時間割：自分の実績がある区間は実績から移動時間を出す', () => {
+  const stops = [{templeId: 11, minutes: 30}, {templeId: 12, minutes: 30}];
+  const est = planSchedule({stops, departAt: '2026-11-01T09:00', temples});
+  const hist = new Map([['11-12', [{minutes: 100, date: '2026-10-20'}]]]);
+  const real = planSchedule({stops, departAt: '2026-11-01T09:00', temples, history: hist});
+  assert.equal(real.rows[1].leg.minutes, 70);
+  assert.equal(real.rows[1].leg.fromHistory, true);
+  assert.equal(real.rows[1].arriveText, '10:40');
+  assert.equal(real.driveMinutes, 70);
+  assert.ok(est.rows[1].leg.minutes < 70);
+});

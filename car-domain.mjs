@@ -47,14 +47,18 @@ export function assessParkingRegistration(position, temple, now = Date.now()) {
 }
 
 // ナビ・チェックインに使う駐車場を選ぶ。自分で登録した地点を最優先し、次に出典付きデータの座標。
-export function createParkingResolver(carData, userPoints = []) {
+export function createParkingResolver(carData, userPoints = [], sharedPacks = []) {
   const byData = new Map((carData?.temples || []).filter(t => t.parkingPoints.length).map(t => [t.id, t.parkingPoints[0]]));
   const byUser = new Map(userPoints.map(p => [p.templeId, p]));
+  const byShared = new Map();
+  for (const pack of [...sharedPacks].sort((a, b) => b.importedAt - a.importedAt)) for (const p of pack.points) if (!byShared.has(p.templeId)) byShared.set(p.templeId, {...p, from: pack.name});
   return templeId => {
     const u = byUser.get(templeId);
     if (u) return {lat: u.lat, lng: u.lng, label: '自分で登録した駐車場', source: 'user', savedAt: u.savedAt, accuracy: u.accuracy};
     const d = byData.get(templeId);
     if (d) return {lat: d.lat, lng: d.lng, label: d.label, source: 'data', sourceUrl: d.sourceUrl};
+    const sh = byShared.get(templeId);
+    if (sh) return {lat: sh.lat, lng: sh.lng, label: `${sh.from}さんが共有した駐車場`, source: 'shared', savedAt: sh.savedAt, accuracy: sh.accuracy};
     return null;
   };
 }
@@ -211,4 +215,95 @@ export function suggestRating(memos) {
     if (m.parking === 'full') { level = Math.max(level, 1); reasons.push('駐車場が満車'); }
   }
   return {level, reasons: [...new Set(reasons)]};
+}
+
+// ---- STEP 4：移動時間の目安（無料・端末内計算）と共有ファイル ----
+
+// 霊場会「お遍路の心得」：お納経は基本的に午前8時から午後5時まで。
+export const NOKYO_OPEN = 8 * 60, NOKYO_CLOSE = 17 * 60;
+// 直線距離に掛ける道のりの係数と平均速度。実測ではなく目安（山道・市街地で大きく変わる）。
+export const ROAD_FACTOR = 1.4;
+export const SPEEDS = [{id: 'slow', label: 'ゆっくり（時速30km）', kmh: 30}, {id: 'normal', label: 'ふつう（時速35km）', kmh: 35}, {id: 'fast', label: '早め（時速40km）', kmh: 40}];
+export const speedOf = id => SPEEDS.find(s => s.id === id) || SPEEDS[1];
+
+export function estimateLeg(from, to, kmh = 35) {
+  const straightKm = distanceMeters(from, to) / 1000, roadKm = straightKm * ROAD_FACTOR;
+  return {straightKm, roadKm, minutes: Math.max(5, Math.round(roadKm / kmh * 60 / 5) * 5)};
+}
+
+const hm = m => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+export const formatMinutes = m => m >= 60 ? `${Math.floor(m / 60)}時間${m % 60 ? `${m % 60}分` : ''}` : `${m}分`;
+
+// 自分のGPSチェックインから、同じ日に続けて記録した2札所の間隔（参拝＋移動）を集める。
+export function legHistory(visits) {
+  const gps = visits.filter(v => v.method === 'gps-self-reported' && !v.deletedAt && v.date && Number.isFinite(v.createdAt)).sort((a, b) => a.createdAt - b.createdAt);
+  const map = new Map();
+  for (let i = 1; i < gps.length; i++) {
+    const a = gps[i - 1], b = gps[i];
+    if (a.date !== b.date || a.journeyId !== b.journeyId || a.templeId === b.templeId) continue;
+    const minutes = Math.round((b.createdAt - a.createdAt) / 60000);
+    if (minutes < 1 || minutes > 600) continue;
+    const key = `${a.templeId}-${b.templeId}`;
+    map.set(key, [...(map.get(key) || []), {minutes, date: b.date}]);
+  }
+  return map;
+}
+
+// 予定の時間割（目安）。札所の位置は駐車場があれば駐車場、なければ地図上の札所マーカー。
+export function planSchedule({stops, departAt = '', temples, parkingFor = () => null, origin = null, returnTo = null, kmh = 35, history = new Map()}) {
+  const point = id => { const p = parkingFor(id); if (p) return p; const t = temples.find(t => t.id === id); return t ? {lat: t.lat, lng: t.lng} : null; };
+  const endPoint = e => e?.kind === 'temple' ? point(e.templeId) : null;
+  const start = departAt && /T\d{2}:\d{2}$/.test(departAt) ? Number(departAt.slice(11, 13)) * 60 + Number(departAt.slice(14, 16)) : null;
+  let clock = start, prev = endPoint(origin), prevId = origin?.kind === 'temple' ? origin.templeId : null, driveTotal = 0, kmTotal = 0, unknownFirst = false;
+  const rows = [];
+  stops.forEach((s, i) => {
+    const here = point(s.templeId);
+    let leg = null;
+    if (prev && here) { leg = estimateLeg(prev, here, kmh); driveTotal += leg.minutes; kmTotal += leg.roadKm; }
+    else if (i === 0) unknownFirst = true;
+    const past = prevId ? history.get(`${prevId}-${s.templeId}`) || [] : [];
+    // 自分の実績があれば、実績（前の札所の参拝込み）から予定の参拝時間を引いた値を移動時間に使う。
+    if (leg && past.length && i > 0) { const drive = past.at(-1).minutes - stops[i - 1].minutes; if (drive >= 5) { driveTotal += drive - leg.minutes; leg = {...leg, minutes: Math.round(drive / 5) * 5, fromHistory: true}; } }
+    if (clock !== null && leg) clock += leg.minutes;
+    const arrive = clock, leave = clock === null ? null : clock + s.minutes;
+    const outside = arrive !== null && (arrive < NOKYO_OPEN || arrive + Math.min(s.minutes, 15) > NOKYO_CLOSE);
+    rows.push({templeId: s.templeId, leg, arrive, leave, arriveText: arrive === null ? '' : hm(arrive), leaveText: leave === null ? '' : hm(leave), outside, past});
+    if (clock !== null) clock = leave;
+    prev = here; prevId = s.templeId;
+  });
+  let back = null;
+  const end = endPoint(returnTo);
+  if (end && prev) { back = estimateLeg(prev, end, kmh); driveTotal += back.minutes; kmTotal += back.roadKm; if (clock !== null) clock += back.minutes; }
+  return {rows, back, driveMinutes: driveTotal, roadKm: Math.round(kmTotal), prayerMinutes: stops.reduce((n, s) => n + s.minutes, 0), finishText: clock === null ? '' : hm(clock), overnight: clock !== null && clock >= 24 * 60, unknownFirst, outsideCount: rows.filter(r => r.outside).length};
+}
+
+// 共有ファイル（サーバーなし。LINEやAirDropで渡す）。
+const nameOK = v => typeof v === 'string' && v.trim().length > 0 && v.trim().length <= 30 && !/[\u0000-\u001f]/.test(v);
+export function exportSharePack({name, memos = [], ratings = [], points = []}) {
+  if (!nameOK(name)) fail('共有する名前を30文字以内で入力してください。');
+  if (!memos.length && !ratings.length && !points.length) fail('共有する内容がありません。');
+  return JSON.stringify({format: 'ohenro-quest-share', version: 1, name: name.trim(), exportedAt: new Date().toISOString(), memos: memos.map(validateMemo), ratings: ratings.map(validateRating), points: points.map(validateUserParking)}, null, 2);
+}
+export function readSharePack(value) {
+  if (typeof value !== 'string' || value.length > 2 * 1024 * 1024) fail('共有ファイルは2MB以内にしてください。');
+  let d; try { d = JSON.parse(value); } catch { fail('JSONファイルを読み込めません。'); }
+  if (d?.format !== 'ohenro-quest-share' || d.version !== 1 || !nameOK(d.name) || !Array.isArray(d.memos) || !Array.isArray(d.ratings) || !Array.isArray(d.points) || d.memos.length > 5000 || d.ratings.length > 88 || d.points.length > 88) fail('お遍路クエストの共有ファイルではありません。');
+  return {name: d.name.trim(), exportedAt: typeof d.exportedAt === 'string' ? d.exportedAt.slice(0, 40) : '', memos: d.memos.map(validateMemo), ratings: d.ratings.map(validateRating), points: d.points.map(validateUserParking)};
+}
+export function validateSharedPack(p) {
+  if (!p || typeof p.id !== 'string' || !p.id || p.id.length > 100 || !Number.isFinite(p.importedAt)) fail('共有されたデータの形式を確認できません。');
+  return {id: p.id, importedAt: p.importedAt, ...readSharePack(JSON.stringify({format: 'ohenro-quest-share', version: 1, name: p.name, exportedAt: p.exportedAt, memos: p.memos, ratings: p.ratings, points: p.points}))};
+}
+
+// LINEなどに貼る文章。
+export function shareText({name, memos, ratings, temples}) {
+  const tn = id => { const t = temples.find(t => t.id === id); return `第${id}番 ${t?.name || ''}`; };
+  const ids = [...new Set([...ratings.map(r => r.templeId), ...memos.map(m => m.templeId)])].sort((a, b) => a - b);
+  const lines = [`お遍路クエスト 車メモ（${name}）`];
+  for (const id of ids) {
+    const r = ratings.find(r => r.templeId === id), ms = memos.filter(m => m.templeId === id);
+    lines.push('', `■${tn(id)}${r ? `　評価：${r.level} ${ratingLabel(r.level)}` : ''}`);
+    for (const m of ms) lines.push(`${m.date} ${memoText(m).join('、')}${m.note ? `「${m.note}」` : ''}`);
+  }
+  return lines.join('\n');
 }

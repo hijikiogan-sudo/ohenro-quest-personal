@@ -1,5 +1,5 @@
 // 札所詳細の「車でのアクセス」カード、駐車場地点の登録・解除、設定画面のバックアップ。
-import {assessParkingRegistration, carInfoFor, exportParkings, readParkingsJSON, PARKING_RADIUS, PARKING_REGISTER_MAX_ACCURACY, RATINGS, VEHICLES, vehicleBlocked, vehicleLabel, carFlags, MEMO_FIELDS, memoText, suggestRating, ratingLabel} from './car-domain.mjs';
+import {assessParkingRegistration, carInfoFor, exportParkings, readParkingsJSON, PARKING_RADIUS, PARKING_REGISTER_MAX_ACCURACY, RATINGS, VEHICLES, vehicleBlocked, vehicleLabel, carFlags, MEMO_FIELDS, memoText, suggestRating, ratingLabel, SPEEDS, exportSharePack, readSharePack, shareText} from './car-domain.mjs';
 import {routeUrl} from './domain.mjs';
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const fmtDate = ms => new Date(ms).toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo'});
@@ -9,7 +9,7 @@ export function chipsHTML(flags) {
   return flags.length ? `<span class="car-chips">${flags.map(f => `<span class="car-chip ${f.level === 'warn' ? 'warn' : ''}">${esc(f.label)}</span>`).join('')}</span>` : '';
 }
 
-export function createCarUI({document = globalThis.document, store, getCarData, getParkings, getParkingFor, getRatings = () => new Map(), getRatingRows = () => [], getMemos = () => [], onGPS = () => {}, onPhotos = () => {}, getVehicle = () => 'standard', setVehicle = () => {}, openDialog, closeDialog, getEpoch, showError, toast, onChanged, backToTemple, japanDate}) {
+export function createCarUI({document = globalThis.document, store, getCarData, getParkings, getParkingFor, getRatings = () => new Map(), getRatingRows = () => [], getMemos = () => [], getShared = () => [], getSpeed = () => 'normal', setSpeed = () => {}, getTemples = () => [], onGPS = () => {}, onPhotos = () => {}, getVehicle = () => 'standard', setVehicle = () => {}, openDialog, closeDialog, getEpoch, showError, toast, onChanged, backToTemple, japanDate}) {
   const $ = s => document.querySelector(s);
 
   function rows(info) {
@@ -38,7 +38,9 @@ export function createCarUI({document = globalThis.document, store, getCarData, 
     const rate = `<div class="car-rating" role="group" aria-label="自分の評価"><div class="car-rating-head"><strong>自分の評価</strong><small>走ってみた感覚を記録（公式の格付けではありません）</small></div><div class="car-rating-buttons">${RATINGS.map(r => `<button type="button" class="car-rate${rating === r.level ? ' on' : ''}" data-rate="${r.level}" aria-pressed="${rating === r.level}" title="${esc(r.note)}"><b>${r.level}</b>${esc(r.label)}</button>`).join('')}</div>${rating !== undefined ? `<p class="tiny">${esc(RATINGS[rating].note)} · <button type="button" class="text-button car-rate-clear" id="car-rate-clear">評価を外す</button></p>` : '<p class="tiny">0 ふつう ／ 1 やや注意 ／ 2 注意 ／ 3 難所。一覧と行き先予定に表示します。</p>'}</div>`;
     const memos = getMemos().filter(m => m.templeId === t.id), sug = suggestRating(memos);
     const memoBlock = `<div class="car-memos"><div class="car-rating-head"><strong>車メモ</strong><small>${memos.length ? `${memos.length}件` : 'まだありません'}</small></div>${memos.slice(0, 2).map(m => `<div class="car-memo"><time>${esc(m.date)}</time><p>${esc(memoText(m).join(' · ') || '（選択なし）')}</p>${m.note ? `<p class="car-memo-note">${esc(m.note)}</p>` : ''}</div>`).join('')}${sug && sug.level !== rating ? `<p class="car-suggest">記録からの目安：<strong>${sug.level} ${esc(ratingLabel(sug.level))}</strong>${sug.reasons.length ? `（${esc(sug.reasons.join('・'))}）` : ''} <button type="button" class="text-button" id="car-apply-suggest" data-level="${sug.level}">この評価にする</button></p>` : ''}<div class="car-actions"><button type="button" class="secondary" id="car-memo">車メモを書く</button>${memos.length > 2 ? '<button type="button" class="quiet" id="car-memo-all">すべて見る</button>' : memos.length ? '<button type="button" class="quiet" id="car-memo-all">編集・削除</button>' : ''}</div></div>`;
-    return `<section class="car-card${warn || blocked ? ' car-warn' : ''}"><div class="car-card-label">車でのアクセス</div>${warn ? '<p class="car-alert">事前の確認が必要な札所です。</p>' : ''}${blocked}${dest}${body}${rate}${memoBlock}<div class="car-actions"><button class="secondary" id="car-stop-mode">停車中モード</button><button class="secondary" id="car-register">${user ? '駐車場の位置を登録し直す' : '現在地を駐車場として登録'}</button>${user ? '<button class="quiet" id="car-unregister">登録を解除</button>' : ''}</div><p class="tiny">駐車場に着いたら停車中に登録すると、次回からナビが駐車場へ案内し、駐車場から${PARKING_RADIUS}m以内でもチェックインできます。登録した位置はこの端末だけに保存します。</p></section>`;
+    const shared = getShared().map(p => ({name: p.name, rating: p.ratings.find(r => r.templeId === t.id), memos: p.memos.filter(m => m.templeId === t.id)})).filter(x => x.rating || x.memos.length);
+    const sharedBlock = shared.length ? `<div class="car-memos car-shared"><div class="car-rating-head"><strong>共有されたメモ</strong><small>家族・友人から受け取った記録</small></div>${shared.map(x => `<div class="car-memo"><time>${esc(x.name)}さん${x.rating ? ` · 評価 ${x.rating.level} ${esc(ratingLabel(x.rating.level))}` : ''}</time>${x.memos.slice(0, 2).map(m => `<p>${esc(m.date)}：${esc(memoText(m).join(' · ') || '（選択なし）')}</p>${m.note ? `<p class="car-memo-note">${esc(m.note)}</p>` : ''}`).join('')}</div>`).join('')}</div>` : '';
+    return `<section class="car-card${warn || blocked ? ' car-warn' : ''}"><div class="car-card-label">車でのアクセス</div>${warn ? '<p class="car-alert">事前の確認が必要な札所です。</p>' : ''}${blocked}${dest}${body}${rate}${memoBlock}${sharedBlock}<div class="car-actions"><button class="secondary" id="car-stop-mode">停車中モード</button><button class="secondary" id="car-register">${user ? '駐車場の位置を登録し直す' : '現在地を駐車場として登録'}</button>${user ? '<button class="quiet" id="car-unregister">登録を解除</button>' : ''}</div><p class="tiny">駐車場に着いたら停車中に登録すると、次回からナビが駐車場へ案内し、駐車場から${PARKING_RADIUS}m以内でもチェックインできます。登録した位置はこの端末だけに保存します。</p></section>`;
   }
 
   function bind(t) {
@@ -100,7 +102,19 @@ export function createCarUI({document = globalThis.document, store, getCarData, 
   // 設定画面：登録件数・JSONバックアップ・復元。
   function renderSettings(root) {
     const points = getParkings(), ratings = [...getRatings()].map(([templeId, level]) => ({templeId, level}));
-    root.innerHTML = `<label class="car-vehicle">乗っていく車<select id="car-vehicle">${VEHICLES.map(v => `<option value="${v.id}"${v.id === getVehicle() ? ' selected' : ''}>${esc(v.label)}</option>`).join('')}</select></label><p class="tiny">通行できない車種が案内されている札所で、一覧と行き先予定に注意を出します。</p><hr><p>札所で登録した駐車場の位置・自分の評価・車メモを、JSONで保存・復元できます。訪問記録のJSONには含まれません。</p><p id="parking-count" class="small">駐車場の位置：${points.length}か所${points.length ? `（${points.map(p => `第${p.templeId}番`).join('・')}）` : ''}<br>自分の評価：${ratings.length}か所<br>車メモ：${getMemos().length}件</p><button class="secondary" id="parking-export"${points.length || ratings.length || getMemos().length ? '' : ' disabled'}>駐車場・評価・車メモを保存</button><label class="file-label">駐車場・評価・車メモを復元<input type="file" id="parking-import" accept=".json,application/json"></label><p class="tiny">復元は追加のみで、すでに登録がある札所は上書きしません。</p>`;
+    root.innerHTML = `<label class="car-vehicle">乗っていく車<select id="car-vehicle">${VEHICLES.map(v => `<option value="${v.id}"${v.id === getVehicle() ? ' selected' : ''}>${esc(v.label)}</option>`).join('')}</select></label><p class="tiny">通行できない車種が案内されている札所で、一覧と行き先予定に注意を出します。</p><label class="car-vehicle">移動時間の目安の速さ<select id="car-speed">${SPEEDS.map(v => `<option value="${v.id}"${v.id === getSpeed() ? ' selected' : ''}>${esc(v.label)}</option>`).join('')}</select></label><p class="tiny">行き先予定の「時間の目安」に使います（直線距離からの概算）。</p><hr><p>札所で登録した駐車場の位置・自分の評価・車メモを、JSONで保存・復元できます。訪問記録のJSONには含まれません。</p><p id="parking-count" class="small">駐車場の位置：${points.length}か所${points.length ? `（${points.map(p => `第${p.templeId}番`).join('・')}）` : ''}<br>自分の評価：${ratings.length}か所<br>車メモ：${getMemos().length}件</p><button class="secondary" id="parking-export"${points.length || ratings.length || getMemos().length ? '' : ' disabled'}>駐車場・評価・車メモを保存</button><label class="file-label">駐車場・評価・車メモを復元<input type="file" id="parking-import" accept=".json,application/json"></label><p class="tiny">復元は追加のみで、すでに登録がある札所は上書きしません。</p><hr><h3 class="car-share-title">家族・友人と共有</h3><p class="small">車メモ・評価・駐車場の位置を、ファイルや文章にしてLINEやAirDropで渡せます。サーバーには送りません。</p><button class="secondary" id="share-export"${getMemos().length || getRatingRows().length || getParkings().length ? '' : ' disabled'}>共有ファイル・文章をつくる</button><label class="file-label">受け取った共有ファイルを読み込む<input type="file" id="share-import" accept=".json,application/json"></label><div id="shared-list">${getShared().map(p => `<div class="shared-row"><div><strong>${esc(p.name)}さん</strong><small>車メモ${p.memos.length}件・評価${p.ratings.length}か所・駐車場${p.points.length}か所 · ${esc(fmtDate(p.importedAt))}に読み込み</small></div><button class="quiet" data-shared-remove="${esc(p.id)}">外す</button></div>`).join('') || '<p class="tiny">受け取った共有データはありません。</p>'}</div>`;
+    $('#car-speed').onchange = e => { setSpeed(e.target.value); toast('移動時間の目安の速さを変更しました。'); };
+    $('#share-export').onclick = () => shareExportDialog(root);
+    $('#share-import').onchange = async e => {
+      const file = e.target.files?.[0]; e.target.value = ''; if (!file) return;
+      try { shareImportDialog(readSharePack(await file.text()), root); } catch (err) { toast(err.message); }
+    };
+    document.querySelectorAll('[data-shared-remove]').forEach(b => b.onclick = () => {
+      const pack = getShared().find(p => p.id === b.dataset.sharedRemove);
+      openDialog('共有データを外す', `<p>${esc(pack.name)}さんから受け取ったデータを、この端末から外します。</p><p class="small">自分の車メモ・評価・駐車場の位置は変わりません。</p><div class="dialog-actions"><button class="quiet" id="share-cancel">戻る</button><button class="primary" id="share-remove-ok">外す</button></div>`);
+      $('#share-cancel').onclick = closeDialog;
+      $('#share-remove-ok').onclick = async ev => { ev.target.disabled = true; try { await store.removeShared(pack.id); await onChanged(); closeDialog(); renderSettings(root); toast('共有データを外しました。'); } catch (err) { showError(err); ev.target.disabled = false; } };
+    });
     $('#car-vehicle').onchange = e => { setVehicle(e.target.value); toast(`乗っていく車を「${vehicleLabel(e.target.value)}」にしました。`); };
     $('#parking-export').onclick = () => {
       try {
@@ -157,6 +171,41 @@ export function createCarUI({document = globalThis.document, store, getCarData, 
     $('#stop-photo').onclick = () => onPhotos(t);
     $('#stop-memo').onclick = () => memoDialog(t, {back: () => stopMode(t)});
     $('#stop-close').onclick = () => backToTemple(t.id);
+  }
+
+  function shareExportDialog(root) {
+    let lastName = ''; try { lastName = localStorage.getItem('ohenro-share-name') || ''; } catch {}
+    openDialog('共有ファイル・文章をつくる', `<form id="share-form" class="dialog-form"><label>相手に表示する名前（30文字まで）<input id="share-name" maxlength="30" required value="${esc(lastName)}" placeholder="例：父"></label><fieldset class="share-pick"><legend>含めるもの</legend><label class="inline"><input type="checkbox" id="share-memos" checked>車メモ（${getMemos().length}件）</label><label class="inline"><input type="checkbox" id="share-ratings" checked>自分の評価（${getRatingRows().length}か所）</label><label class="inline"><input type="checkbox" id="share-points">駐車場の位置（${getParkings().length}か所）</label></fieldset><p class="tiny">駐車場の位置は緯度・経度を含みます。相手を確認してから共有してください。訪問記録・写真は含みません。</p><div class="dialog-actions"><button type="button" class="secondary" id="share-copy">文章をコピー</button><button type="submit" class="primary">共有ファイルを保存</button></div></form><div id="share-text-box" hidden><p class="small">コピーできない場合は、下の文章を長押しして選択してください。</p><textarea id="share-text" readonly rows="8"></textarea></div>`);
+    const pick = () => {
+      const name = $('#share-name').value; try { localStorage.setItem('ohenro-share-name', name.trim()); } catch {}
+      return {name, memos: $('#share-memos').checked ? getMemos() : [], ratings: $('#share-ratings').checked ? getRatingRows() : [], points: $('#share-points').checked ? getParkings() : []};
+    };
+    $('#share-form').onsubmit = e => {
+      e.preventDefault();
+      try {
+        const data = pick(), blob = new Blob([exportSharePack(data)], {type: 'application/json'}), url = URL.createObjectURL(blob), a = document.createElement('a');
+        a.href = url; a.download = `ohenro-share-${japanDate()}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+        toast('共有ファイルを保存しました。LINEやAirDropで相手に送ってください。');
+      } catch (err) { showError(err); }
+    };
+    $('#share-copy').onclick = async () => {
+      try {
+        const data = pick(); exportSharePack(data);
+        const text = shareText({...data, temples: getTemples()});
+        $('#share-text').value = text; $('#share-text-box').hidden = false;
+        try { await navigator.clipboard.writeText(text); toast('文章をコピーしました。LINEなどに貼り付けてください。'); } catch { $('#share-text').select(); toast('コピーできませんでした。表示した文章を選択してコピーしてください。'); }
+      } catch (err) { showError(err); }
+    };
+  }
+
+  function shareImportDialog(pack, root) {
+    openDialog('共有ファイルを読み込む', `<p><strong>${esc(pack.name)}さん</strong>の共有ファイルです。</p><p class="small">車メモ${pack.memos.length}件・評価${pack.ratings.length}か所・駐車場${pack.points.length}か所</p><p class="small">自分の記録とは分けて「共有されたメモ」として表示します。駐車場の位置は、自分の登録や公式の座標がない札所でだけナビに使います。</p><div class="dialog-actions"><button class="quiet" id="share-cancel">やめる</button><button class="primary" id="share-save">読み込む</button></div>`);
+    $('#share-cancel').onclick = closeDialog;
+    $('#share-save').onclick = async e => {
+      e.target.disabled = true;
+      try { await store.saveShared({id: crypto.randomUUID(), importedAt: Date.now(), ...pack}); await onChanged(); closeDialog(); renderSettings(root); toast(`${pack.name}さんの共有データを読み込みました。`); }
+      catch (err) { showError(err); e.target.disabled = false; }
+    };
   }
 
   function flagsFor(templeId) {

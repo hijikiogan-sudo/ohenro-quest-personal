@@ -54,3 +54,22 @@
 .stop-btn:not(.primary){border:1px solid var(--line);background:var(--white);color:var(--ink)}
 .stop-btn small{font-size:12px;font-weight:500;color:inherit;opacity:.75}
 .stop-btn.quiet-stop{min-height:56px;font-size:15px;font-weight:600}
+.sched-total{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:10px}
+.sched-total div{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.sched-total small{display:block;font-size:11px;color:var(--muted)}
+.sched-total strong{font-size:16px;font-variant-numeric:tabular-nums}
+.sched-wrap{overflow-x:auto;margin:10px 0;border:1px solid var(--line);border-radius:12px;background:var(--white)}
+.sched{border-collapse:collapse;width:100%;min-width:330px;font-size:12.5px}
+.sched th,.sched td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.sched th{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap}
+.sched td:not(:first-child){white-space:nowrap;font-variant-numeric:tabular-nums}
+.sched td small{display:block;font-size:10.5px;color:var(--muted);font-weight:400;line-height:1.6}
+.sched tr:last-child td{border-bottom:0}
+.sched tr.out td{background:var(--soft)}
+.sched tr.out td:nth-child(3){color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--gold)}
+.car-share-title{font-size:15px;margin:4px 0 8px}
+.shared-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.shared-row small{display:block;font-size:11px;color:var(--muted)}
+.share-pick{border:0;padding:0;margin:0;display:grid;gap:6px}.share-pick legend{font-size:12px;font-weight:700;margin-bottom:6px}
+.share-pick label{display:flex;align-items:center;gap:8px;font-size:13px}
+#share-text{width:100%;font-size:12px}

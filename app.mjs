@@ -13,20 +13,23 @@ import {progress, routeUrl, japanDate, assessGPS} from './domain.mjs';
 import {createPersonalStore} from './personal-store.mjs';
 import {createParkingStore} from './parking-store.mjs';
 import {createCarUI, chipsHTML} from './car-ui.mjs';
-import {validateCarData, createParkingResolver, planWarnings, hasWarn, VEHICLES} from './car-domain.mjs';
+import {validateCarData, createParkingResolver, planWarnings, hasWarn, VEHICLES, planSchedule, legHistory, speedOf, SPEEDS, formatMinutes, NOKYO_OPEN, NOKYO_CLOSE} from './car-domain.mjs';
 
 const $ = selector=>document.querySelector(selector);
 const $$ = selector=>[...document.querySelectorAll(selector)];
 const esc = value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizeTerm=value=>value.normalize('NFKC').toLocaleLowerCase().replace(/[國寶佛圓瀧釋峯]/g,c=>({'國':'国','寶':'宝','佛':'仏','圓':'円','瀧':'滝','釋':'釈','峯':'峰'}[c]));
-let carData=null,parkingPoints=[],parkingFor=()=>null,ratingRows=[],ratings=new Map(),memoRows=[];
+let carData=null,parkingPoints=[],parkingFor=()=>null,ratingRows=[],ratings=new Map(),memoRows=[],sharedPacks=[];
+const speedKey='ohenro-speed:'+new URL('.',import.meta.url).pathname;
+function getSpeed(){try{return speedOf(localStorage.getItem(speedKey)).id;}catch{return 'normal';}}
+function setSpeed(v){try{localStorage.setItem(speedKey,v);}catch{}}
 const vehicleKey='ohenro-vehicle:'+new URL('.',import.meta.url).pathname;
 function getVehicle(){try{const v=localStorage.getItem(vehicleKey);return VEHICLES.some(x=>x.id===v)?v:'standard';}catch{return 'standard';}}
 function setVehicle(v){try{localStorage.setItem(vehicleKey,v);}catch{}if(view==='temples')renderTemples();}
 let temples=[],coast=null,state=null,journeyId='',view='home',initialized=false,connected=false;
 const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,temples:()=>temples,parkingFor:id=>parkingFor(id)});
 const parkingStore=createParkingStore({scope:new URL('.',import.meta.url).pathname});
-async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}try{memoRows=await parkingStore.listMemos();}catch{memoRows=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints);if(initialized&&view==='temples')renderTemples();}
+async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}try{memoRows=await parkingStore.listMemos();}catch{memoRows=[];}try{sharedPacks=await parkingStore.listShared();}catch{sharedPacks=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints,sharedPacks);if(initialized&&view==='temples')renderTemples();}
 let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
 let mapPref='',positionStyle='quest',questBackground='';
 attachTheme({scope:new URL('.',import.meta.url).pathname});
@@ -35,11 +38,11 @@ let dialogEpoch=0;
 const photos=createPhotoStore({scope:new URL('.',import.meta.url).pathname});
 const photoUI=createPhotoUI({store:photos,getJourney:()=>currentJourney(),getJourneys:()=>state?.journeys||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast});
 const plans=createPlanStore({scope:new URL('.',import.meta.url).pathname});
-const planUI=createPlanUI({store:plans,getJourney:()=>currentJourney(),getTemples:()=>temples,getVisits:()=>currentVisits(),toast,onStart:plan=>todayUI.startDialog(plan),getParking:id=>parkingFor(id),carChips:id=>chipsHTML(carUI.flagsFor(id)),carWarnings:plan=>planWarningsHTML(plan)});
+const planUI=createPlanUI({store:plans,getJourney:()=>currentJourney(),getTemples:()=>temples,getVisits:()=>currentVisits(),toast,onStart:plan=>todayUI.startDialog(plan),getParking:id=>parkingFor(id),carChips:id=>chipsHTML(carUI.flagsFor(id)),carWarnings:plan=>planWarningsHTML(plan),carSchedule:plan=>scheduleHTML(plan)});
 const prayerUI=createPrayerUI({document,openDialog,getEpoch:()=>dialogEpoch,backToTemple:id=>detailDialog(id)});
 const todayStore=createTodayStore({scope:new URL('.',import.meta.url).pathname});
 const todayUI=createTodayUI({document,store:todayStore,plans,getJourney:()=>currentJourney(),getVisits:()=>state?.visits||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onPlans:()=>setView('plan'),onStarted:()=>setView('home'),onPrayer:t=>requireAuth(()=>prayerUI.open(t)),onPhotos:t=>requireAuth(()=>photoUI.album(t)),onGPS:t=>requireAuth(()=>gpsDialog(t)),onManual:t=>requireAuth(()=>manualDialog([t.id])),getParking:id=>parkingFor(id),carNotes:t=>todayNotesHTML(t),onStopMode:t=>carUI.stopMode(t)});
-const carUI=createCarUI({document,store:parkingStore,getCarData:()=>carData,getParkings:()=>parkingPoints,getParkingFor:id=>parkingFor(id),getRatings:()=>ratings,getRatingRows:()=>ratingRows,getMemos:()=>memoRows,onGPS:t=>requireAuth(()=>gpsDialog(t)),onPhotos:t=>requireAuth()&&photoUI.album(t),getVehicle,setVehicle,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onChanged:async()=>{await reloadParkings();if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));},backToTemple:id=>detailDialog(id),japanDate});
+const carUI=createCarUI({document,store:parkingStore,getCarData:()=>carData,getParkings:()=>parkingPoints,getParkingFor:id=>parkingFor(id),getRatings:()=>ratings,getRatingRows:()=>ratingRows,getMemos:()=>memoRows,getShared:()=>sharedPacks,getSpeed,setSpeed,getTemples:()=>temples,onGPS:t=>requireAuth(()=>gpsDialog(t)),onPhotos:t=>requireAuth()&&photoUI.album(t),getVehicle,setVehicle,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onChanged:async()=>{await reloadParkings();if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));},backToTemple:id=>detailDialog(id),japanDate});
 function toast(message,action) {
   clearTimeout(toastTimer);const el=$('#toast');el.replaceChildren(document.createTextNode(message));
   if(action) {const b=document.createElement('button');b.textContent=action.label;b.onclick=action.run;el.append(b);}
@@ -49,6 +52,13 @@ function planWarningsHTML(plan){
   const w=planWarnings({stops:plan.stops,date:(plan.departAt||'').slice(0,10),carData,ratings,vehicle:getVehicle(),temples});
   if(!w.items.length&&!w.needsDate&&!w.costs.length)return plan.stops.length?'<p class="tiny">確認できている車の注意はありません。情報がない札所は、霊場会の案内で駐車場をご確認ください。</p>':'';
   return `${w.needsDate?'<p class="car-plan-msg warn">冬期に通行止めになる札所が含まれます。出発予定日を入れると、期間に当たるか確認できます。</p>':''}${w.items.map(i=>`<div class="car-plan-item"><strong>${esc(i.name)}</strong>${i.messages.map(m=>`<p class="car-plan-msg ${m.level}">${esc(m.text)}</p>`).join('')}</div>`).join('')}${w.costs.length?`<div class="car-plan-item"><strong>費用がかかる札所</strong>${w.costs.map(c=>`<p class="car-plan-msg info">${esc(c)}</p>`).join('')}<p class="tiny">金額が公式案内で確認できない項目は含めていないため、合計は出していません。</p></div>`:''}<p class="tiny">判定は出発予定日と、霊場会の案内・自分の評価に基づきます。乗っていく車は設定で変更できます（いま：${esc(VEHICLES.find(v=>v.id===getVehicle()).label)}）。</p>`;
+}
+function scheduleHTML(plan){
+  if(!plan.stops.length)return '';
+  const speed=speedOf(getSpeed()),sc=planSchedule({stops:plan.stops,departAt:plan.departAt||'',temples,parkingFor:id=>parkingFor(id),origin:plan.origin,returnTo:plan.returnTo,kmh:speed.kmh,history:legHistory(state?.visits||[])});
+  const name=id=>`第${id}番 ${temples.find(t=>t.id===id)?.name||''}`,hasTime=!!sc.rows[0]?.arriveText;
+  const hhmm=m=>`${Math.floor(m/60)}:${String(m%60).padStart(2,'0')}`;
+  return `<div class="sched-total"><div><small>移動の目安</small><strong>約${sc.roadKm}km · ${formatMinutes(sc.driveMinutes)}</strong></div><div><small>参拝の合計</small><strong>${formatMinutes(sc.prayerMinutes)}</strong></div><div><small>${hasTime?(plan.returnTo.kind==='none'?'最後の札所を出る目安':'帰着の目安'):'出発予定'}</small><strong>${hasTime?esc(sc.finishText)+(sc.overnight?'（翌日）':''):'未設定'}</strong></div></div>${sc.outsideCount?`<p class="car-plan-msg warn">${sc.outsideCount}か所で、到着の目安が納経の受付時間（${hhmm(NOKYO_OPEN)}〜${hhmm(NOKYO_CLOSE)}）から外れます。順番・出発時刻・札所の数を見直してください。</p>`:''}<div class="sched-wrap"><table class="sched"><thead><tr><th>札所</th><th>移動</th><th>到着</th><th>出発</th></tr></thead><tbody>${sc.rows.map(r=>`<tr${r.outside?' class="out"':''}><td><strong>${esc(name(r.templeId))}</strong>${r.past.length?`<small>前回の実績 ${formatMinutes(r.past.at(-1).minutes)}（${esc(r.past.at(-1).date)}・前の札所の参拝込み）</small>`:''}${parkingFor(r.templeId)?'<small>駐車場の位置で計算</small>':''}</td><td>${r.leg?`約${Math.round(r.leg.roadKm)}km<br>${formatMinutes(r.leg.minutes)}${r.leg.fromHistory?'<small>実績から</small>':''}`:'—'}</td><td>${r.arriveText?esc(r.arriveText)+(r.outside?'<br><small>受付時間外</small>':''):'—'}</td><td>${r.leaveText?esc(r.leaveText):'—'}</td></tr>`).join('')}${sc.back?`<tr><td><strong>帰着地</strong></td><td>約${Math.round(sc.back.roadKm)}km<br>${formatMinutes(sc.back.minutes)}</td><td>${hasTime?esc(sc.finishText):'—'}</td><td></td></tr>`:''}</tbody></table></div><p class="tiny">${sc.unknownFirst?'出発地が現在地・住所のため、最初の札所までの移動は含めていません（出発予定時刻に最初の札所へ着く計算）。':''}移動は直線距離×1.4を${esc(speed.label)}で割った概算です（自分のGPSチェックインの実績がある区間は実績を優先）。山道・市街地・休憩で大きく変わるため、正確な時間はGoogleマップで確認してください。納経の受付時間は霊場会の案内（基本的に8時〜17時）によります。速さは設定で変えられます。${hasTime?'':'出発予定を入れると到着時刻の目安を表示します。'}</p>`;
 }
 function todayNotesHTML(t){
   const w=planWarnings({stops:[{templeId:t.id,minutes:0}],date:japanDate(),carData,ratings,vehicle:getVehicle(),temples});
