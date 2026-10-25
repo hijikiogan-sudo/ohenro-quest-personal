@@ -8,7 +8,7 @@ import {createPhotoUI} from './photo-ui.mjs';
 import {groupNearby,templeGlyph} from './temple-marker.mjs';
 import {attachTheme, fittedMapBox} from './display.mjs';
 import {createRoadMap} from './road-map.mjs';
-import {routePoints,routeZigzag} from './map-route.mjs';
+import {routePoints,routeZigzag,spreadBadges,groupByKey} from './map-route.mjs';
 import {createMiniMap} from './mini-map.mjs';
 import {DOJO} from './badges.mjs';
 import {outingProgress} from './today-store.mjs';
@@ -247,10 +247,11 @@ function drawMap(done){if(!coast)return;const svg=$('#map');svg.setAttribute('vi
   html+='<text x="240" y="105" class="water-label">瀬戸内海</text><text x="470" y="385" class="water-label">太平洋</text>';
   for(const [name,coord] of [['徳島',[134.12,33.95]],['高知',[133.35,33.45]],['愛媛',[132.95,33.85]],['香川',[133.91,34.27]]]){const [x,y]=projection(coord);html+=`<text x="${x}" y="${y}" class="map-label">${name}</text>`;}
   const markerScale=mapBox[2]/(svg.clientWidth||600),warnIds=warnSet();svg.classList.toggle('dojo-mode',!!mapOverlay.dojo);
-  const groups=groupNearby(mapTemples(),t=>projection([t.lng,t.lat]).map(v=>v/markerScale),48);
+  const near=rows=>groupNearby(rows,t=>projection([t.lng,t.lat]).map(v=>v/markerScale),48);
+  const groups=mapOverlay.dojo?groupByKey(mapTemples(),t=>dojoOf(t.id),near):near(mapTemples());
   html+=groups.map(group=>{const t=group[0],multiple=group.length>1,[x,y]=projection([group.reduce((s,t)=>s+t.lng,0)/group.length,group.reduce((s,t)=>s+t.lat,0)/group.length]);const warn=warnIds.has(t.id)||group.some(x=>warnIds.has(x.id)),dj=mapOverlay.dojo&&new Set(group.map(x=>dojoOf(x.id))).size===1?' dojo-'+dojoOf(t.id):'';return `<g class="pin temple-position ${group.every(t=>done.has(t.id))?'visited':''}${dj}${warn?' car-warn':''}" transform="translate(${x},${y}) scale(${markerScale})" tabindex="0" role="button" aria-label="${multiple?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+esc(t.name)}" ${multiple?`data-map-cluster="${group.map(t=>t.id).join(',')}"`:`data-map-temple="${t.id}"`}><g transform="translate(-22,-47)">${templeGlyph(multiple?group.length+'寺':t.id)}</g>${warn?'<g class="warn-badge" transform="translate(15,-44)"><circle r="8"/><text>!</text></g>':''}</g>`;}).join('');
   const route=currentRoute(done);
-  if(route.length){const pts=route.map(p=>projection([p.lng,p.lat]));if(pts.length>1)html=html.replace('<g class="pin','<polyline class="route-line" points="'+pts.map(([x,y])=>`${x.toFixed(1)},${y.toFixed(1)}`).join(' ')+'"/><g class="pin');html+=route.map((p,i)=>`<g class="route-order-svg route-${p.status}" transform="translate(${pts[i][0]+10*markerScale},${pts[i][1]-30*markerScale}) scale(${markerScale})" aria-hidden="true"><circle r="10"/><text>${p.order}</text></g>`).join('');}
+  if(route.length){const pts=route.map(p=>projection([p.lng,p.lat]));if(pts.length>1)html=html.replace('<g class="pin','<polyline class="route-line" points="'+pts.map(([x,y])=>`${x.toFixed(1)},${y.toFixed(1)}`).join(' ')+'"/><g class="pin');const shift=spreadBadges(pts.map(([x,y])=>[x/markerScale,y/markerScale]),22);html+=route.map((p,i)=>`<g class="route-order-svg route-${p.status}" transform="translate(${pts[i][0]+(10+shift[i])*markerScale},${pts[i][1]-30*markerScale}) scale(${markerScale})" aria-hidden="true"><circle r="10"/><text>${p.order}</text></g>`).join('');}
   svg.innerHTML=html;$$('[data-map-temple],[data-map-cluster]').forEach(el=>{const activate=()=>el.dataset.mapCluster?clusterDialog(el.dataset.mapCluster.split(',').map(Number)):detailDialog(Number(el.dataset.mapTemple));el.onclick=activate;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};});
 }
 function currentRoute(done){

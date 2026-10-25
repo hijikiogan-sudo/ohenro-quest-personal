@@ -53,3 +53,19 @@ test('札所のまわり：駐車場からチェックイン範囲までの目�
   const far = {lat: t.lat + 500 / 111320, lng: t.lng, label: '自分で登録した駐車場'};
   assert.match(parkingWalkNote(t, far), /約(499|500)m（直線）.*約(199|200)m先/);
 });
+
+import {spreadBadges, groupByKey} from '../map-route.mjs';
+import {groupNearby} from '../temple-marker.mjs';
+import {DOJO} from '../badges.mjs';
+test('番号札：近いものだけ右へずらす', () => {
+  assert.deepEqual(spreadBadges([[0, 0], [5, 3], [8, 2], [100, 0]], 22), [0, 22, 44, 0]);
+});
+test('道場の色分け：同じ道場どうしだけまとめ、まとまりが道場をまたがない', () => {
+  const dojoOf = id => DOJO.find(d => id >= d.from && id <= d.to).id;
+  const project = t => [t.lng * 20, -t.lat * 20]; // 四国全体ほどの縮尺
+  const mixed = groupNearby(temples, project, 48);
+  assert.ok(mixed.some(g => new Set(g.map(t => dojoOf(t.id))).size > 1));
+  const split = groupByKey(temples, t => dojoOf(t.id), rows => groupNearby(rows, project, 48));
+  assert.ok(split.every(g => new Set(g.map(t => dojoOf(t.id))).size === 1));
+  assert.equal(split.flat().length, 88);
+});

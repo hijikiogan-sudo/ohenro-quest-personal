@@ -39,3 +39,20 @@ export function routeZigzag(points, distance) {
   const greedy = order.slice(1).reduce((n, p, i) => n + distance(order[i], p), 0);
   return total > greedy * 1.3 && total - greedy > 10000;
 }
+
+// 画面上で近すぎる番号札を、重ならないよう少しずつ右へずらす（px単位の座標を受け取り、ずらし量を返す）。
+export function spreadBadges(points, min = 22) {
+  const placed = [];
+  return points.map(([x, y]) => {
+    let dx = 0;
+    while (placed.some(([px, py]) => Math.abs(px - (x + dx)) < min && Math.abs(py - y) < min)) dx += min;
+    placed.push([x + dx, y]);
+    return dx;
+  });
+}
+
+// 道場の色分けのときは、同じ道場の札所どうしだけをまとめる（混ざると色が付けられないため）。
+export function groupByKey(rows, keyOf, group) {
+  const keys = [...new Set(rows.map(keyOf))];
+  return keys.flatMap(k => group(rows.filter(r => keyOf(r) === k)));
+}

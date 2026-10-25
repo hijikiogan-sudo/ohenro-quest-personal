@@ -1,5 +1,5 @@
 import {groupNearby,templeGlyph} from './temple-marker.mjs';
-import {MAP_KINDS,readMapKind,isTileKind,GSI} from './map-route.mjs';
+import {MAP_KINDS,readMapKind,isTileKind,GSI,spreadBadges,groupByKey} from './map-route.mjs';
 import {loadLeaflet} from './leaflet-loader.mjs';
 // 地図の種類は「全体図・地図・写真」の1か所で切り替える。地図は国土地理院の淡色／標準、写真は国土地理院の写真。
 // 地図タイルは利用者が表示した範囲のみ通常の画像として読み込む。Service Workerやアプリ独自のオフラインキャッシュには保存しない。
@@ -57,11 +57,13 @@ export function createRoadMap({document=globalThis.document,window=globalThis.wi
         markers.clearLayers();routeLayer.clearLayers();
         if(route.length>1)L.polyline(route.map(p=>[p.lat,p.lng]),{className:'route-line',interactive:false}).addTo(routeLayer);
         const inRoute=new Map(route.map(p=>[p.templeId,p]));
-        for(const p of route){
+        const shift=spreadBadges(route.map(p=>{const pt=map.project([p.lat,p.lng],map.getZoom());return[pt.x,pt.y];}),26);
+        route.forEach((p,i)=>{
           const el=document.createElement('span');el.textContent=String(p.order);
-          L.marker([p.lat,p.lng],{interactive:false,keyboard:false,icon:L.divIcon({className:'route-order route-'+p.status,html:el,iconSize:[24,24],iconAnchor:[-6,52]})}).addTo(routeLayer);
-        }
-        const groups=groupNearby(rows,t=>{const pt=map.project([t.lat,t.lng],map.getZoom());return[pt.x,pt.y];},48);
+          L.marker([p.lat,p.lng],{interactive:false,keyboard:false,icon:L.divIcon({className:'route-order route-'+p.status,html:el,iconSize:[24,24],iconAnchor:[-6-shift[i],52]})}).addTo(routeLayer);
+        });
+        const near=list=>groupNearby(list,t=>{const pt=map.project([t.lat,t.lng],map.getZoom());return[pt.x,pt.y];},48);
+        const groups=overlay.dojoOf?groupByKey(rows,t=>overlay.dojoOf(t.id),near):near(rows);
         for(const group of groups){
           const t=group[0],isGroup=group.length>1,done=group.every(t=>visited.has(t.id));
           const label=isGroup?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+t.name+(done?' 訪問済み':' 未訪問');
