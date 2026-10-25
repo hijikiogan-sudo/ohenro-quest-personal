@@ -14,10 +14,13 @@ export function validatePlan(p){
   for(const s of p.stops)if(!s||!Number.isInteger(s.templeId)||s.templeId<1||s.templeId>88||!Number.isInteger(s.minutes)||s.minutes<0||s.minutes>480)fail('参拝時間は0〜480分で入力してください。');
   return p;
 }
-export function planLocation(value,temples){
+export function planLocation(value,temples,parkingFor=()=>null){
   if(value.kind==='none'||value.kind==='current')return null;
   if(value.kind==='address')return {label:value.address,query:value.address};
   const t=temples.find(t=>t.id===value.templeId);if(!t)fail('札所データを読み込めません。');
+  // 駐車場の座標が分かる札所は駐車場を経由地にする。
+  const p=parkingFor(t.id);
+  if(p&&Number.isFinite(p.lat)&&Number.isFinite(p.lng))return {label:`第${t.id}番 ${t.name}（駐車場）`,query:`${p.lat.toFixed(6)},${p.lng.toFixed(6)}`,templeId:t.id,parking:true};
   return {label:`第${t.id}番 ${t.name}`,query:`${t.name} ${t.address}`,templeId:t.id};
 }
 export function mapsURL(origin,targets){
@@ -28,10 +31,10 @@ export function mapsURL(origin,targets){
   if(targets.length>1)u.searchParams.set('waypoints',targets.slice(0,-1).map(t=>t.query).join('|'));
   return u.href;
 }
-export function navigationSections(plan,temples){
+export function navigationSections(plan,temples,parkingFor=()=>null){
   validatePlan(plan);if(!plan.stops.length)return [];
-  let origin=planLocation(plan.origin,temples),remaining=plan.stops.map(s=>planLocation({kind:'temple',templeId:s.templeId},temples));
-  const end=planLocation(plan.returnTo,temples);if(end)remaining.push(end);
+  let origin=planLocation(plan.origin,temples,parkingFor),remaining=plan.stops.map(s=>planLocation({kind:'temple',templeId:s.templeId},temples,parkingFor));
+  const end=planLocation(plan.returnTo,temples,parkingFor);if(end)remaining.push(end);
   const result=[];
   while(remaining.length){let count=Math.min(4,remaining.length);while(count>1&&mapsURL(origin,remaining.slice(0,count)).length>2048)count--;
     const targets=remaining.slice(0,count),url=mapsURL(origin,targets);if(url.length>2048)fail('住所・地点名が長すぎるためナビを作成できません。短くして再保存してください。');

@@ -1,0 +1,54 @@
+/* 札所詳細：チェックインを常に上に、残りは「基本・車・お経・写真」のタブで切り替える */
+.detail-checkin{width:100%;margin:0 0 14px}
+.detail-tabs{position:sticky;top:-25px;z-index:4;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;margin:0 0 14px;border-radius:14px;background:var(--soft);box-shadow:0 0 0 6px var(--white)}
+.detail-tabs button{min-height:42px;border-radius:10px;font-size:13px;font-weight:700;color:var(--muted)}
+.detail-tabs button[aria-selected=true]{background:var(--white);color:var(--ink);box-shadow:0 1px 4px #0000001a}
+.detail-tabs button.has-warn{color:#8a5b00}
+.detail-tabs button.has-warn[aria-selected=true]{color:#8a5b00}
+:root[data-theme=dark] .detail-tabs button.has-warn{color:#f2c45a}
+.detail-pane .car-card,.detail-pane .temple-prayer-card{margin-top:0}
+@media(max-width:620px){.detail-tabs{top:-17px}}
+/* 車タブ：評価・車メモ・共有メモは折りたたみ */
+.car-fold{margin:12px 0 0;border-top:1px solid var(--line);padding-top:4px}
+.car-fold>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;font-size:13px;font-weight:700;list-style:none;cursor:pointer}
+.car-fold>summary::-webkit-details-marker{display:none}
+.car-fold>summary::after{content:'＋';color:var(--muted);font-weight:400}
+.car-fold[open]>summary::after{content:'－'}
+.car-fold>summary span{margin-left:auto;font-size:12px;font-weight:500;color:var(--muted)}
+.car-fold>.car-rating,.car-fold>.car-memos{margin-top:0;padding-top:0;border-top:0}
+.car-fold .car-rating-head strong{display:none}
+/* 表示の乱れの修正：ふりがなは見出しの後ろに小さく、地図リンクは2行で */
+.prayer-card-kana{font-size:11px;font-weight:500;color:var(--muted);margin-left:4px;white-space:nowrap}
+.route-link{flex-direction:column;gap:0;line-height:1.3;text-align:center}
+.route-link strong{font-size:13px;white-space:nowrap}
+.route-link small{font-size:11px;font-weight:500;opacity:.8}
+/* 道路の通行規制情報へのリンク */
+.road-info{margin:14px 0 0;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+.road-info strong{font-size:13px}
+.road-info ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.road-info li{display:flex;flex-direction:column;line-height:1.4}
+.road-info li a{font-size:13px;font-weight:700}
+.road-info li small{font-size:11px;color:var(--muted)}
+.road-info .tiny{margin-top:8px}
+.road-info.compact ul{grid-template-columns:1fr 1fr}
+@media(max-width:420px){.road-info.compact ul{grid-template-columns:1fr}}
+/* 出典とライセンス */
+.credit-group{font-size:14px;margin:16px 0 6px}
+.credit-list{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.credit-list li{display:flex;flex-direction:column;line-height:1.5}
+.credit-list a,.credit-list span{font-size:13px;font-weight:700}
+.credit-list small{font-size:11.5px;color:var(--muted)}
+.credit-license{white-space:pre-wrap;font-size:10.5px;line-height:1.6;background:var(--paper);padding:10px;border-radius:8px;max-height:240px;overflow:auto}
+/* 車タブの要約表示 */
+.car-more{margin-top:4px}
+.car-more>summary{font-size:12.5px;color:var(--green);min-height:36px;display:flex;align-items:center;cursor:pointer}
+.next .next-near{width:100%;margin-top:8px}
+.text-size-pick{display:grid;gap:6px;font-size:12px;margin-top:14px}
+/* 文字の大きさ：画面全体を拡大し、地図だけは元の倍率に戻す（地図の操作位置がずれないように） */
+:root[data-text-size=l] body{zoom:1.12}
+:root[data-text-size=xl] body{zoom:1.25}
+:root[data-text-size=l] .leaflet-container{zoom:.8929}
+:root[data-text-size=xl] .leaflet-container{zoom:.8}
+.detail-pane .mini-map{height:180px}
+.detail-pane .car-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.detail-pane .car-actions .secondary{min-width:0;font-size:12px;padding:10px 8px}

@@ -1,0 +1,1942 @@
+{
+ "format": "ohenro-quest-car",
+ "version": 1,
+ "checkedAt": "2026-10-25",
+ "note": "四国八十八ヶ所霊場会の札所案内に記載された車・駐車場の情報のみ（88札所、2026年10月確認）。料金・閉鎖期間・台数は変わることがあるため、出発前に公式案内で確認すること。駐車場の座標は出典で確認できたものだけをparkingPointsに入れる（現時点では0件）。closureの期間は霊場会の「12月下旬から2月いっぱい」を12-21〜02-29として扱い、approximate=trueで「可能性」と表示する。",
+ "temples": [
+  {
+   "id": 1,
+   "name": "霊山寺",
+   "parking": "普通100台・バス10〜20台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/01ryozenji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 2,
+   "name": "極楽寺",
+   "parking": "普通40台・大型6台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/02gokurakuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 3,
+   "name": "金泉寺",
+   "parking": "普通14台・大型3台・終日・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/03konsenji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 4,
+   "name": "大日寺",
+   "parking": "普通20台・マイクロバス/大型5台・7時〜17時・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/04dainichiji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 5,
+   "name": "地蔵寺",
+   "parking": "普通50台・マイクロバス20台・大型10台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/05jizoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 6,
+   "name": "安楽寺",
+   "parking": "普通80台・大型バス10台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/06anrakuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 7,
+   "name": "十楽寺",
+   "parking": "普通20台・大型5台・7時〜17時（料金の記載なし）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/07jurakuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 8,
+   "name": "熊谷寺",
+   "parking": "普通20台・マイクロバス/大型6台、臨時駐車場3か所50台・志納金制",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/08kumataniji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（志納金・冥加料）"
+   ]
+  },
+  {
+   "id": 9,
+   "name": "法輪寺",
+   "parking": "普通50台またはマイクロバス30台または大型10台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/09horinji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 10,
+   "name": "切幡寺",
+   "parking": "下の境内に普通20台・7時〜17時・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [
+    "中・大型は進入不可"
+   ],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/10kirihataji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [
+    "micro",
+    "bus"
+   ],
+   "costs": []
+  },
+  {
+   "id": 11,
+   "name": "藤井寺",
+   "parking": "門前の民間駐車場（参拝時間300円／1日500円）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/11fujiidera/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（有料）"
+   ]
+  },
+  {
+   "id": 12,
+   "name": "焼山寺",
+   "parking": "各車種あわせ70〜80台",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/12shozanji",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 13,
+   "name": "大日寺",
+   "parking": "普通15台またはマイクロバス10台または大型8台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "寺の前の県道は車の往来が激しい"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/13dainichiji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 14,
+   "name": "常楽寺",
+   "parking": "普通約10台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/14jorakuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 15,
+   "name": "國分寺",
+   "parking": "普通10台・マイクロバス1台（特例）・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [
+    "大型車は入車不可・駐車禁止"
+   ],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/15kokubunji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [
+    "bus"
+   ],
+   "costs": []
+  },
+  {
+   "id": 16,
+   "name": "観音寺",
+   "parking": "普通6〜7台・マイクロバス1台・7時〜17時・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/16kanonji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 17,
+   "name": "井戸寺",
+   "parking": "普通30台・マイクロバス5台・大型5台（料金の記載なし）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/17idoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 18,
+   "name": "恩山寺",
+   "parking": "普通20台・マイクロバス5台・大型4台・7時〜17時・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/18onzanji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 19,
+   "name": "立江寺",
+   "parking": "普通30台（300円）・マイクロバス5台（1000円）・大型6台（1000円）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/19tatsueji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（有料）"
+   ]
+  },
+  {
+   "id": 20,
+   "name": "鶴林寺",
+   "parking": "あり（志納金制）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/20kakurinji",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（志納金制）"
+   ]
+  },
+  {
+   "id": 21,
+   "name": "太龍寺",
+   "parking": "太龍寺ロープウェイ駐車場：普通車150台、マイクロバス・大型バス各10台、終日無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": "ロープウェイで山上へ（全長2,775m、101人乗り、所要約10分）。車の到着地点はロープウェイ乗り場",
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/tokushima/21tairyuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "ロープウェイの運賃（金額は公式案内で確認）"
+   ]
+  },
+  {
+   "id": 22,
+   "name": "平等寺",
+   "parking": "普通30台・マイクロバス/大型5台・7時〜17時・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "21番太龍寺のロープウェイ乗り場まで車で約20分"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/22byodoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 23,
+   "name": "薬王寺",
+   "parking": "普通350台・マイクロバス/大型10台・7時〜17時・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/23yakuoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 24,
+   "name": "最御崎寺",
+   "parking": "普通37台・無料、マイクロバス9台・300円（7時〜17時）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "室戸スカイラインに入り約9kmで正面に駐車場"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/24hotsumisakiji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 25,
+   "name": "津照寺",
+   "parking": "港の広場を使用・無料（台数の記載なし）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [
+    "車は境内に入れない"
+   ],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/25shinshoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 26,
+   "name": "金剛頂寺",
+   "parking": "普通20台・200円、マイクロバス3台・400円、大型3台・1000円（7時〜17時）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/26kongochoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（有料）"
+   ]
+  },
+  {
+   "id": 27,
+   "name": "神峯寺",
+   "parking": "普通車30台（有料）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/27kounomineji",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（有料・金額は霊場会の案内に記載なし）"
+   ]
+  },
+  {
+   "id": 28,
+   "name": "大日寺",
+   "parking": "普通30台・マイクロバス10台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "「大日寺前」バス停を右折し山道を登る"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/28dainichiji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 29,
+   "name": "国分寺",
+   "parking": "普通45台・大型5台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/29kokubunji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 30,
+   "name": "善楽寺",
+   "parking": "普通20台・大型4台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/30zenrakuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 31,
+   "name": "竹林寺",
+   "parking": "普通100台・マイクロバス10台・大型5台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "五台山方面へ、標識に従い山道を登る"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/31chikurinji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 32,
+   "name": "禅師峰寺",
+   "parking": "普通30台・マイクロバス10台・大型5台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "入口の案内板を左折し山道を登る"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/32zenjibuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 33,
+   "name": "雪蹊寺",
+   "parking": "普通10台・マイクロバス5台・大型3台（6時〜18時）・志納金",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/33sekeiji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（志納金・冥加料）"
+   ]
+  },
+  {
+   "id": 34,
+   "name": "種間寺",
+   "parking": "普通70台・大型5台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/34tanemaji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 35,
+   "name": "清瀧寺",
+   "parking": "なし",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/35kiyotakiji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 36,
+   "name": "青龍寺",
+   "parking": "普通20台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/36shoryuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 37,
+   "name": "岩本寺",
+   "parking": "普通20台・大型4台（料金の記載なし）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/37iwamotoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 38,
+   "name": "金剛福寺",
+   "parking": "普通40台・マイクロバス5台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "37番から80km余り、車で約2時間余り"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/38kongofukuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 39,
+   "name": "延光寺",
+   "parking": "普通50台・マイクロバス10台・大型5台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/39enkoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 40,
+   "name": "観自在寺",
+   "parking": "山門下に普通15台・小学校前に普通5台（料金の記載なし）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/40kanzaiji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 41,
+   "name": "龍光寺",
+   "parking": "あり（台数・料金の記載なし）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/41ryukoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 42,
+   "name": "佛木寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/42butsumokuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 43,
+   "name": "明石寺",
+   "parking": "あり・無料（大型/中型バス1000円・マイクロバス500円）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/43meisekiji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 44,
+   "name": "大寶寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/44daihoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 45,
+   "name": "岩屋寺",
+   "parking": "あり（有料）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/45iwayaji",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（有料・金額は霊場会の案内に記載なし）"
+   ]
+  },
+  {
+   "id": 46,
+   "name": "浄瑠璃寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/46joruriji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 47,
+   "name": "八坂寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/47yasakaji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 48,
+   "name": "西林寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/48sairinji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 49,
+   "name": "浄土寺",
+   "parking": "普通20台・バス4台・有料（金額の記載なし）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/49jodoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（有料）"
+   ]
+  },
+  {
+   "id": 50,
+   "name": "繁多寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/50hantaji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 51,
+   "name": "石手寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/51ishiteji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 52,
+   "name": "太山寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/52taisanji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 53,
+   "name": "圓明寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/53enmyoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 54,
+   "name": "延命寺",
+   "parking": "あり・冥加料あり（金額の記載なし）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/54enmeiji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（志納金・冥加料）"
+   ]
+  },
+  {
+   "id": 55,
+   "name": "南光坊",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/55nankobo/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 56,
+   "name": "泰山寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/56taizanji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 57,
+   "name": "栄福寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/57eifukuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 58,
+   "name": "仙遊寺",
+   "parking": "あり・道路維持費として普通車400円",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "「大須木」バス停で左折し山道を進む"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/58senyuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（有料）"
+   ]
+  },
+  {
+   "id": 59,
+   "name": "国分寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/59kokubunji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 60,
+   "name": "横峰寺",
+   "parking": "林道の駐車場あり",
+   "walkToHondoMeters": 500,
+   "vehicleLimits": [
+    "大型バスは通行できない"
+   ],
+   "roadNotes": [],
+   "seasonalClosure": "冬期は12月下旬から2月いっぱい林道が不通",
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/ehime/60yokomineji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": {
+    "from": "12-21",
+    "to": "02-29",
+    "approximate": true
+   },
+   "blockedVehicles": [
+    "bus"
+   ],
+   "costs": []
+  },
+  {
+   "id": 61,
+   "name": "香園寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/61koonji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 62,
+   "name": "宝寿寺",
+   "parking": "大型車2台（普通車の記載なし）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/62houjyuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 63,
+   "name": "吉祥寺",
+   "parking": "なし（近隣に有料駐車場あり）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/63kichijoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "近隣の有料駐車場"
+   ]
+  },
+  {
+   "id": 64,
+   "name": "前神寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/64maegamiji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 65,
+   "name": "三角寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "国道192号から約4km山道を登る"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/65sankakuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 66,
+   "name": "雲辺寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": "麓の雲辺寺ロープウェイ乗り場から山頂駅へ。車の到着地点はロープウェイ乗り場",
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/66unpenji",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "ロープウェイの運賃（金額は公式案内で確認）"
+   ]
+  },
+  {
+   "id": 67,
+   "name": "大興寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/67daikoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 68,
+   "name": "神恵院",
+   "parking": "あり（琴弾山麓）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/68jinnein/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 69,
+   "name": "観音寺",
+   "parking": "あり（琴弾山麓）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/69kannonji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 70,
+   "name": "本山寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/70motoyamaji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 71,
+   "name": "弥谷寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "仁王門から大師堂まで石段約400段（裏参道の有料道を使うと約120段）"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/71iyadaniji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 72,
+   "name": "曼荼羅寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/72mandaraji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 73,
+   "name": "出釋迦寺",
+   "parking": "普通30台・大型5台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "国道11号線側には看板なし"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/73shusyakaji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 74,
+   "name": "甲山寺",
+   "parking": "あり・有料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/74koyamaji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（有料）"
+   ]
+  },
+  {
+   "id": 75,
+   "name": "善通寺",
+   "parking": "あり（西院につながる大駐車場）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/75zentsuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 76,
+   "name": "金倉寺",
+   "parking": "あり・有料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/76konzoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "駐車場（有料）"
+   ]
+  },
+  {
+   "id": 77,
+   "name": "道隆寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "仁王門は道路の反対側"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/77doryuji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 78,
+   "name": "郷照寺",
+   "parking": "あり（普通車無料・大型バス有料）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/78goshoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 79,
+   "name": "天皇寺",
+   "parking": "あり（境内は普通車のみ）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [
+    "境内の駐車場は普通車のみ（マイクロバス・大型バスは県道33号線を利用）"
+   ],
+   "roadNotes": [
+    "西庄町交差点（標識あり）を右折して参道へ"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/79tennoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [
+    "micro",
+    "bus"
+   ],
+   "costs": []
+  },
+  {
+   "id": 80,
+   "name": "國分寺",
+   "parking": "約20台・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/80kokubunji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 81,
+   "name": "白峯寺",
+   "parking": "約200台（無料）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/81shiromineji",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 82,
+   "name": "根香寺",
+   "parking": "あり（無料）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/82negoroji",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 83,
+   "name": "一宮寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/83ichinomiyaji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 84,
+   "name": "屋島寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [
+    "屋島ドライブウェイのゲートを通って山上へ。2026年9月に山上駐車場の料金を変える実証実験あり"
+   ],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/84yashimaji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 85,
+   "name": "八栗寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": "ケーブルカーで8合目の境内へ登る参拝者が多い。車の案内はケーブル登山口駅まで",
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/85yakuriji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": [
+    "ケーブルカーの運賃（金額は公式案内で確認）"
+   ]
+  },
+  {
+   "id": 86,
+   "name": "志度寺",
+   "parking": "あり・無料",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/86shidoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 87,
+   "name": "長尾寺",
+   "parking": "あり",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/87nagaoji/",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  },
+  {
+   "id": 88,
+   "name": "大窪寺",
+   "parking": "あり（無料）",
+   "walkToHondoMeters": null,
+   "vehicleLimits": [],
+   "roadNotes": [],
+   "seasonalClosure": null,
+   "ropeway": null,
+   "parkingPoints": [],
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 札所案内",
+     "url": "https://88shikokuhenro.jp/88ookuboji",
+     "checkedAt": "2026-10-25"
+    }
+   ],
+   "closure": null,
+   "blockedVehicles": [],
+   "costs": []
+  }
+ ]
+}

@@ -1,0 +1,38 @@
+/* バッジ：納経印のような丸い印。段階で輪の色が変わる（銅・銀・金） */
+:root{--seal-none:#b7c3c9;--seal-bronze:#a8683a;--seal-silver:#7f8f9c;--seal-gold:#c08f1e}
+:root[data-theme=dark]{--seal-none:#4d6370;--seal-bronze:#d49565;--seal-silver:#b9c6d0;--seal-gold:#f0c45a}
+#badges{display:block;margin:20px 0 10px}
+.badge-summary{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin-bottom:14px}
+.badge-summary strong{font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.badge-summary span{font-size:13px;color:var(--muted)}
+.badge-summary small{flex-basis:100%;font-size:11px;color:var(--muted)}
+.qbadges{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.qbadge{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:14px 8px 12px;border:1px solid var(--line);border-radius:14px;background:var(--white);color:var(--ink);min-width:0}
+.qbadge strong{font-size:12.5px;line-height:1.4}
+.qbadge small{font-size:10.5px;line-height:1.5;color:var(--muted);min-height:2.9em}
+.qbadge:not(.earned) strong{color:var(--muted)}
+.seal{--c:var(--seal-none);display:inline-grid;place-items:center;width:52px;height:52px;border-radius:50%;border:2px solid var(--c);box-shadow:inset 0 0 0 3px var(--white),inset 0 0 0 4px var(--c);color:var(--c);background:var(--white);flex-shrink:0}
+.seal span{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:22px;font-weight:700;line-height:1}
+.seal.t0{border-style:dashed;box-shadow:none;opacity:.8}
+.seal.t1{--c:var(--seal-bronze)}.seal.t2{--c:var(--seal-silver)}.seal.t3{--c:var(--seal-gold)}
+.seal.t3{background:color-mix(in srgb,var(--seal-gold) 10%,var(--white))}
+.seal.lg{width:58px;height:58px}.seal.lg span{font-size:25px}
+.qbar{display:block;width:100%;height:4px}
+.qbar-bg{fill:var(--soft)}.qbar-fg{fill:var(--green)}
+#all-badges{display:block;margin-top:8px}
+.badge-group{font-size:15px;margin:20px 0 8px}
+.badge-rows{display:grid;gap:8px}
+.badge-row{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--white)}
+.badge-row.focus{border-color:var(--gold)}
+.badge-row>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.badge-row strong{font-size:14px}
+.badge-row small{font-size:11.5px;color:var(--muted);line-height:1.6}
+.tier-steps{display:flex;flex-wrap:wrap;gap:5px}
+.tier-steps .step{font-size:10.5px;padding:1px 7px;border-radius:4px;background:var(--soft);color:var(--muted)}
+.tier-steps .step.on{background:var(--green);color:var(--white);font-weight:700}
+.badge-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.badge-actions .secondary{min-height:40px;font-size:12.5px}
+.recap-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:12px;background:var(--soft);margin-bottom:12px}
+.recap-tabs button{min-height:40px;border-radius:9px;font-weight:700;color:var(--muted)}
+.recap-tabs button[aria-pressed=true]{background:var(--white);color:var(--ink)}
+.recap-img{display:block;width:100%;height:auto;aspect-ratio:1080/1350;border-radius:12px;border:1px solid var(--line);background:var(--soft)}
