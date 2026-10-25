@@ -11,7 +11,7 @@ export function createBackupUI({document = globalThis.document, storage = global
   const $ = s => document.querySelector(s);
 
   async function save() {
-    const epoch = openDialog('まとめてバックアップ', `<p>訪問記録・写真・行き先予定・車のデータ（駐車場・評価・車メモ・共有データ）・設定を、1つのファイルに保存します。</p><p id="all-backup-status" role="status">内容を確認しています…</p><button class="primary" id="all-backup-go" disabled>ファイルに保存する</button><p class="tiny">写真が多いとファイルが大きくなります（写真は最大100MB）。保存したファイルは「ファイル」アプリやiCloud Driveなど、この端末の外にも保管してください。</p>`);
+    const epoch = openDialog('まとめてバックアップ', `<p>訪問記録・写真・行き先予定・車のデータ（駐車場・評価・車メモ・共有データ）・設定を、1つのファイルに保存します。</p><p id="all-backup-status" role="status">内容を確認しています…</p><button class="primary" id="all-backup-go" disabled>ファイルに保存する</button><p class="tiny">写真が多いとファイルが大きくなり、作成に時間がかかります（1つ4GBまで）。保存したファイルは「ファイル」アプリやiCloud Driveなど、この端末の外にも保管してください。</p>`);
     const live = () => epoch === getEpoch();
     try {
       const journeys = getJourneys(), status = await photos.status();

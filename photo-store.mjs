@@ -1,5 +1,6 @@
 import {validDate} from './domain.mjs';
-export const PHOTO_LIMITS={count:200,total:100*1024*1024,each:1024*1024,batch:10};
+// 枚数・合計容量の上限は設けず、端末の空き容量まで保存する（空きが足りないときは QuotaExceededError で止まる）。
+export const PHOTO_LIMITS={count:Infinity,total:Infinity,each:1024*1024,batch:10};
 const fail=m=>{throw new Error(m);};
 const idOK=v=>typeof v==='string'&&v.length>0&&v.length<=100;
 const templeOK=v=>v===null||(Number.isInteger(v)&&v>=1&&v<=88);
