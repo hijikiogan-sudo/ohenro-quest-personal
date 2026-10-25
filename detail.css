@@ -1,0 +1,19 @@
+/* 札所詳細：チェックインを常に上に、残りは「基本・車・お経・写真」のタブで切り替える */
+.detail-checkin{width:100%;margin:0 0 14px}
+.detail-tabs{position:sticky;top:-25px;z-index:4;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;margin:0 0 14px;border-radius:14px;background:var(--soft);box-shadow:0 0 0 6px var(--white)}
+.detail-tabs button{min-height:42px;border-radius:10px;font-size:13px;font-weight:700;color:var(--muted)}
+.detail-tabs button[aria-selected=true]{background:var(--white);color:var(--ink);box-shadow:0 1px 4px #0000001a}
+.detail-tabs button.has-warn{color:#8a5b00}
+.detail-tabs button.has-warn[aria-selected=true]{color:#8a5b00}
+:root[data-theme=dark] .detail-tabs button.has-warn{color:#f2c45a}
+.detail-pane .car-card,.detail-pane .temple-prayer-card{margin-top:0}
+@media(max-width:620px){.detail-tabs{top:-17px}}
+/* 車タブ：評価・車メモ・共有メモは折りたたみ */
+.car-fold{margin:12px 0 0;border-top:1px solid var(--line);padding-top:4px}
+.car-fold>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;font-size:13px;font-weight:700;list-style:none;cursor:pointer}
+.car-fold>summary::-webkit-details-marker{display:none}
+.car-fold>summary::after{content:'＋';color:var(--muted);font-weight:400}
+.car-fold[open]>summary::after{content:'－'}
+.car-fold>summary span{margin-left:auto;font-size:12px;font-weight:500;color:var(--muted)}
+.car-fold>.car-rating,.car-fold>.car-memos{margin-top:0;padding-top:0;border-top:0}
+.car-fold .car-rating-head strong{display:none}
