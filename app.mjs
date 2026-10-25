@@ -11,6 +11,7 @@ import {createRoadMap} from './road-map.mjs';
 import {routePoints,routeZigzag,spreadBadges,groupByKey} from './map-route.mjs';
 import {createMiniMap} from './mini-map.mjs';
 import {createBackupUI} from './backup-ui.mjs';
+import {roadInfoHTML} from './road-info.mjs';
 import {DOJO} from './badges.mjs';
 import {outingProgress} from './today-store.mjs';
 import {progress, routeUrl, japanDate, assessGPS, distanceMeters} from './domain.mjs';
@@ -85,8 +86,8 @@ function badgeDialog(focus){
 }
 function planWarningsHTML(plan){
   const w=planWarnings({stops:plan.stops,date:(plan.departAt||'').slice(0,10),carData,ratings,vehicle:getVehicle(),temples});
-  if(!w.items.length&&!w.needsDate&&!w.costs.length)return plan.stops.length?'<p class="tiny">確認できている車の注意はありません。情報がない札所は、霊場会の案内で駐車場をご確認ください。</p>':'';
-  return `${w.needsDate?'<p class="car-plan-msg warn">冬期に通行止めになる札所が含まれます。出発予定日を入れると、期間に当たるか確認できます。</p>':''}${w.items.map(i=>`<div class="car-plan-item"><strong>${esc(i.name)}</strong>${i.messages.map(m=>`<p class="car-plan-msg ${m.level}">${esc(m.text)}</p>`).join('')}</div>`).join('')}${w.costs.length?`<div class="car-plan-item"><strong>費用がかかる札所</strong>${w.costs.map(c=>`<p class="car-plan-msg info">${esc(c)}</p>`).join('')}<p class="tiny">金額が公式案内で確認できない項目は含めていないため、合計は出していません。</p></div>`:''}<p class="tiny">判定は出発予定日と、霊場会の案内・自分の評価に基づきます。乗っていく車は設定で変更できます（いま：${esc(VEHICLES.find(v=>v.id===getVehicle()).label)}）。</p>`;
+  if(!w.items.length&&!w.needsDate&&!w.costs.length)return plan.stops.length?'<p class="tiny">霊場会の案内で確認できる車の注意はありません。</p>'+roadInfoHTML():'';
+  return `${w.needsDate?'<p class="car-plan-msg warn">冬期に通行止めになる札所が含まれます。出発予定日を入れると、期間に当たるか確認できます。</p>':''}${w.items.map(i=>`<div class="car-plan-item"><strong>${esc(i.name)}</strong>${i.messages.map(m=>`<p class="car-plan-msg ${m.level}">${esc(m.text)}</p>`).join('')}</div>`).join('')}${w.costs.length?`<div class="car-plan-item"><strong>費用がかかる札所</strong>${w.costs.map(c=>`<p class="car-plan-msg info">${esc(c)}</p>`).join('')}<p class="tiny">金額が公式案内で確認できない項目は含めていないため、合計は出していません。</p></div>`:''}${roadInfoHTML()}<p class="tiny">判定は出発予定日と、霊場会の案内・自分の評価に基づきます。乗っていく車は設定で変更できます（いま：${esc(VEHICLES.find(v=>v.id===getVehicle()).label)}）。</p>`;
 }
 function scheduleHTML(plan){
   if(!plan.stops.length)return '';

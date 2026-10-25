@@ -69,3 +69,12 @@ test('道場の色分け：同じ道場どうしだけまとめ、まとまり�
   assert.ok(split.every(g => new Set(g.map(t => dojoOf(t.id))).size === 1));
   assert.equal(split.flat().length, 88);
 });
+
+import {ROAD_INFO, ROAD_INFO_SOURCE, roadInfoHTML} from '../road-info.mjs';
+test('道路情報リンク：https のみ、案内元を表示', () => {
+  assert.ok(ROAD_INFO.length >= 4);
+  for (const r of ROAD_INFO) assert.match(r.url, /^https:\/\//);
+  const html = roadInfoHTML();
+  assert.ok(html.includes(ROAD_INFO_SOURCE.url));
+  assert.ok(html.includes('rel="noopener noreferrer"'));
+});

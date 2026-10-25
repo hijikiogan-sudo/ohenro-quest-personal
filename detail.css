@@ -22,3 +22,13 @@
 .route-link{flex-direction:column;gap:0;line-height:1.3;text-align:center}
 .route-link strong{font-size:13px;white-space:nowrap}
 .route-link small{font-size:11px;font-weight:500;opacity:.8}
+/* 道路の通行規制情報へのリンク */
+.road-info{margin:14px 0 0;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+.road-info strong{font-size:13px}
+.road-info ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.road-info li{display:flex;flex-direction:column;line-height:1.4}
+.road-info li a{font-size:13px;font-weight:700}
+.road-info li small{font-size:11px;color:var(--muted)}
+.road-info .tiny{margin-top:8px}
+.road-info.compact ul{grid-template-columns:1fr 1fr}
+@media(max-width:420px){.road-info.compact ul{grid-template-columns:1fr}}
