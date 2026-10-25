@@ -38,3 +38,23 @@ test('ほかのZIP・壊れたファイルは拒否する', async () => {
   await assert.rejects(readAllBackup(missing), /写真ZIPが足りません/);
   assert.throws(() => buildBackupJSON({records: {format: 'x'}}));
 });
+
+test('写真ZIP：200枚を超えても作って読み戻せる（v0.21で上限をなくした）', async () => {
+  const {readPhotoZip, blobCRC32, crc32} = await import('../photo-zip.mjs');
+  const {createPhotoArchive} = await import('../photo-archive.mjs');
+  const {PHOTO_LIMITS} = await import('../photo-store.mjs');
+  assert.equal(PHOTO_LIMITS.count, Infinity);
+  assert.equal(PHOTO_LIMITS.total, Infinity);
+  const rows = [];
+  for (let i = 0; i < 250; i++) {
+    const bytes = new Uint8Array([0xff, 0xd8, i & 255, i >> 8, 0xff, 0xd9]);
+    const digest = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(b => b.toString(16).padStart(2, '0')).join('');
+    rows.push({templeId: 1 + i % 88, date: '2026-10-25', caption: '', digest, favorite: false, blob: new Blob([bytes], {type: 'image/jpeg'})});
+  }
+  const zip = await createPhotoArchive(rows, 'はじめての巡礼');
+  const {manifest, entries} = await readPhotoZip(zip);
+  assert.equal(manifest.photos.length, 250);
+  assert.equal(entries.size, 251);
+  const big = new Uint8Array(3 * 1024 + 7).map((_, i) => i * 31);
+  assert.equal(await blobCRC32(new Blob([big]), 1024), crc32(big));
+});

@@ -1,6 +1,6 @@
 // まとめてバックアップ：記録・予定・車のデータ・設定（backup.json）と、巡礼ごとの写真ZIPを1つのZIPに入れる。
 // 写真ZIPは従来の写真バックアップ（v2）と同じ形式なので、取り出して従来の方法でも復元できる。
-import {makePhotoZip, crc32} from './photo-zip.mjs';
+import {makePhotoZip, crc32, ZIP_MAX_BYTES} from './photo-zip.mjs';
 
 export const SETTING_PREFIXES = ['ohenro-vehicle:', 'ohenro-speed:', 'ohenro-map-style:', 'ohenro-map-overlay:', 'ohenro-theme:', 'ohenro-text-size:'];
 export const SETTING_KEYS = ['ohenro-share-name'];
@@ -42,7 +42,7 @@ export async function makeAllBackup({json, photoArchives = []}) {
 
 // 自分で作ったZIP（無圧縮）だけを読む。
 export async function readAllBackup(file) {
-  if (!(file instanceof Blob) || file.size < 22 || file.size > 600 * 1024 * 1024) fail('600MB以下の「まとめてバックアップ」ZIPを選んでください。');
+  if (!(file instanceof Blob) || file.size < 22 || file.size > ZIP_MAX_BYTES) fail('「まとめてバックアップ」のZIP（4GBまで）を選んでください。');
   const dec = new TextDecoder('utf-8', {fatal: true}), entries = new Map();
   let offset = 0;
   while (offset + 4 <= file.size) {
