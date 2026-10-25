@@ -8,5 +8,5 @@ export const ROAD_INFO = [
 ];
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 export function roadInfoHTML({title = '出発前に通行止めを確認', compact = false} = {}) {
-  return `<div class="road-info${compact ? ' compact' : ''}"><strong>${esc(title)}</strong><ul>${ROAD_INFO.map(r => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.name)} ↗</a><small>${esc(r.note)}</small></li>`).join('')}</ul><p class="tiny">災害・工事・大雪の通行止めは、出発前と当日に確認してください。案内元：<a href="${esc(ROAD_INFO_SOURCE.url)}" target="_blank" rel="noopener noreferrer">${esc(ROAD_INFO_SOURCE.label)}</a></p></div>`;
+  return `<div class="road-info${compact ? ' compact' : ''}">${title ? `<strong>${esc(title)}</strong>` : ''}<ul>${ROAD_INFO.map(r => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.name)} ↗</a><small>${esc(r.note)}</small></li>`).join('')}</ul><p class="tiny">災害・工事・大雪の通行止めは、出発前と当日に確認してください。案内元：<a href="${esc(ROAD_INFO_SOURCE.url)}" target="_blank" rel="noopener noreferrer">${esc(ROAD_INFO_SOURCE.label)}</a></p></div>`;
 }

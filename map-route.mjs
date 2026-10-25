@@ -56,3 +56,8 @@ export function groupByKey(rows, keyOf, group) {
   const keys = [...new Set(rows.map(keyOf))];
   return keys.flatMap(k => group(rows.filter(r => keyOf(r) === k)));
 }
+
+// 現在地から近い未訪問の札所（直線距離の近い順）。
+export function nearestUnvisited(position, temples, done, distance, n = 3) {
+  return temples.filter(t => !done.has(t.id)).map(t => ({temple: t, meters: distance(position, t)})).sort((a, b) => a.meters - b.meters).slice(0, n);
+}

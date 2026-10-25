@@ -2,7 +2,7 @@
 // 写真ZIPは従来の写真バックアップ（v2）と同じ形式なので、取り出して従来の方法でも復元できる。
 import {makePhotoZip, crc32} from './photo-zip.mjs';
 
-export const SETTING_PREFIXES = ['ohenro-vehicle:', 'ohenro-speed:', 'ohenro-map-style:', 'ohenro-map-overlay:', 'ohenro-theme:'];
+export const SETTING_PREFIXES = ['ohenro-vehicle:', 'ohenro-speed:', 'ohenro-map-style:', 'ohenro-map-overlay:', 'ohenro-theme:', 'ohenro-text-size:'];
 export const SETTING_KEYS = ['ohenro-share-name'];
 const fail = m => { throw new Error(m); };
 

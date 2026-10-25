@@ -8,10 +8,11 @@ import {createPhotoUI} from './photo-ui.mjs';
 import {groupNearby,templeGlyph} from './temple-marker.mjs';
 import {attachTheme, fittedMapBox} from './display.mjs';
 import {createRoadMap} from './road-map.mjs';
-import {routePoints,routeZigzag,spreadBadges,groupByKey} from './map-route.mjs';
+import {routePoints,routeZigzag,spreadBadges,groupByKey,nearestUnvisited} from './map-route.mjs';
 import {createMiniMap} from './mini-map.mjs';
 import {createBackupUI} from './backup-ui.mjs';
 import {roadInfoHTML} from './road-info.mjs';
+import {creditsHTML,isNativeApp} from './credits.mjs';
 import {DOJO} from './badges.mjs';
 import {outingProgress} from './today-store.mjs';
 import {progress, routeUrl, japanDate, assessGPS, distanceMeters} from './domain.mjs';
@@ -30,6 +31,9 @@ const speedKey='ohenro-speed:'+new URL('.',import.meta.url).pathname;
 function getSpeed(){try{return speedOf(localStorage.getItem(speedKey)).id;}catch{return 'normal';}}
 function setSpeed(v){try{localStorage.setItem(speedKey,v);}catch{}}
 const vehicleKey='ohenro-vehicle:'+new URL('.',import.meta.url).pathname;
+const textKey='ohenro-text-size:'+new URL('.',import.meta.url).pathname;
+function applyTextSize(v){const ok=['m','l','xl'].includes(v)?v:'m';document.documentElement.dataset.textSize=ok;return ok;}
+let textSize='m';try{textSize=applyTextSize(localStorage.getItem(textKey));}catch{applyTextSize('m');}
 function getVehicle(){try{const v=localStorage.getItem(vehicleKey);return VEHICLES.some(x=>x.id===v)?v:'standard';}catch{return 'standard';}}
 function setVehicle(v){try{localStorage.setItem(vehicleKey,v);}catch{}if(view==='temples')renderTemples();}
 let temples=[],coast=null,state=null,journeyId='',view='home',initialized=false,connected=false;
@@ -140,8 +144,8 @@ function render(){
   $('#ring').innerHTML=`<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="#00a5bb" stroke-width="4" stroke-dasharray="${p.count/88*276.46} 276.46" transform="rotate(-90 50 50)"/><text x="50" y="51" text-anchor="middle" font-size="31" fill="#143c50">${p.count}</text><text x="50" y="67" text-anchor="middle" font-size="8" fill="#536c7a">/ 88 寺</text></svg>`;
   $('#pref-progress').innerHTML=['徳島県','高知県','愛媛県','香川県'].map(pref=>{const ts=temples.filter(t=>t.prefecture===pref),n=ts.filter(t=>done.has(t.id)).length;return `<div><div class="pref-name">${pref.slice(0,-1)}<small>${n} / ${ts.length}</small></div><div class="track"><svg viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true"><rect width="${ts.length?n/ts.length*100:0}" height="4" fill="#00a5bb"/></svg></div></div>`;}).join('');
   const next=temples.find(t=>!done.has(t.id));
-  $('#next-temple').innerHTML=next?`<div class="next-top"><div class="temple-number">${next.id.toString().padStart(2,'0')}</div><div><small>${esc(next.prefecture)} · 第${next.id}番札所</small><h2>${esc(next.name)}</h2></div></div><p>${esc(next.address)}<br>未訪問の番号が小さい札所を表示しています。</p><button class="primary" id="next-detail">札所の詳細・チェックイン →</button><a class="text-button" href="${esc(routeUrl(next,'google',parkingFor(next.id)))}" target="_blank" rel="noopener noreferrer">${parkingFor(next.id)?'駐車場へのルートをGoogleマップで開く ↗':'車のルートをGoogleマップで開く ↗'}</a>`:'<div class="next-top"><div class="temple-number">祝</div><h2>結願</h2></div><p>すべての札所をめぐりました。<br>グループ・設定から新しい巡礼を始められます。</p>';
-  if(next)$('#next-detail').onclick=()=>detailDialog(next.id);
+  $('#next-temple').innerHTML=next?`<div class="next-top"><div class="temple-number">${next.id.toString().padStart(2,'0')}</div><div><small>${esc(next.prefecture)} · 第${next.id}番札所</small><h2>${esc(next.name)}</h2></div></div><p>${esc(next.address)}<br>未訪問の番号が小さい札所を表示しています。</p><button class="primary" id="next-detail">札所の詳細・チェックイン →</button><button class="secondary next-near" id="next-near">現在地から近い未訪問の札所を探す</button><a class="text-button" href="${esc(routeUrl(next,'google',parkingFor(next.id)))}" target="_blank" rel="noopener noreferrer">${parkingFor(next.id)?'駐車場へのルートをGoogleマップで開く ↗':'車のルートをGoogleマップで開く ↗'}</a>`:'<div class="next-top"><div class="temple-number">祝</div><h2>結願</h2></div><p>すべての札所をめぐりました。<br>グループ・設定から新しい巡礼を始められます。</p>';
+  if(next){$('#next-detail').onclick=()=>detailDialog(next.id);$('#next-near').onclick=()=>nearDialog(done);}
   renderBadges();
   drawMap(done);renderMapPanel(done);refreshRouteOptions();renderTemples();renderHistory();renderFamily();photoUI.stats();photos.status().then(st=>{if(photoCount!==st.count){photoCount=st.count;renderBadges();}}).catch(()=>{});if(view==='album')photoUI.library({soft:true});if(view==='plan')planUI.render({soft:true});if(view==='home')todayUI.render();
   $('#install-note').textContent=window.isSecureContext?'この画面はPWA・位置情報が使える接続です（対応ブラウザ・端末の許可が必要）。':'この接続ではGPS・PWA機能に制限があります。iPhoneでの本利用には、信頼されたHTTPS接続が必要です。';
@@ -190,6 +194,21 @@ function detailDialog(id,tab=detailTab){
   if(tab==='car')drawMini();
   photoUI.cover(t);
 }
+function nearDialog(done){
+  openDialog('近い未訪問の札所',`<p class="small">ボタンを押したときだけ現在地を取得し、未訪問の札所を直線距離の近い順に3つ表示します。現在地は保存しません。</p><div id="near-list" class="cluster-list"></div><div class="dialog-actions"><button class="primary" id="near-measure">現在地を取得する</button></div>`);
+  $('#near-measure').onclick=async e=>{
+    if(!window.isSecureContext||!navigator.geolocation){showError(new Error('この画面では位置情報を利用できません。'));return;}
+    const epoch=dialogEpoch;e.target.disabled=true;e.target.textContent='測位しています…';
+    try{
+      const r=await new Promise((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:false,maximumAge:120000,timeout:20000}));
+      if(epoch!==dialogEpoch)return;
+      const rows=nearestUnvisited({lat:r.coords.latitude,lng:r.coords.longitude},temples,done,distanceMeters,3);
+      $('#near-list').innerHTML=rows.length?rows.map(({temple:t,meters})=>`<button class="cluster-temple" data-near="${t.id}"><span>${templeGlyph(t.id)}</span><div><small>第${t.id}番 · 直線で約${meters<1000?Math.round(meters/10)*10+'m':(meters/1000).toFixed(1)+'km'}</small><strong>${esc(t.name)}</strong>${chipsHTML(carUI.flagsFor(t.id))}</div><span>→</span></button>`).join(''):'<p>この巡礼の札所はすべて訪問済みです。</p>';
+      $$('[data-near]').forEach(b=>b.onclick=()=>detailDialog(Number(b.dataset.near),'basic'));
+      e.target.textContent='もう一度測る';e.target.disabled=false;
+    }catch(err){if(epoch!==dialogEpoch)return;const m={1:'位置情報が許可されていません。端末の設定で許可してください。',2:'現在地を取得できませんでした。',3:'測位に時間がかかりました。もう一度お試しください。'};showError(new Error(m[err.code]||err.message));e.target.disabled=false;e.target.textContent='現在地を取得する';}
+  };
+}
 function clusterDialog(ids){
   openDialog('この周辺の札所',`<p class="small">近い位置にある${ids.length}つの札所です。開きたい札所を選んでください。</p><div class="cluster-list">${ids.map(id=>{const t=temples.find(t=>t.id===id);return `<button class="cluster-temple" data-cluster-temple="${id}"><span>${templeGlyph(id)}</span><div><small>第${id}番 · ${esc(t.prefecture)}</small><strong>${esc(t.name)}</strong></div><span>→</span></button>`;}).join('')}</div>`);
   $$('[data-cluster-temple]').forEach(b=>b.onclick=()=>detailDialog(Number(b.dataset.clusterTemple)));
@@ -232,6 +251,8 @@ function gpsDialog(t){
 function voidDialog(id){const v=state.visits.find(v=>v.id===id),t=temples[v.templeId-1];openDialog('訪問記録を取り消す',`<p>${esc(t.name)} · ${esc(v.date||'訪問日不明')} の訪問を取り消します。</p><p class="small">この端末の記録から取り消します。直後に表示される「元に戻す」で復元できます。</p><div class="dialog-actions"><button class="quiet" id="cancel-void">戻る</button><button class="primary" id="confirm-void">この訪問を取り消す</button></div>`);$('#cancel-void').onclick=closeDialog;$('#confirm-void').onclick=async e=>{e.target.disabled=true;try{await api('visit/void',{id});closeDialog();await refresh();toast('訪問記録を取り消しました。',{label:'元に戻す',run:async()=>{try{await api('visit/undo',{id});await refresh();toast('記録を復元しました。');}catch(err){showError(err);}}});}catch(err){showError(err);e.target.disabled=false;}};}
 function newJourneyDialog(){openDialog('新しい巡礼をつくる',`<form id="journey-form" class="dialog-form"><label>巡礼の名前<input name="name" required maxlength="60" placeholder="例：自分の2周目"></label><p class="small">訪問記録・XP・達成率は巡礼ごとに分かれます。今の記録は残ります。</p><div class="actions"><button class="primary">作成する</button></div></form>`);$('#journey-form').onsubmit=async e=>{e.preventDefault();e.submitter.disabled=true;try{const r=await api('journeys',{name:new FormData(e.target).get('name')});journeyId=r.id;closeDialog();await refresh();setView('home');toast('新しい巡礼を作成しました。');}catch(err){showError(err);e.submitter.disabled=false;}};}
 async function exportBackup(onlyCurrent=false){if(!requireAuth())return;try{const data=await api('export');if(onlyCurrent){data.journeys=data.journeys.filter(j=>j.id===journeyId);data.visits=data.visits.filter(v=>v.journeyId===journeyId);}const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`ohenro-${onlyCurrent?'journey':'all'}-${japanDate()}.json`;link.click();await api('backup/exported',{});await refresh({silent:true});setTimeout(()=>URL.revokeObjectURL(url),1000);toast('バックアップを保存しました。保存先をご確認ください。');}catch(e){showError(e);}}
+$('#text-size').value=textSize;$('#text-size').onchange=e=>{textSize=applyTextSize(e.target.value);try{localStorage.setItem(textKey,textSize);}catch{}toast('文字の大きさを変更しました。');setTimeout(()=>roadMap.reset(),50);};
+$('#open-credits').onclick=()=>openDialog('出典とライセンス',creditsHTML());
 $('#all-backup-save').onclick=()=>requireAuth(()=>backupUI.save());$('#all-backup-restore').onchange=e=>{const f=e.target.files?.[0];e.target.value='';if(f)requireAuth(()=>backupUI.restore(f));};
 $('#photos-export').onclick=()=>requireAuth(()=>photoUI.exportPhotos());
 $('#photos-import').onchange=e=>{const file=e.target.files[0];e.target.value='';if(file)requireAuth(()=>photoUI.importPhotos(file));};
@@ -335,5 +356,6 @@ try{
   try{carData=validateCarData(await fetch('./data/car.json').then(r=>{if(!r.ok)throw new Error();return r.json();}));}catch{carData=null;}
   await reloadParkings();
   await refresh({silent:true});
-  if('serviceWorker' in navigator&&window.isSecureContext)navigator.serviceWorker.register('./sw.js').catch(()=>toast('オフライン用の画面を準備できませんでした。通信できる場所で再読み込みしてください。'));
+  // アプリ版（App Store）ではファイルを同梱するため、Service Workerは登録しない。
+  if(!isNativeApp()&&'serviceWorker' in navigator&&window.isSecureContext)navigator.serviceWorker.register('./sw.js').catch(()=>toast('オフライン用の画面を準備できませんでした。通信できる場所で再読み込みしてください。'));
 }catch{$('#notice').hidden=false;$('#notice').textContent='札所データを読み込めませんでした。初回は通信できる場所で開いてください。端末内の記録は変更していません。';}

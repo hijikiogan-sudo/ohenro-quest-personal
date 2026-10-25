@@ -78,3 +78,23 @@ test('道路情報リンク：https のみ、案内元を表示', () => {
   assert.ok(html.includes(ROAD_INFO_SOURCE.url));
   assert.ok(html.includes('rel="noopener noreferrer"'));
 });
+
+import {nearestUnvisited} from '../map-route.mjs';
+import {isNativeApp, CREDITS, creditsHTML} from '../credits.mjs';
+test('近い未訪問の札所：訪問済みを除いて近い順に3つ', () => {
+  const t12 = temples.find(t => t.id === 12);
+  const rows = nearestUnvisited({lat: t12.lat - 0.05, lng: t12.lng}, temples, new Set([11]), distanceMeters, 3);
+  assert.equal(rows.length, 3);
+  assert.equal(rows[0].temple.id, 12);
+  assert.ok(rows.every(r => r.temple.id !== 11));
+  assert.ok(rows[0].meters <= rows[1].meters && rows[1].meters <= rows[2].meters);
+  assert.equal(nearestUnvisited({lat: 34, lng: 134}, temples, new Set(temples.map(t => t.id)), distanceMeters).length, 0);
+});
+test('アプリ版の判定と出典画面', () => {
+  assert.equal(isNativeApp({Capacitor: {isNativePlatform: () => true}, location: {protocol: 'https:'}}), true);
+  assert.equal(isNativeApp({location: {protocol: 'capacitor:'}}), true);
+  assert.equal(isNativeApp({location: {protocol: 'https:'}}), false);
+  const html = creditsHTML();
+  for (const g of CREDITS) for (const i of g.items) { assert.match(i.url, /^https:\/\//); assert.ok(html.includes(i.url)); }
+  assert.ok(html.includes('BSD 2-Clause'));
+});
