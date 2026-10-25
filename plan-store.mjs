@@ -25,5 +25,12 @@ export function createPlanStore({indexedDB=globalThis.indexedDB,scope='/'}={}){
       tx.oncomplete=()=>resolve(saved);tx.onabort=()=>reject(error?.name==='QuotaExceededError'?new Error('空き容量不足で予定を保存できません。'):error||new Error(tx.error?.name==='QuotaExceededError'?'空き容量不足で予定を保存できません。':'予定を保存できません。保存済みの予定は維持しました。'));
     });
   }
-  return {list,save:async p=>(await saveMany([p]))[0],import:async(plans,journeyId)=>saveMany(plans.map(p=>({...p,id:crypto.randomUUID(),journeyId,revision:0})),{imported:true}),close(){db?.close();db=null;pending=null;}};
+  async function remove(plan){
+    const connection=await open();return new Promise((resolve,reject)=>{
+      const tx=connection.transaction('plans','readwrite'),s=tx.objectStore('plans'),r=s.get(plan.id);let error;
+      r.onsuccess=()=>{const before=r.result;if(!before||before.revision!==plan.revision||before.journeyId!==plan.journeyId){error=new Error('別の画面で予定が更新されています。保存済みの予定を開き直してください。');tx.abort();return;}s.delete(plan.id);};
+      tx.oncomplete=()=>resolve();tx.onabort=()=>reject(error||new Error('予定を削除できません。保存済みの予定は維持しました。'));
+    });
+  }
+  return {list,save:async p=>(await saveMany([p]))[0],import:async(plans,journeyId)=>saveMany(plans.map(p=>({...p,id:crypto.randomUUID(),journeyId,revision:0})),{imported:true}),remove,close(){db?.close();db=null;pending=null;}};
 }
