@@ -10,6 +10,7 @@ import {attachTheme, fittedMapBox} from './display.mjs';
 import {createRoadMap} from './road-map.mjs';
 import {routePoints,routeZigzag,spreadBadges,groupByKey} from './map-route.mjs';
 import {createMiniMap} from './mini-map.mjs';
+import {createBackupUI} from './backup-ui.mjs';
 import {DOJO} from './badges.mjs';
 import {outingProgress} from './today-store.mjs';
 import {progress, routeUrl, japanDate, assessGPS, distanceMeters} from './domain.mjs';
@@ -35,7 +36,7 @@ const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,
 const parkingStore=createParkingStore({scope:new URL('.',import.meta.url).pathname});
 async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}try{memoRows=await parkingStore.listMemos();}catch{memoRows=[];}try{sharedPacks=await parkingStore.listShared();}catch{sharedPacks=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints,sharedPacks);if(initialized)renderBadges();if(initialized&&view==='temples')renderTemples();}
 let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
-const miniMap=createMiniMap();let miniKind='pale';
+const miniMap=createMiniMap();
 const overlayKey='ohenro-map-overlay:'+new URL('.',import.meta.url).pathname;let mapOverlay={warn:true,dojo:false};try{mapOverlay={...mapOverlay,...JSON.parse(localStorage.getItem(overlayKey)||'{}')};}catch{}
 const dojoOf=id=>DOJO.find(d=>id>=d.from&&id<=d.to)?.id;
 function warnSet(){return mapOverlay.warn?new Set(temples.filter(t=>hasWarn(carUI.flagsFor(t.id))).map(t=>t.id)):new Set();}
@@ -53,6 +54,7 @@ const prayerUI=createPrayerUI({document,openDialog,getEpoch:()=>dialogEpoch,back
 const todayStore=createTodayStore({scope:new URL('.',import.meta.url).pathname});
 const todayUI=createTodayUI({document,store:todayStore,plans,getJourney:()=>currentJourney(),getVisits:()=>state?.visits||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onPlans:()=>setView('plan'),onStarted:()=>setView('home'),onPrayer:t=>requireAuth(()=>prayerUI.open(t)),onPhotos:t=>requireAuth(()=>photoUI.album(t)),onGPS:t=>requireAuth(()=>gpsDialog(t)),onManual:t=>requireAuth(()=>manualDialog([t.id])),getParking:id=>parkingFor(id),carNotes:t=>todayNotesHTML(t),onStopMode:t=>carUI.stopMode(t)});
 const carUI=createCarUI({document,store:parkingStore,getCarData:()=>carData,getParkings:()=>parkingPoints,getParkingFor:id=>parkingFor(id),getRatings:()=>ratings,getRatingRows:()=>ratingRows,getMemos:()=>memoRows,getShared:()=>sharedPacks,getSpeed,setSpeed,getTemples:()=>temples,onGPS:t=>requireAuth(()=>gpsDialog(t)),onPhotos:t=>requireAuth()&&photoUI.album(t),onPhotoMap:t=>{closeDialog();setView('home');mapPref='';fitMapCounty();renderMapPanel(new Set(currentVisits().map(v=>v.templeId)));roadMap.focus(t);setTimeout(()=>$('#road-map')?.scrollIntoView({block:'center'}),150);},getVehicle,setVehicle,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onChanged:async()=>{await reloadParkings();if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));},backToTemple:id=>detailDialog(id),japanDate});
+const backupUI=createBackupUI({document,scope:new URL('.',import.meta.url).pathname,api,plans,photos,parkingStore,getJourneys:()=>state?.journeys||[],getCar:()=>({points:parkingPoints,ratings:ratingRows,memos:memoRows,shared:sharedPacks}),openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,japanDate,afterRestore:async({journeyId:jid,reload,silent}={})=>{await reloadParkings();if(jid)journeyId=jid;await refresh({silent:true});if(reload)setTimeout(()=>location.reload(),1500);}});let miniKind='pale';
 function toast(message,action) {
   clearTimeout(toastTimer);const el=$('#toast');el.replaceChildren(document.createTextNode(message));
   if(action) {const b=document.createElement('button');b.textContent=action.label;b.onclick=action.run;el.append(b);}
@@ -162,6 +164,7 @@ function renderHistory(){
 }
 function renderFamily(){
   const last=state?.lastExportAt?new Date(state.lastExportAt).toLocaleString('ja-JP'):'まだ書き出していません';
+  if($('#all-backup-last'))$('#all-backup-last').textContent=`前回のバックアップ：${last}`;
   $('#family-content').innerHTML=`<p>自分のペースで、八十八の出会いを。</p><p class="small">ログイン不要の個人版です。記録はこの端末・このブラウザに保存します。家族や別の端末とは自動共有しません。</p><button class="secondary" id="new-journey">新しい巡礼を作成</button><button class="quiet" id="settings-history">訪問の記録を見る</button><p class="small">前回のバックアップ書き出し：${esc(last)}</p><p class="tiny">プライベートブラウズは使わず、先にホーム画面へ追加してください。端末の容量不足・ブラウザのデータ削除・機種変更で記録が失われる場合があります。JSONバックアップを「ファイル」などに保存してください。</p>`;
   if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));$('#new-journey').onclick=()=>requireAuth(()=>newJourneyDialog());$('#settings-history').onclick=()=>setView('history');
 }
@@ -212,6 +215,7 @@ function gpsDialog(t){
 function voidDialog(id){const v=state.visits.find(v=>v.id===id),t=temples[v.templeId-1];openDialog('訪問記録を取り消す',`<p>${esc(t.name)} · ${esc(v.date||'訪問日不明')} の訪問を取り消します。</p><p class="small">この端末の記録から取り消します。直後に表示される「元に戻す」で復元できます。</p><div class="dialog-actions"><button class="quiet" id="cancel-void">戻る</button><button class="primary" id="confirm-void">この訪問を取り消す</button></div>`);$('#cancel-void').onclick=closeDialog;$('#confirm-void').onclick=async e=>{e.target.disabled=true;try{await api('visit/void',{id});closeDialog();await refresh();toast('訪問記録を取り消しました。',{label:'元に戻す',run:async()=>{try{await api('visit/undo',{id});await refresh();toast('記録を復元しました。');}catch(err){showError(err);}}});}catch(err){showError(err);e.target.disabled=false;}};}
 function newJourneyDialog(){openDialog('新しい巡礼をつくる',`<form id="journey-form" class="dialog-form"><label>巡礼の名前<input name="name" required maxlength="60" placeholder="例：自分の2周目"></label><p class="small">訪問記録・XP・達成率は巡礼ごとに分かれます。今の記録は残ります。</p><div class="actions"><button class="primary">作成する</button></div></form>`);$('#journey-form').onsubmit=async e=>{e.preventDefault();e.submitter.disabled=true;try{const r=await api('journeys',{name:new FormData(e.target).get('name')});journeyId=r.id;closeDialog();await refresh();setView('home');toast('新しい巡礼を作成しました。');}catch(err){showError(err);e.submitter.disabled=false;}};}
 async function exportBackup(onlyCurrent=false){if(!requireAuth())return;try{const data=await api('export');if(onlyCurrent){data.journeys=data.journeys.filter(j=>j.id===journeyId);data.visits=data.visits.filter(v=>v.journeyId===journeyId);}const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`ohenro-${onlyCurrent?'journey':'all'}-${japanDate()}.json`;link.click();await api('backup/exported',{});await refresh({silent:true});setTimeout(()=>URL.revokeObjectURL(url),1000);toast('バックアップを保存しました。保存先をご確認ください。');}catch(e){showError(e);}}
+$('#all-backup-save').onclick=()=>requireAuth(()=>backupUI.save());$('#all-backup-restore').onchange=e=>{const f=e.target.files?.[0];e.target.value='';if(f)requireAuth(()=>backupUI.restore(f));};
 $('#photos-export').onclick=()=>requireAuth(()=>photoUI.exportPhotos());
 $('#photos-import').onchange=e=>{const file=e.target.files[0];e.target.value='';if(file)requireAuth(()=>photoUI.importPhotos(file));};
 $('#export').onclick=()=>exportBackup();$('#export-current').onclick=()=>exportBackup(true);

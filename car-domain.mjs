@@ -138,7 +138,8 @@ export function carFlags(info, {rating = null, vehicle = 'standard'} = {}) {
   if (info.closure || info.seasonalClosure) flags.push({key: 'closure', label: '冬期通行止めあり', level: 'warn'});
   if (vehicleBlocked(info, vehicle)) flags.push({key: 'vehicle', label: `${vehicleLabel(vehicle)}は通行不可`, level: 'warn'});
   else if (info.vehicleLimits?.length) flags.push({key: 'limits', label: '車両の制限あり', level: 'info'});
-  if (info.ropeway) flags.push({key: 'ropeway', label: 'ロープウェイ', level: 'warn'});
+  if (/^なし/.test(info.parking || '')) flags.push({key: 'noparking', label: '札所の駐車場なし', level: 'warn'});
+  if (info.ropeway) flags.push({key: 'ropeway', label: /ケーブル/.test(info.ropeway) ? 'ケーブルカー' : 'ロープウェイ', level: 'warn'});
   if (info.walkToHondoMeters >= 300) flags.push({key: 'walk', label: `駐車場から約${info.walkToHondoMeters}m`, level: 'info'});
   if (info.costs?.length) flags.push({key: 'cost', label: '費用がかかる', level: 'info'});
   return flags;
@@ -160,7 +161,8 @@ export function planWarnings({stops, date = '', carData, ratings = new Map(), ve
         else if (closureHit(info.closure, date)) messages.push({level: 'warn', text: `出発予定日（${date}）は通行止めの期間に当たる${info.closure.approximate ? '可能性があります' : 'ため、車で近づけません'}。${info.seasonalClosure || ''}`});
       }
       if (vehicleBlocked(info, vehicle)) messages.push({level: 'warn', text: `設定中の車（${vehicleLabel(vehicle)}）は通行できないと案内されています。`});
-      if (info.ropeway) messages.push({level: 'warn', text: `車はロープウェイ乗り場まで。運行時間・運休日を公式案内で確認し、乗車と山上での参拝に時間の余裕を。`});
+      if (info.ropeway) { const k = /ケーブル/.test(info.ropeway) ? 'ケーブルカー' : 'ロープウェイ'; messages.push({level: 'warn', text: `車の案内は${k}の乗り場まで。運行時間・運休日を公式案内で確認し、乗車と山上での参拝に時間の余裕を。`}); }
+      if (/^なし/.test(info.parking || '')) messages.push({level: 'warn', text: `霊場会の案内では札所の駐車場は「${info.parking}」です。近くの駐車場を事前に確認してください。`});
       if (info.walkToHondoMeters >= 300) messages.push({level: 'info', text: `駐車場から本堂まで約${info.walkToHondoMeters}m歩きます。参拝時間に含めてください。`});
       if (info.costs?.length) costs.push(...info.costs.map(c => `${name(s.templeId)}：${c}`));
     }

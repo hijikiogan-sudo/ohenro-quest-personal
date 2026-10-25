@@ -296,3 +296,15 @@ test('時間割：自分の実績がある区間は実績から移動時間を�
   assert.equal(real.driveMinutes, 70);
   assert.ok(est.rows[1].leg.minutes < 70);
 });
+
+test('車データは88札所すべてに霊場会の出典付きで入っている', () => {
+  assert.deepEqual(car.temples.map(t => t.id), Array.from({length: 88}, (_, i) => i + 1));
+  for (const t of car.temples) assert.ok(t.parking && t.parking.length <= 80, `第${t.id}番の駐車場`);
+  assert.deepEqual(car.temples.filter(t => t.blockedVehicles.length).map(t => t.id), [10, 15, 60, 79]);
+  assert.ok(carFlags(carInfoFor(car, 35)).some(f => f.key === 'noparking' && f.level === 'warn'));
+  assert.ok(carFlags(carInfoFor(car, 85)).some(f => f.label === 'ケーブルカー'));
+  assert.ok(vehicleBlocked(carInfoFor(car, 10), 'micro'));
+  assert.equal(vehicleBlocked(carInfoFor(car, 10), 'standard'), false);
+  const w = planWarnings({stops: [{templeId: 35, minutes: 30}], carData: car, temples});
+  assert.ok(w.items[0].messages.some(m => /駐車場は「なし」/.test(m.text)));
+});
