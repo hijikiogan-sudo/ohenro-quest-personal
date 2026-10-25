@@ -93,3 +93,26 @@ test('ホームの表示：あと少しのものを先に、6個まで', () => {
   assert.equal(f.length, 6);
   assert.equal(f[0].id, 'steps'); // 9/10 で一番近い
 });
+
+import {totalXp, levelFor, XP_PER_TIER} from '../badges.mjs';
+import {recapData} from '../recap.mjs';
+test('XP：1寺100XPに、バッジの段階1つにつき50XPを足す', () => {
+  const list = computeBadges({visits: Array.from({length: 10}, (_, i) => v(i + 1)), journeyId: 'j1'});
+  const tiers = list.reduce((n, b) => n + b.tier, 0);
+  assert.equal(totalXp(1000, list), 1000 + XP_PER_TIER * tiers);
+  assert.equal(levelFor(0), 1);
+  assert.equal(levelFor(499), 1);
+  assert.equal(levelFor(500), 2);
+});
+test('振り返りカードの内容：今日／この巡礼', () => {
+  const temples = JSON.parse(readFileSync(new URL('../data/temples.json', import.meta.url)));
+  const visits = [v(1, '2026-10-25'), v(2, '2026-10-25'), v(24, '2026-10-20'), v(3, '2026-10-25', {deletedAt: 1})];
+  const badges = computeBadges({visits, journeyId: 'j1'});
+  const today = recapData({mode: 'today', journeyName: '1周目', temples, visits, badges, date: '2026-10-25'});
+  assert.equal(today.headline, '2寺');
+  assert.deepEqual(today.list, ['第1番 霊山寺', '第2番 極楽寺']);
+  const all = recapData({mode: 'journey', journeyName: '1周目', temples, visits, badges, date: '2026-10-25'});
+  assert.equal(all.headline, '3 / 88寺');
+  assert.deepEqual(all.dojo.map(d => d.done), [2, 1, 0, 0]);
+  assert.ok(all.seals.length > 0 && all.seals.length <= 6);
+});

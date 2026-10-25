@@ -30,3 +30,9 @@
 .tier-steps{display:flex;flex-wrap:wrap;gap:5px}
 .tier-steps .step{font-size:10.5px;padding:1px 7px;border-radius:4px;background:var(--soft);color:var(--muted)}
 .tier-steps .step.on{background:var(--green);color:var(--white);font-weight:700}
+.badge-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.badge-actions .secondary{min-height:40px;font-size:12.5px}
+.recap-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:12px;background:var(--soft);margin-bottom:12px}
+.recap-tabs button{min-height:40px;border-radius:9px;font-weight:700;color:var(--muted)}
+.recap-tabs button[aria-pressed=true]{background:var(--white);color:var(--ink)}
+.recap-img{display:block;width:100%;height:auto;aspect-ratio:1080/1350;border-radius:12px;border:1px solid var(--line);background:var(--soft)}

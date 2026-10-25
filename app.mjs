@@ -19,7 +19,8 @@ import {progress, routeUrl, japanDate, assessGPS, distanceMeters} from './domain
 import {createPersonalStore} from './personal-store.mjs';
 import {createParkingStore} from './parking-store.mjs';
 import {createCarUI, chipsHTML} from './car-ui.mjs';
-import {computeBadges, tierKeys, newlyEarned, badgeSummary, featuredBadges} from './badges.mjs';
+import {computeBadges, tierKeys, newlyEarned, badgeSummary, featuredBadges, totalXp, levelFor, XP_PER_TIER} from './badges.mjs';
+import {recapData, drawRecap, RECAP_W, RECAP_H} from './recap.mjs';
 import {validateCarData, createParkingResolver, planWarnings, hasWarn, VEHICLES, planSchedule, legHistory, speedOf, SPEEDS, formatMinutes, NOKYO_OPEN, NOKYO_CLOSE} from './car-domain.mjs';
 
 const $ = selector=>document.querySelector(selector);
@@ -75,17 +76,35 @@ function badgeCard(b){return `<button type="button" class="qbadge${b.earned?' ea
 function renderBadges(){
   if(!$('#badges'))return;
   const list=currentBadges(),sum=badgeSummary(list);
-  $('#badges').innerHTML=`<div class="badge-summary"><strong>${sum.earnedTiers}</strong><span>/ ${sum.totalTiers} 段階</span><small>${sum.earnedBadges}種類のバッジを獲得（全${sum.totalBadges}種類）</small></div><div class="qbadges">${featuredBadges(list,6).map(badgeCard).join('')}</div><button type="button" class="text-button" id="all-badges">すべてのバッジを見る →</button>`;
-  $$('#badges [data-badge]').forEach(el=>el.onclick=()=>badgeDialog(el.dataset.badge));$('#all-badges').onclick=()=>badgeDialog();
+  {const base=progress(temples,currentVisits()).xp,xp=totalXp(base,list);if($('#level'))$('#level').textContent='Lv. '+levelFor(xp);if($('#xp'))$('#xp').textContent=xp.toLocaleString()+' XP';}
+  $('#badges').innerHTML=`<div class="badge-summary"><strong>${sum.earnedTiers}</strong><span>/ ${sum.totalTiers} 段階</span><small>${sum.earnedBadges}種類のバッジを獲得（全${sum.totalBadges}種類）</small></div><div class="qbadges">${featuredBadges(list,6).map(badgeCard).join('')}</div><div class="badge-actions"><button type="button" class="text-button" id="all-badges">すべてのバッジを見る →</button><button type="button" class="secondary" id="make-recap">振り返りカードをつくる</button></div>`;
+  $$('#badges [data-badge]').forEach(el=>el.onclick=()=>badgeDialog(el.dataset.badge));$('#all-badges').onclick=()=>badgeDialog();$('#make-recap').onclick=()=>recapDialog();
   if(!state)return;
   let seen=null;try{seen=JSON.parse(localStorage.getItem(badgeSeenKey)||'null');}catch{}
   const keys=tierKeys(list);
   if(Array.isArray(seen)){const fresh=newlyEarned(list,seen);if(fresh.length){clearTimeout(badgeTimer);badgeTimer=setTimeout(()=>toast(`バッジを獲得：${fresh.map(f=>`${f.name}（${f.tierName}）`).join('、')}`),400);}}
   try{localStorage.setItem(badgeSeenKey,JSON.stringify([...new Set([...(Array.isArray(seen)?seen:[]),...keys])]));}catch{}
 }
+let recapBlob=null;
+async function renderRecap(mode){
+  const canvas=document.createElement('canvas');canvas.width=RECAP_W;canvas.height=RECAP_H;
+  drawRecap(canvas.getContext('2d'),recapData({mode,journeyName:currentJourney()?.name||'',temples,visits:currentVisits(),badges:currentBadges(),date:japanDate()}));
+  recapBlob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+  const img=$('#recap-img');if(img){if(img.dataset.url)URL.revokeObjectURL(img.dataset.url);img.dataset.url=URL.createObjectURL(recapBlob);img.src=img.dataset.url;}
+}
+function recapDialog(){
+  openDialog('振り返りカード',`<div class="recap-tabs" role="group" aria-label="振り返りの範囲"><button type="button" data-recap="today" aria-pressed="true">今日</button><button type="button" data-recap="journey" aria-pressed="false">この巡礼</button></div><img id="recap-img" class="recap-img" alt="振り返りカードの画像"><div class="dialog-actions"><button class="primary" id="recap-share">画像を保存・共有</button></div><p class="tiny">画像はこの端末でつくり、外部には送りません。写真アプリへの保存やLINEでの共有ができます。</p>`);
+  const pick=m=>{$$('[data-recap]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.recap===m)));renderRecap(m);};
+  $$('[data-recap]').forEach(b=>b.onclick=()=>pick(b.dataset.recap));pick('today');
+  $('#recap-share').onclick=async()=>{
+    if(!recapBlob)return;const name=`ohenro-recap-${japanDate()}.png`,file=new File([recapBlob],name,{type:'image/png'});
+    try{if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'お遍路クエスト 振り返り'});return;}}catch(e){if(e?.name==='AbortError')return;}
+    const url=URL.createObjectURL(recapBlob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);toast('振り返りカードを保存しました。');
+  };
+}
 function badgeDialog(focus){
   const list=currentBadges(),groups=[...new Set(list.map(b=>b.group))];
-  openDialog('旅のしるし',`<p class="small">銅→銀→金と段階が上がります。札所の巡りは「${esc(currentJourney()?.name||'')}」、記録の積み重ねは全巡礼で数えます。</p>${groups.map(g=>`<h3 class="badge-group">${esc(g)}</h3><div class="badge-rows">${list.filter(b=>b.group===g).map(b=>`<div class="badge-row${b.id===focus?' focus':''}" id="badge-${esc(b.id)}">${sealHTML(b,' lg')}<div><strong>${esc(b.name)}</strong><small>${esc(b.how)}</small><span class="tier-steps">${b.goals.map((goal,i)=>`<span class="step${i<b.tier?' on':''}">${['銅','銀','金'].slice(3-b.max)[i]} ${goal}${esc(b.unit)}</span>`).join('')}</span>${barHTML(b)}<small>いま ${b.value}${esc(b.unit)} · ${esc(badgeStatus(b))}</small></div></div>`).join('')}</div>`).join('')}`);
+  openDialog('旅のしるし',`<p class="small">銅→銀→金と段階が上がり、段階1つにつき${XP_PER_TIER}XPが加わります。札所の巡りは「${esc(currentJourney()?.name||'')}」、記録の積み重ねは全巡礼で数えます。</p>${groups.map(g=>`<h3 class="badge-group">${esc(g)}</h3><div class="badge-rows">${list.filter(b=>b.group===g).map(b=>`<div class="badge-row${b.id===focus?' focus':''}" id="badge-${esc(b.id)}">${sealHTML(b,' lg')}<div><strong>${esc(b.name)}</strong><small>${esc(b.how)}</small><span class="tier-steps">${b.goals.map((goal,i)=>`<span class="step${i<b.tier?' on':''}">${['銅','銀','金'].slice(3-b.max)[i]} ${goal}${esc(b.unit)}</span>`).join('')}</span>${barHTML(b)}<small>いま ${b.value}${esc(b.unit)} · ${esc(badgeStatus(b))}</small></div></div>`).join('')}</div>`).join('')}`);
   if(focus)document.getElementById('badge-'+focus)?.scrollIntoView({block:'center'});
 }
 function planWarningsHTML(plan){
@@ -139,7 +158,7 @@ function render(){
   $('#journey-label').textContent=currentJourney()?.name||'はじめての巡礼';
   $('#achievement').textContent=`達成率 ${p.percent}%`;
   $('#traveler-title').textContent=p.title;$('#remaining').textContent=p.count===88?'八十八の出会い、おめでとうございます。':`あと${88-p.count}の出会いが待っています。`;
-  $('#level').textContent='Lv. '+p.level;$('#xp').textContent=p.xp.toLocaleString()+' XP';
+  $('#level').textContent='Lv. '+p.level;$('#xp').textContent=p.xp.toLocaleString()+' XP';/* バッジ込みのXPはrenderBadgesで上書き */
   // SVGの円弧を使用。CSSのインラインスタイルを必要としない。
   $('#ring').innerHTML=`<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="#00a5bb" stroke-width="4" stroke-dasharray="${p.count/88*276.46} 276.46" transform="rotate(-90 50 50)"/><text x="50" y="51" text-anchor="middle" font-size="31" fill="#143c50">${p.count}</text><text x="50" y="67" text-anchor="middle" font-size="8" fill="#536c7a">/ 88 寺</text></svg>`;
   $('#pref-progress').innerHTML=['徳島県','高知県','愛媛県','香川県'].map(pref=>{const ts=temples.filter(t=>t.prefecture===pref),n=ts.filter(t=>done.has(t.id)).length;return `<div><div class="pref-name">${pref.slice(0,-1)}<small>${n} / ${ts.length}</small></div><div class="track"><svg viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true"><rect width="${ts.length?n/ts.length*100:0}" height="4" fill="#00a5bb"/></svg></div></div>`;}).join('');

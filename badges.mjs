@@ -88,3 +88,8 @@ export function featuredBadges(badges, n = 6) {
   const done = badges.filter(b => b.earned && !close.includes(b)).sort((a, b) => (b.tier / b.max) - (a.tier / a.max) || b.tier - a.tier);
   return [...close, ...done, ...badges.filter(b => !close.includes(b) && !done.includes(b))].slice(0, n);
 }
+
+// XP：1寺100XP（従来どおり）に、バッジの段階1つにつき50XPを足す。レベルは500XPごと。
+export const XP_PER_TIER = 50;
+export function totalXp(templeXp, badges) { return templeXp + XP_PER_TIER * badges.reduce((n, b) => n + b.tier, 0); }
+export const levelFor = xp => 1 + Math.floor(xp / 500);
