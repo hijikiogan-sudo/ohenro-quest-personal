@@ -251,8 +251,11 @@ export function legHistory(visits) {
 }
 
 // 予定の時間割（目安）。札所の位置は駐車場があれば駐車場、なければ地図上の札所マーカー。
+// 札所の位置：駐車場があれば駐車場、なければ地図上の札所マーカー。
+const stopPoint = (temples, parkingFor) => id => { const p = parkingFor(id); if (p) return p; const t = temples.find(t => t.id === id); return t ? {lat: t.lat, lng: t.lng} : null; };
+
 export function planSchedule({stops, departAt = '', temples, parkingFor = () => null, origin = null, returnTo = null, kmh = 35, history = new Map()}) {
-  const point = id => { const p = parkingFor(id); if (p) return p; const t = temples.find(t => t.id === id); return t ? {lat: t.lat, lng: t.lng} : null; };
+  const point = stopPoint(temples, parkingFor);
   const endPoint = e => e?.kind === 'temple' ? point(e.templeId) : null;
   const start = departAt && /T\d{2}:\d{2}$/.test(departAt) ? Number(departAt.slice(11, 13)) * 60 + Number(departAt.slice(14, 16)) : null;
   let clock = start, prev = endPoint(origin), prevId = origin?.kind === 'temple' ? origin.templeId : null, driveTotal = 0, kmTotal = 0, unknownFirst = false;
@@ -276,6 +279,34 @@ export function planSchedule({stops, departAt = '', temples, parkingFor = () => 
   const end = endPoint(returnTo);
   if (end && prev) { back = estimateLeg(prev, end, kmh); driveTotal += back.minutes; kmTotal += back.roadKm; if (clock !== null) clock += back.minutes; }
   return {rows, back, driveMinutes: driveTotal, roadKm: Math.round(kmTotal), prayerMinutes: stops.reduce((n, s) => n + s.minutes, 0), finishText: clock === null ? '' : hm(clock), overnight: clock !== null && clock >= 24 * 60, unknownFirst, outsideCount: rows.filter(r => r.outside).length};
+}
+
+// 予定の札所を近い順に並べる（直線距離の目安。道のりは考えない）。
+// 出発地が札所ならそこから、そうでなければ今の1番目を先頭に残す。帰着地が札所なら戻りの距離も含める。
+// 近い札所を順にたどったあと、区間の入れ替え（2-opt）で遠回りを減らす。
+export function nearestOrder({stops, temples, parkingFor = () => null, origin = null, returnTo = null}) {
+  const point = stopPoint(temples, parkingFor), pts = stops.map(s => point(s.templeId));
+  if (pts.some(p => !p)) return null;
+  const start = origin?.kind === 'temple' ? point(origin.templeId) : null, end = returnTo?.kind === 'temple' ? point(returnTo.templeId) : null;
+  const fixedFirst = !start, n = stops.length;
+  const cost = order => { let c = 0, prev = start; for (const i of order) { if (prev) c += distanceMeters(prev, pts[i]); prev = pts[i]; } if (end && prev) c += distanceMeters(prev, end); return c; };
+  const rest = new Set(stops.keys()), order = [];
+  let prev = start;
+  if (fixedFirst && n) { order.push(0); rest.delete(0); prev = pts[0]; }
+  while (rest.size) { let best = -1, bd = Infinity; for (const i of rest) { const x = distanceMeters(prev, pts[i]); if (x < bd) { bd = x; best = i; } } order.push(best); rest.delete(best); prev = pts[best]; }
+  let c = cost(order), improved = true;
+  while (improved) {
+    improved = false;
+    for (let i = fixedFirst ? 1 : 0; i < n - 1; i++) for (let j = i + 1; j < n; j++) {
+      const cand = [...order.slice(0, i), ...order.slice(i, j + 1).reverse(), ...order.slice(j + 1)], cc = cost(cand);
+      if (cc < c - 1) { order.splice(0, n, ...cand); c = cc; improved = true; }
+    }
+  }
+  const before = cost([...stops.keys()]);
+  // 1m未満しか縮まないときは、今の順番のままにする。
+  const changed = c < before - 1;
+  const km = m => Math.round(m / 1000 * ROAD_FACTOR);
+  return {stops: changed ? order.map(i => stops[i]) : stops.slice(), changed, beforeKm: km(before), afterKm: km(changed ? c : before)};
 }
 
 // 共有ファイル（サーバーなし。LINEやAirDropで渡す）。

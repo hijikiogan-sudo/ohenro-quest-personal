@@ -21,7 +21,7 @@ import {createParkingStore} from './parking-store.mjs';
 import {createCarUI, chipsHTML} from './car-ui.mjs';
 import {computeBadges, tierKeys, newlyEarned, badgeSummary, featuredBadges, totalXp, levelFor, XP_PER_TIER} from './badges.mjs';
 import {recapData, drawRecap, RECAP_W, RECAP_H} from './recap.mjs';
-import {validateCarData, createParkingResolver, planWarnings, hasWarn, VEHICLES, planSchedule, legHistory, speedOf, SPEEDS, formatMinutes, NOKYO_OPEN, NOKYO_CLOSE} from './car-domain.mjs';
+import {validateCarData, createParkingResolver, nearestOrder, planWarnings, hasWarn, VEHICLES, planSchedule, legHistory, speedOf, SPEEDS, formatMinutes, NOKYO_OPEN, NOKYO_CLOSE} from './car-domain.mjs';
 
 const $ = selector=>document.querySelector(selector);
 const $$ = selector=>[...document.querySelectorAll(selector)];
@@ -57,7 +57,7 @@ let dialogEpoch=0;
 const photos=createPhotoStore({scope:new URL('.',import.meta.url).pathname});
 const photoUI=createPhotoUI({store:photos,getJourney:()=>currentJourney(),getJourneys:()=>state?.journeys||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast});
 const plans=createPlanStore({scope:new URL('.',import.meta.url).pathname});
-const planUI=createPlanUI({store:plans,getJourney:()=>currentJourney(),getTemples:()=>temples,getVisits:()=>currentVisits(),toast,onStart:plan=>todayUI.startDialog(plan),getParking:id=>parkingFor(id),carChips:id=>chipsHTML(carUI.flagsFor(id)),carWarnings:plan=>planWarningsHTML(plan),carSchedule:plan=>scheduleHTML(plan)});
+const planUI=createPlanUI({store:plans,getJourney:()=>currentJourney(),getTemples:()=>temples,getVisits:()=>currentVisits(),toast,onStart:plan=>todayUI.startDialog(plan),getParking:id=>parkingFor(id),carChips:id=>chipsHTML(carUI.flagsFor(id)),carWarnings:plan=>planWarningsHTML(plan),carSchedule:plan=>scheduleHTML(plan),sortNearest:plan=>nearestOrder({stops:plan.stops,temples,parkingFor:id=>parkingFor(id),origin:plan.origin,returnTo:plan.returnTo})});
 const prayerUI=createPrayerUI({document,openDialog,getEpoch:()=>dialogEpoch,backToTemple:id=>detailDialog(id)});
 const todayStore=createTodayStore({scope:new URL('.',import.meta.url).pathname});
 const todayUI=createTodayUI({document,store:todayStore,plans,getJourney:()=>currentJourney(),getVisits:()=>state?.visits||[],getTemples:()=>temples,openDialog,closeDialog,getEpoch:()=>dialogEpoch,showError,toast,onPlans:()=>setView('plan'),onStarted:()=>setView('home'),onPrayer:t=>requireAuth(()=>prayerUI.open(t)),onPhotos:t=>requireAuth(()=>photoUI.album(t)),onGPS:t=>requireAuth(()=>gpsDialog(t)),onManual:t=>requireAuth(()=>manualDialog([t.id])),getParking:id=>parkingFor(id),carNotes:t=>todayNotesHTML(t),onStopMode:t=>carUI.stopMode(t)});

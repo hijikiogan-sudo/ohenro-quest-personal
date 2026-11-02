@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {assessGPS, routeUrl, distanceMeters} from '../domain.mjs';
+import {nearestOrder} from '../car-domain.mjs';
 import {validateCarData, validateUserParking, assessParkingRegistration, createParkingResolver, carInfoFor, exportParkings, readParkingsJSON} from '../car-domain.mjs';
 import {planLocation, navigationSections} from '../plan-domain.mjs';
 
@@ -307,4 +308,40 @@ test('車データは88札所すべてに霊場会の出典付きで入ってい
   assert.equal(vehicleBlocked(carInfoFor(car, 10), 'standard'), false);
   const w = planWarnings({stops: [{templeId: 35, minutes: 30}], carData: car, temples});
   assert.ok(w.items[0].messages.some(m => /駐車場は「なし」/.test(m.text)));
+});
+
+test('近い順：出発地が札所でないときは1番目を残し、遠回りを減らす', () => {
+  const stops = [1, 5, 2, 4, 3].map(templeId => ({templeId, minutes: templeId * 10}));
+  const r = nearestOrder({stops, temples, origin: {kind: 'current'}, returnTo: {kind: 'none'}});
+  assert.equal(r.stops[0].templeId, 1);
+  assert.deepEqual(r.stops.map(s => s.templeId).sort((a, b) => a - b), [1, 2, 3, 4, 5]);
+  assert.ok(r.stops.every(s => s.minutes === s.templeId * 10), '参拝時間は札所ごとに保つ');
+  assert.equal(r.changed, true);
+  assert.ok(r.afterKm < r.beforeKm);
+});
+
+test('近い順：出発地が札所なら、その札所にいちばん近い札所から始める', () => {
+  const stops = [12, 2, 11, 4].map(templeId => ({templeId, minutes: 30}));
+  const r = nearestOrder({stops, temples, origin: {kind: 'temple', templeId: 1}, returnTo: {kind: 'none'}});
+  const one = temples.find(t => t.id === 1);
+  const nearest = [...stops].sort((a, b) => distanceMeters(one, temples.find(t => t.id === a.templeId)) - distanceMeters(one, temples.find(t => t.id === b.templeId)))[0].templeId;
+  assert.equal(r.stops[0].templeId, nearest);
+  assert.equal(r.stops.at(-1).templeId, 12);
+});
+
+test('近い順：すでに近い順なら変えない・札所が見つからなければnull', () => {
+  const stops = [1, 2, 3].map(templeId => ({templeId, minutes: 30}));
+  const once = nearestOrder({stops, temples, origin: {kind: 'current'}, returnTo: {kind: 'none'}});
+  const twice = nearestOrder({stops: once.stops, temples, origin: {kind: 'current'}, returnTo: {kind: 'none'}});
+  assert.equal(twice.changed, false);
+  assert.deepEqual(twice.stops, once.stops);
+  assert.equal(nearestOrder({stops: [{templeId: 99, minutes: 30}], temples}), null);
+});
+
+test('近い順：駐車場の位置があればそれを使い、帰着地が札所なら戻りも含める', () => {
+  const stops = [3, 2].map(templeId => ({templeId, minutes: 30}));
+  const calls = [];
+  const r = nearestOrder({stops, temples, parkingFor: id => { calls.push(id); return null; }, origin: {kind: 'temple', templeId: 1}, returnTo: {kind: 'temple', templeId: 1}});
+  assert.ok(calls.includes(1) && calls.includes(2) && calls.includes(3));
+  assert.deepEqual(r.stops.map(s => s.templeId).sort(), [2, 3]);
 });
