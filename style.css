@@ -125,3 +125,11 @@ dialog::backdrop{background:#143c5260;backdrop-filter:blur(4px)}
 #badges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
 #badges>.badge{min-width:0;padding:15px 6px}
 #badges>.badge span{white-space:normal}
+.notice:not([hidden]){display:flex;align-items:flex-start;gap:12px}
+.notice>span{flex:1;min-width:0}
+.notice-close{flex:none;background:none;border:1px solid currentColor;border-radius:999px;color:inherit;font:inherit;font-size:12px;line-height:1.4;padding:5px 12px;cursor:pointer}
+#view-home.home-compact .intro{min-height:0}
+#view-home.home-compact .intro>div:first-child{min-height:0}
+#view-home.home-compact .intro .eyebrow,#view-home.home-compact .intro p,#view-home.home-compact .travel-scene,#view-home.home-compact .intro .mobile-break{display:none}
+#view-home.home-compact .intro h1{font-size:22px;line-height:1.4}
+@media(max-width:620px){.dashboard-grid>.next{order:-1}#view-home.home-compact .intro h1{font-size:20px}}
