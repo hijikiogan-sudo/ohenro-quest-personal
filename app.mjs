@@ -29,6 +29,8 @@ const esc = value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 const normalizeTerm=value=>value.normalize('NFKC').toLocaleLowerCase().replace(/[國寶佛圓瀧釋峯]/g,c=>({'國':'国','寶':'宝','佛':'仏','圓':'円','瀧':'滝','釋':'釈','峯':'峰'}[c]));
 let carData=null,parkingPoints=[],parkingFor=()=>null,ratingRows=[],ratings=new Map(),memoRows=[],sharedPacks=[];
 const speedKey='ohenro-speed:'+new URL('.',import.meta.url).pathname;
+// 「個人用テスト版です」の案内を閉じたか（一時的な表示状態なので、まとめてバックアップには含めない）。
+const noticeKey='ohenro-notice-closed:'+new URL('.',import.meta.url).pathname;let noticeClosed=false;try{noticeClosed=localStorage.getItem(noticeKey)==='1';}catch{}
 function getSpeed(){try{return speedOf(localStorage.getItem(speedKey)).id;}catch{return 'normal';}}
 function setSpeed(v){try{localStorage.setItem(speedKey,v);}catch{}}
 const vehicleKey='ohenro-vehicle:'+new URL('.',import.meta.url).pathname;
@@ -150,8 +152,10 @@ function render(){
   const visits=currentVisits(),done=new Set(visits.map(v=>v.templeId)),p=progress(temples,visits);
   $('#connection').textContent=connected?(navigator.onLine===false?'● オフラインで記録可':'● この端末に保存'):'● 保存領域を確認';$('#connection').classList.toggle('offline',!connected);
   $('#account').textContent='設定';
-  $('#notice').hidden=false;
-  $('#notice').textContent=connected?'個人用テスト版です。記録はこの端末だけに保存されます。ホーム画面に追加して使い、設定からバックアップしてください。':'端末の保存領域を利用できません。記録を初期化せず停止しました。通常のSafariで開き直してください。';
+  $('#notice').hidden=connected&&noticeClosed;
+  if(connected){$('#notice').innerHTML='<span>個人用テスト版です。記録はこの端末だけに保存されます。ホーム画面に追加して使い、設定からバックアップしてください。</span><button type="button" class="notice-close" aria-label="この案内を閉じる">閉じる</button>';$('#notice .notice-close').onclick=()=>{noticeClosed=true;try{localStorage.setItem(noticeKey,'1');}catch{}$('#notice').hidden=true;};}
+  else $('#notice').textContent='端末の保存領域を利用できません。記録を初期化せず停止しました。通常のSafariで開き直してください。';
+  $('#view-home').classList.toggle('home-compact',p.count>0);
   $('#journey').innerHTML=state?state.journeys.map(j=>`<option value="${esc(j.id)}">${esc(j.name)}</option>`).join(''):'<option>はじめての巡礼</option>';
   if(state)$('#journey').value=journeyId;$('#journey').disabled=!state;
   $('#group-label').textContent='自分の巡礼 · この端末だけに保存';
