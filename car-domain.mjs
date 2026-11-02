@@ -288,7 +288,7 @@ export function exportSharePack({name, memos = [], ratings = [], points = []}) {
 export function readSharePack(value) {
   if (typeof value !== 'string' || value.length > 2 * 1024 * 1024) fail('共有ファイルは2MB以内にしてください。');
   let d; try { d = JSON.parse(value); } catch { fail('JSONファイルを読み込めません。'); }
-  if (d?.format !== 'ohenro-quest-share' || d.version !== 1 || !nameOK(d.name) || !Array.isArray(d.memos) || !Array.isArray(d.ratings) || !Array.isArray(d.points) || d.memos.length > 5000 || d.ratings.length > 88 || d.points.length > 88) fail('お遍路クエストの共有ファイルではありません。');
+  if (d?.format !== 'ohenro-quest-share' || d.version !== 1 || !nameOK(d.name) || !Array.isArray(d.memos) || !Array.isArray(d.ratings) || !Array.isArray(d.points) || d.memos.length > 5000 || d.ratings.length > 88 || d.points.length > 88) fail('くるま遍路の共有ファイルではありません。');
   return {name: d.name.trim(), exportedAt: typeof d.exportedAt === 'string' ? d.exportedAt.slice(0, 40) : '', memos: d.memos.map(validateMemo), ratings: d.ratings.map(validateRating), points: d.points.map(validateUserParking)};
 }
 export function validateSharedPack(p) {
@@ -300,7 +300,7 @@ export function validateSharedPack(p) {
 export function shareText({name, memos, ratings, temples}) {
   const tn = id => { const t = temples.find(t => t.id === id); return `第${id}番 ${t?.name || ''}`; };
   const ids = [...new Set([...ratings.map(r => r.templeId), ...memos.map(m => m.templeId)])].sort((a, b) => a - b);
-  const lines = [`お遍路クエスト 車メモ（${name}）`];
+  const lines = [`くるま遍路 車メモ（${name}）`];
   for (const id of ids) {
     const r = ratings.find(r => r.templeId === id), ms = memos.filter(m => m.templeId === id);
     lines.push('', `■${tn(id)}${r ? `　評価：${r.level} ${ratingLabel(r.level)}` : ''}`);

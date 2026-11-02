@@ -30,7 +30,7 @@ export function drawRecap(ctx, d) {
   ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = c.paper; roundRect(ctx, 60, 60, W - 120, H - 120, 40); ctx.fill();
   ctx.textBaseline = 'alphabetic'; ctx.fillStyle = c.accent; ctx.font = `700 34px ${FONT}`;
-  ctx.fillText('お遍路クエスト · 振り返り', 120, 160);
+  ctx.fillText('くるま遍路 · 振り返り', 120, 160);
   ctx.fillStyle = c.muted; ctx.font = `500 30px ${FONT}`;
   ctx.fillText(`${d.journeyName} · ${d.date}`, 120, 210);
   ctx.fillStyle = c.ink; ctx.font = `800 150px ${SERIF}`; ctx.fillText(d.headline, 120, 390);

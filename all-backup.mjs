@@ -61,7 +61,7 @@ export async function readAllBackup(file) {
   }
   const jsonBlob = entries.get('backup.json'); if (!jsonBlob) fail('バックアップの情報がありません。');
   let data; try { data = JSON.parse(await jsonBlob.text()); } catch { fail('バックアップの情報を読み取れません。'); }
-  if (data?.format !== 'ohenro-quest-all' || data.version !== 1 || data.records?.format !== 'ohenro-quest' || !Array.isArray(data.plans) || !data.car || !Array.isArray(data.photos)) fail('お遍路クエストの「まとめてバックアップ」ではありません。');
+  if (data?.format !== 'ohenro-quest-all' || data.version !== 1 || data.records?.format !== 'ohenro-quest' || !Array.isArray(data.plans) || !data.car || !Array.isArray(data.photos)) fail('くるま遍路の「まとめてバックアップ」ではありません。');
   for (const p of data.photos) if (!entries.has(p.path)) fail('バックアップに写真ZIPが足りません。');
   return {data, photoBlob: path => entries.get(path)};
 }

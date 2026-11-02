@@ -98,7 +98,7 @@ function recapDialog(){
   $$('[data-recap]').forEach(b=>b.onclick=()=>pick(b.dataset.recap));pick('today');
   $('#recap-share').onclick=async()=>{
     if(!recapBlob)return;const name=`ohenro-recap-${japanDate()}.png`,file=new File([recapBlob],name,{type:'image/png'});
-    try{if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'お遍路クエスト 振り返り'});return;}}catch(e){if(e?.name==='AbortError')return;}
+    try{if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'くるま遍路 振り返り'});return;}}catch(e){if(e?.name==='AbortError')return;}
     const url=URL.createObjectURL(recapBlob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);toast('振り返りカードを保存しました。');
   };
 }
@@ -283,7 +283,7 @@ $('#import').onchange=async e=>{
   try{
     if(file.size>5*1024*1024)throw new Error('5MB以下のJSONファイルを選択してください。');
     const data=JSON.parse(await file.text());
-    if(data.format!=='ohenro-quest'||data.version!==1||!Array.isArray(data.visits)||!Array.isArray(data.journeys)||!data.journeys.length)throw new Error('お遍路クエストのバックアップファイルを選択してください。');
+    if(data.format!=='ohenro-quest'||data.version!==1||!Array.isArray(data.visits)||!Array.isArray(data.journeys)||!data.journeys.length)throw new Error('くるま遍路のバックアップファイルを選択してください。');
     const target=journeyId;
     openDialog('バックアップを復元する',`<p>${esc(file.name)} の ${data.journeys.length}巡礼・${data.visits.length}件を読み込みます。</p><label class="dialog-form">復元方法<select id="import-mode"><option value="restore">新しい巡礼として復元（周回を維持）</option>${data.journeys.length===1?'<option value="merge">現在の巡礼に追加</option>':''}</select></label><div class="preview-list">${data.journeys.map(j=>esc(j.name)).join('<br>')}</div><p class="small">新しい巡礼には「（復元）」を付けます。現在の巡礼に追加する場合の追加先：${esc(currentJourney()?.name)}。</p><p class="small">既存の記録は置き換えません。同じ札所・日付の重複は除きます。元の作者・GPS判定は引き継がず、手動記録として保存します。</p><div class="dialog-actions"><button class="quiet" id="cancel-import">戻る</button><button class="primary" id="confirm-import">確認して読み込む</button></div>`);
     $('#cancel-import').onclick=closeDialog;
