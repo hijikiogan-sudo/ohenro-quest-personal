@@ -24,7 +24,7 @@ export async function makePhotoZip(entries){
 }
 
 export async function readPhotoZip(file){
-  if(!(file instanceof Blob)||file.size<22||file.size>ZIP_MAX_BYTES)throw new Error('お遍路クエストの写真バックアップZIP（4GBまで）を選んでください。');
+  if(!(file instanceof Blob)||file.size<22||file.size>ZIP_MAX_BYTES)throw new Error('くるま遍路の写真バックアップZIP（4GBまで）を選んでください。');
   const entries=new Map();let offset=0;
   while(offset+4<=file.size){
     const sig=new DataView(await file.slice(offset,offset+4).arrayBuffer()).getUint32(0,true);
