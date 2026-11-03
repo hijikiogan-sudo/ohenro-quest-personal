@@ -100,3 +100,11 @@
 .qt-rows li.out span{color:#a8692b;font-weight:700}
 .qt-actions{display:grid;gap:8px;margin:12px 0}
 .qt-actions a{text-align:center;text-decoration:none}
+.quick-home{display:flex;align-items:center;justify-content:space-between;gap:16px;border:1px solid var(--line);border-radius:18px;padding:16px 20px;margin:0 0 24px;background:var(--white)}
+.quick-home div{display:grid;gap:4px}
+.quick-home strong{font-size:16px;color:var(--ink)}
+.quick-home span{font-size:12px;color:var(--muted);line-height:1.7}
+.quick-home .primary{white-space:nowrap}
+.qt-search{display:block;margin:0 0 10px}
+.qt-search input{width:100%}
+@media(max-width:620px){.quick-home{display:block;padding:15px}.quick-home .primary{width:100%;margin-top:12px}}
