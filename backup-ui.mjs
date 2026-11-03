@@ -5,6 +5,7 @@ import {readPhotoZip} from './photo-zip.mjs';
 import {prepareRestoredPhoto} from './photo-image.mjs';
 import {readPlansJSON, exportPlans, validatePlan} from './plan-domain.mjs';
 import {readParkingsJSON, exportParkings, validateSharedPack} from './car-domain.mjs';
+import {saveFile, canShareFile} from './save-file.mjs';
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
 export function createBackupUI({document = globalThis.document, storage = globalThis.localStorage, scope, api, plans, photos, parkingStore, getJourneys, getCar, openDialog, closeDialog, getEpoch, showError, toast, afterRestore, japanDate}) {
@@ -43,11 +44,24 @@ export function createBackupUI({document = globalThis.document, storage = global
           if (!live()) return;
           const json = buildBackupJSON({records, plans: allPlans, car, settings: collectSettings(storage, scope), photos: archives});
           const blob = await makeAllBackup({json, photoArchives: archives});
-          const url = URL.createObjectURL(blob), a = document.createElement('a');
-          a.href = url; a.download = `ohenro-all-${japanDate()}.zip`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000);
-          await api('backup/exported', {});
-          closeDialog(); await afterRestore({silent: true});
-          toast(`まとめてバックアップを保存しました（${(blob.size / 1024 / 1024).toFixed(1)}MB）。保存先をご確認ください。`);
+          // 共有メニューは押した操作の中でしか開けないため、ファイルができたらもう一度押してもらう。
+          const name = `ohenro-all-${japanDate()}.zip`, size = blob.size < 1024 * 1024 ? `${Math.max(1, Math.round(blob.size / 1024))}KB` : `${(blob.size / 1024 / 1024).toFixed(1)}MB`, share = canShareFile(new File([blob], name, {type: 'application/zip'}));
+          $('#all-backup-status').innerHTML = share ? `ファイルができました（${size}）。下のボタンを押すと共有メニューが開きます。<strong>「"ファイル"に保存」</strong>を選び、保存先を選んで「保存」を押してください。` : `ファイルができました（${size}）。下のボタンで保存します。`;
+          e.target.hidden = true;
+          const btn = document.createElement('button');
+          btn.className = 'primary'; btn.id = 'all-backup-file'; btn.textContent = share ? '共有メニューを開いて保存' : 'ファイルを保存する';
+          e.target.after(btn);
+          btn.onclick = async () => {
+            btn.disabled = true;
+            try {
+              const r = await saveFile(blob, name, {title: 'くるま遍路のバックアップ', document});
+              if (!live()) return;
+              if (r === 'cancelled') { $('#all-backup-status').innerHTML = 'まだ保存していません。もう一度ボタンを押して、<strong>「"ファイル"に保存」</strong>を選んでください。'; btn.disabled = false; return; }
+              await api('backup/exported', {});
+              closeDialog(); await afterRestore({silent: true});
+              toast(r === 'shared' ? `バックアップ（${size}）を送りました。「ファイル」アプリに保存されたか確かめてください。` : `バックアップ（${size}）を書き出しました。ファイルの画面が出たら、共有ボタンから「"ファイル"に保存」を選んでください。`);
+            } catch (err) { if (live()) { showError(err); btn.disabled = false; } }
+          };
         } catch (err) { if (live()) { showError(err); e.target.disabled = false; } }
       };
     } catch (err) { if (live()) showError(err); }
