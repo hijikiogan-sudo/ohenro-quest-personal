@@ -44,7 +44,7 @@ let temples=[],coast=null,state=null,journeyId='',view='home',initialized=false,
 const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,temples:()=>temples});
 const parkingStore=createParkingStore({scope:new URL('.',import.meta.url).pathname});
 async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}try{memoRows=await parkingStore.listMemos();}catch{memoRows=[];}try{sharedPacks=await parkingStore.listShared();}catch{sharedPacks=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints,sharedPacks);if(initialized)renderBadges();if(initialized&&view==='temples')renderTemples();}
-let toastTimer,installPrompt=null,mapBox=[0,0,800,480];
+let toastTimer,installPrompt=null,mapBox=[0,0,800,480],fittedAspect=0;
 const miniMap=createMiniMap();
 const overlayKey='ohenro-map-overlay:'+new URL('.',import.meta.url).pathname;let mapOverlay={warn:true,dojo:false};try{mapOverlay={...mapOverlay,...JSON.parse(localStorage.getItem(overlayKey)||'{}')};}catch{}
 const dojoOf=id=>DOJO.find(d=>id>=d.from&&id<=d.to)?.id;
@@ -322,18 +322,21 @@ $('#import').onchange=async e=>{
 const svgNS='http://www.w3.org/2000/svg';
 const mercator=lat=>180/Math.PI*Math.log(Math.tan(Math.PI/4+lat*Math.PI/360));
 const projection=([lng,lat])=>[130+(lng-131.9)*190,20+(mercator(34.55)-mercator(lat))*190];
-function drawMap(done){if(!coast)return;const svg=$('#map');svg.setAttribute('viewBox',mapBox.join(' '));
+function drawMap(done){if(!coast)return;const svg=$('#map');if(!fittedAspect&&svg.clientWidth&&temples.length)fitMapCounty();svg.setAttribute('viewBox',mapBox.join(' '));
   svg.dataset.style=positionStyle;
   let html='';
   for(const polygon of coast.geometry.coordinates){html+=`<path class="land" d="${polygon.map(ring=>ring.map((p,i)=>{const [x,y]=projection(p);return `${i?'L':'M'}${x.toFixed(2)},${y.toFixed(2)}`;}).join('')+'Z').join('')}"/>`;}
-  html+='<text x="240" y="105" class="water-label">瀬戸内海</text><text x="470" y="385" class="water-label">太平洋</text>';
-  for(const [name,coord] of [['徳島',[134.12,33.95]],['高知',[133.35,33.45]],['愛媛',[132.95,33.85]],['香川',[133.91,34.27]]]){const [x,y]=projection(coord);html+=`<text x="${x}" y="${y}" class="map-label">${name}</text>`;}
   const markerScale=mapBox[2]/(svg.clientWidth||600),warnIds=warnSet();svg.classList.toggle('dojo-mode',!!mapOverlay.dojo);
-  const near=rows=>groupNearby(rows,t=>projection([t.lng,t.lat]).map(v=>v/markerScale),48);
+  // 県名・海の名前は札所の印と同じく位置だけ地図に合わせ、拡大・縮小しても画面上でほぼ同じ大きさにする。
+  const label=(x,y,cls,text)=>`<g transform="translate(${x},${y}) scale(${markerScale})"><text class="${cls}">${text}</text></g>`;
+  html+=label(240,105,'water-label','瀬戸内海')+label(470,405,'water-label','太平洋');
+  for(const [name,coord] of [['徳島',[134.12,33.95]],['高知',[133.35,33.45]],['愛媛',[132.95,33.85]],['香川',[133.91,34.27]]]){const [x,y]=projection(coord);html+=label(x,y,'map-label',name);}
+  // 札所は番号の丸（訪問済みは塗りつぶし）、近くて重なるものだけ「n寺」の札にまとめる。
+  const near=rows=>groupNearby(rows,t=>projection([t.lng,t.lat]).map(v=>v/markerScale),30);
   const groups=mapOverlay.dojo?groupByKey(mapTemples(),t=>dojoOf(t.id),near):near(mapTemples());
-  html+=groups.map(group=>{const t=group[0],multiple=group.length>1,[x,y]=projection([group.reduce((s,t)=>s+t.lng,0)/group.length,group.reduce((s,t)=>s+t.lat,0)/group.length]);const warn=warnIds.has(t.id)||group.some(x=>warnIds.has(x.id)),dj=mapOverlay.dojo&&new Set(group.map(x=>dojoOf(x.id))).size===1?' dojo-'+dojoOf(t.id):'';return `<g class="pin temple-position ${group.every(t=>done.has(t.id))?'visited':''}${dj}${warn?' car-warn':''}" transform="translate(${x},${y}) scale(${markerScale})" tabindex="0" role="button" aria-label="${multiple?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+esc(t.name)}" ${multiple?`data-map-cluster="${group.map(t=>t.id).join(',')}"`:`data-map-temple="${t.id}"`}><g transform="translate(-22,-47)">${templeGlyph(multiple?group.length+'寺':t.id)}</g>${warn?'<g class="warn-badge" transform="translate(15,-44)"><circle r="8"/><text>!</text></g>':''}</g>`;}).join('');
+  html+=groups.map(group=>{const t=group[0],multiple=group.length>1,[x,y]=projection([group.reduce((s,t)=>s+t.lng,0)/group.length,group.reduce((s,t)=>s+t.lat,0)/group.length]);const warn=warnIds.has(t.id)||group.some(x=>warnIds.has(x.id)),dj=mapOverlay.dojo&&new Set(group.map(x=>dojoOf(x.id))).size===1?' dojo-'+dojoOf(t.id):'';return `<g class="pin temple-position ${group.every(t=>done.has(t.id))?'visited':''}${dj}${warn?' car-warn':''}" transform="translate(${x},${y}) scale(${markerScale})" tabindex="0" role="button" aria-label="${multiple?'この周辺に'+group.length+'札所（'+group.filter(x=>done.has(x.id)).length+'寺訪問済み）':'第'+t.id+'番 '+esc(t.name)+(done.has(t.id)?'（訪問済み）':'')}" ${multiple?`data-map-cluster="${group.map(t=>t.id).join(',')}"`:`data-map-temple="${t.id}"`}>${multiple?(()=>{const v=group.filter(x=>done.has(x.id)).length,text=v&&v<group.length?`${v}/${group.length}寺`:`${group.length}寺`,w=v&&v<group.length?50:38;return `<rect class="mk-pill${v&&v<group.length?' partial':''}" x="${-w/2}" y="-11" width="${w}" height="22" rx="11"/><text class="mk-num">${text}</text>`;})():`<circle class="mk-dot" r="12"/><text class="mk-num">${t.id}</text>`}${warn?`<g class="warn-badge" transform="translate(${multiple?20:10},-10)"><circle r="6"/><text>!</text></g>`:''}</g>`;}).join('');
   const route=currentRoute(done);
-  if(route.length){const pts=route.map(p=>projection([p.lng,p.lat]));if(pts.length>1)html=html.replace('<g class="pin','<polyline class="route-line" points="'+pts.map(([x,y])=>`${x.toFixed(1)},${y.toFixed(1)}`).join(' ')+'"/><g class="pin');const shift=spreadBadges(pts.map(([x,y])=>[x/markerScale,y/markerScale]),22);html+=route.map((p,i)=>`<g class="route-order-svg route-${p.status}" transform="translate(${pts[i][0]+(10+shift[i])*markerScale},${pts[i][1]-30*markerScale}) scale(${markerScale})" aria-hidden="true"><circle r="10"/><text>${p.order}</text></g>`).join('');}
+  if(route.length){const pts=route.map(p=>projection([p.lng,p.lat]));if(pts.length>1)html=html.replace('<g class="pin','<polyline class="route-line" points="'+pts.map(([x,y])=>`${x.toFixed(1)},${y.toFixed(1)}`).join(' ')+'"/><g class="pin');const shift=spreadBadges(pts.map(([x,y])=>[x/markerScale,y/markerScale]),22);html+=route.map((p,i)=>`<g class="route-order-svg route-${p.status}" transform="translate(${pts[i][0]+(14+shift[i])*markerScale},${pts[i][1]-20*markerScale}) scale(${markerScale})" aria-hidden="true"><circle r="10"/><text>${p.order}</text></g>`).join('');}
   svg.innerHTML=html;$$('[data-map-temple],[data-map-cluster]').forEach(el=>{const activate=()=>el.dataset.mapCluster?clusterDialog(el.dataset.mapCluster.split(',').map(Number)):detailDialog(Number(el.dataset.mapTemple));el.onclick=activate;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};});
 }
 function currentRoute(done){
@@ -363,7 +366,9 @@ async function refreshRouteOptions(){
   drawMap(done);renderMapPanel(done,{fit:false});
 }
 function mapTemples(){return temples.filter(t=>!mapPref||t.prefecture===mapPref);}
-function fitMapCounty(){mapBox=mapPref?fittedMapBox(mapTemples().map(t=>projection([t.lng,t.lat]))):[0,0,800,480];}
+// 地図の範囲は、画面の地図の縦横比に合わせて札所がちょうど入るようにする（四国全体も、余分な海を広く取らない）。
+function mapAspect(){const s=$('#map');return s&&s.clientWidth&&s.clientHeight?s.clientWidth/s.clientHeight:800/480;}
+function fitMapCounty(){fittedAspect=mapAspect();mapBox=fittedMapBox(mapTemples().map(t=>projection([t.lng,t.lat])),mapAspect());}
 function renderMapPanel(done,{fit=false}={}){
   const rows=mapTemples(),count=rows.filter(t=>done.has(t.id)).length;
   $('#map-pref-title').textContent=mapPref||'四国全体';
@@ -376,11 +381,11 @@ function renderMapPanel(done,{fit=false}={}){
   renderRouteControl(done);
 }
 for(const [id,key] of [['#map-overlay-warn','warn'],['#map-overlay-dojo','dojo']])$(id).onchange=e=>{mapOverlay[key]=e.target.checked;try{localStorage.setItem(overlayKey,JSON.stringify(mapOverlay));}catch{}const done=new Set(currentVisits().map(v=>v.templeId));drawMap(done);renderMapPanel(done);};
-$('#map-route').onchange=async e=>{routeChoice=e.target.value;try{localStorage.setItem(routeKey,routeChoice);}catch{}await refreshRouteOptions();const done=new Set(currentVisits().map(v=>v.templeId)),r=currentRoute(done);if(r.length){mapPref='';mapBox=fittedMapBox(r.map(p=>projection([p.lng,p.lat])));drawMap(done);renderMapPanel(done,{fit:true});}};
+$('#map-route').onchange=async e=>{routeChoice=e.target.value;try{localStorage.setItem(routeKey,routeChoice);}catch{}await refreshRouteOptions();const done=new Set(currentVisits().map(v=>v.templeId)),r=currentRoute(done);if(r.length){mapPref='';mapBox=fittedMapBox(r.map(p=>projection([p.lng,p.lat])),mapAspect());drawMap(done);renderMapPanel(done,{fit:true});}};
 $$('[data-map-pref]').forEach(b=>b.onclick=()=>{mapPref=b.dataset.mapPref;fitMapCounty();drawMap(new Set(currentVisits().map(v=>v.templeId)));renderMapPanel(new Set(currentVisits().map(v=>v.templeId)),{fit:true});});
 function redrawMap(){const done=new Set(currentVisits().map(v=>v.templeId));drawMap(done);renderMapPanel(done);}
 let mapResizeTimer;
-window.addEventListener('resize',()=>{clearTimeout(mapResizeTimer);mapResizeTimer=setTimeout(()=>{if(view==='home')redrawMap();},120);});
+window.addEventListener('resize',()=>{clearTimeout(mapResizeTimer);mapResizeTimer=setTimeout(()=>{if(view!=='home')return;const a=mapAspect();if(fittedAspect&&Math.abs(a/fittedAspect-1)>.03){fittedAspect=a;fitMapCounty();}redrawMap();},120);});
 function zoom(factor){const width=Math.max(100,Math.min(1000,mapBox[2]*factor));const ratio=width/mapBox[2];mapBox=[mapBox[0]+(mapBox[2]-width)/2,mapBox[1]+(mapBox[3]-mapBox[3]*ratio)/2,width,mapBox[3]*ratio];redrawMap();}
 $('#map-in').onclick=()=>zoom(.65);$('#map-out').onclick=()=>zoom(1/.65);$('#map-reset').onclick=()=>{fitMapCounty();redrawMap();};
 let drag=null;

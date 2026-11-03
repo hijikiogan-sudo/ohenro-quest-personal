@@ -1,10 +1,14 @@
-/* 地図はライト／ダーク共通の昼間のパレット。文字と操作部を明瞭に保つ。 */
+/* 全体図：陸は温かい紙色、海ははっきりした水色で四国の形を見分けやすく。ダークでは地図も暗い色にしてまぶしくしない。 */
 :root[data-theme=dark] #road-map .leaflet-tile-pane{filter:none}
 #map[data-style=quest],:root[data-theme=dark] #map[data-style=quest]{background:#73cddd;color-scheme:light;isolation:isolate}
-#map[data-style=plain],:root[data-theme=dark] #map[data-style=plain]{background:radial-gradient(ellipse at 60% 30%,#eaf8f6,#dceef4)}
-#map[data-style=plain] .land,:root[data-theme=dark] #map[data-style=plain] .land{fill:#f7fbf3;stroke:#a2bcb5}
-#map[data-style=plain] .map-label,:root[data-theme=dark] #map[data-style=plain] .map-label{fill:#425f55}
-#map[data-style=plain] .water-label,:root[data-theme=dark] #map[data-style=plain] .water-label{fill:#416a80}
+#map[data-style=plain]{background:#cfe6f0}
+#map[data-style=plain] .land{fill:#fbf6e9;stroke:#7fa79b;stroke-width:1.3;vector-effect:non-scaling-stroke}
+#map[data-style=plain] .map-label{fill:#3d5b52;opacity:.6;font-size:14px;font-weight:800;letter-spacing:.2em;paint-order:stroke;stroke:#fbf6e9;stroke-width:3px;stroke-linejoin:round;text-anchor:middle}
+#map[data-style=plain] .water-label{fill:#3f7590;font-size:11px;font-weight:600;letter-spacing:.35em;text-anchor:middle}
+:root[data-theme=dark] #map[data-style=plain]{background:#0e2430}
+:root[data-theme=dark] #map[data-style=plain] .land{fill:#233a33;stroke:#5f8f80}
+:root[data-theme=dark] #map[data-style=plain] .map-label{fill:#d4eadf;stroke:#233a33}
+:root[data-theme=dark] #map[data-style=plain] .water-label{fill:#86b6ca}
 #map[data-style=quest] .map-label{fill:#385e49;font-size:13px;font-weight:800;letter-spacing:2px;paint-order:stroke;stroke:#f7f0c9;stroke-width:4px;stroke-linejoin:round}
 #map[data-style=quest] .water-label{fill:#236c83;font-size:12px;font-weight:700;letter-spacing:5px;paint-order:stroke;stroke:#ade5e8;stroke-width:3px}
 .quest-roof{fill:#6c647b;stroke:#fff4d4;stroke-width:1.5}.quest-roof-light{fill:#96899f}.quest-eaves{fill:#61596e;stroke:#fff4d4;stroke-width:1.5}.quest-house{fill:#fff6d9;stroke:#635d65;stroke-width:2}.quest-step{fill:#a48a65}.quest-pin-shadow{fill:#335f58;opacity:.3}.quest-digit{font:800 13px -apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif;fill:#393747}
@@ -18,3 +22,42 @@
 :root[data-theme=dark] .quest-map-caption strong{color:#ffdf9d}
 .map-card .map-style-row{padding-bottom:3px}.map-style-row label{flex-wrap:wrap}.map-style-row select{max-width:100%;font-size:13px}
 @media(max-width:620px){.quest-map-caption{padding:11px 17px;display:block;font-size:10px}.quest-map-caption strong{display:block;margin-bottom:3px}.map-style-row label{width:100%;justify-content:space-between}.map-style-row select{max-width:75%;font-size:12px}}
+/* 札所の印：番号の丸。未訪問は白地に紺、訪問済みは青緑の塗りつぶしに白い番号。重なる札所は「n寺」の札にまとめる。 */
+#map .mk-dot{fill:#fff;stroke:#24506a;stroke-width:2}
+#map .mk-num{fill:#1d455c;font:800 11px -apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+#map .visited .mk-dot{fill:#078f8c;stroke:#fff}
+#map .visited .mk-num{fill:#fff}
+#map .mk-pill{fill:#fff3d6;stroke:#a8692b;stroke-width:1.6}
+#map .visited .mk-pill{fill:#078f8c;stroke:#fff}
+#map .mk-pill.partial{stroke:#078f8c;stroke-width:2.2}
+#map .visited .mk-pill+.mk-num{fill:#fff}
+#map .pin{filter:drop-shadow(0 1px 2px #1b3a4a40)}
+#map .pin:hover .mk-dot,#map .pin:focus-visible .mk-dot,#map .pin:hover .mk-pill,#map .pin:focus-visible .mk-pill{stroke:#e8a400;stroke-width:3}
+#map .warn-badge circle{stroke-width:1.5}
+#map .warn-badge text{font-size:9px}
+.dojo-mode .pin[class*="dojo-"] .mk-dot{stroke:var(--dc);stroke-width:3}
+.dojo-mode .pin[class*="dojo-"].visited .mk-dot{fill:var(--dc);stroke:#fff}
+:root[data-theme=dark] #map .mk-dot{fill:#183342;stroke:#b9dbe8}
+:root[data-theme=dark] #map .mk-num{fill:#e6f5fb}
+:root[data-theme=dark] #map .visited .mk-dot{fill:#21b3a8;stroke:#0e2430}
+:root[data-theme=dark] #map .visited .mk-num{fill:#06231f}
+:root[data-theme=dark] #map .mk-pill{fill:#4a3a1f;stroke:#e0b36a}
+:root[data-theme=dark] #map .mk-pill+.mk-num{fill:#ffe7b5}
+/* 凡例は地図の印と同じ形で */
+.map-legend{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:12px;color:var(--muted)}
+.map-legend i{display:inline-block;vertical-align:-2px;margin-right:4px}
+.map-legend .lg-dot{width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid #24506a}
+.map-legend .lg-dot.done{background:#078f8c;border-color:#078f8c}
+.map-legend .lg-pill{width:22px;height:13px;border-radius:7px;background:#fff3d6;border:1.5px solid #a8692b}
+.map-legend .lg-warn{width:13px;height:13px;border-radius:50%;background:#e8a400;color:#2a2000;font:900 9px/13px sans-serif;text-align:center;font-style:normal}
+:root[data-theme=dark] .map-legend .lg-dot{background:#183342;border-color:#b9dbe8}
+:root[data-theme=dark] .map-legend .lg-dot.done{background:#21b3a8;border-color:#21b3a8}
+:root[data-theme=dark] .map-legend .lg-pill{background:#4a3a1f;border-color:#e0b36a}
+/* 県のボタンは横スクロールの線を出さず、スマホでも5つ並ぶように */
+.map-pref-tabs{scrollbar-width:none}.map-pref-tabs::-webkit-scrollbar{display:none}
+@media(max-width:620px){.map-pref-tabs button{padding:8px 11px;font-size:12.5px}}
+/* 拡大・縮小のボタンは地図に重ねず、地図のすぐ下に横並びで置く（右端の札所を隠さない） */
+.map-tools{position:static;flex-direction:row;justify-content:flex-end;gap:6px;padding:8px 10px}
+.map-tools button{min-width:40px;min-height:40px;padding:0 8px;font-size:18px;background:#ffffffe6}
+.map-tools button:last-child{font-size:20px}
+:root[data-theme=dark] .map-tools button{background:#244754e6}
