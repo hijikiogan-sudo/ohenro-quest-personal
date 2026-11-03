@@ -2,7 +2,7 @@ import {japanDate,routeUrl} from './domain.mjs';
 import {outingProgress} from './today-store.mjs';
 import {planDays,mapsURL,stayLocation} from './plan-domain.mjs';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function createTodayUI({document=globalThis.document,store,plans,getJourney,getVisits,getTemples,openDialog,closeDialog,getEpoch,showError,toast,onPlans,onStarted,onPrayer,onPhotos,onGPS,onManual,getParking=()=>null,carNotes=()=>'',onStopMode=()=>{},now=()=>Date.now()}={}){
+export function createTodayUI({document=globalThis.document,store,plans,getJourney,getVisits,getTemples,openDialog,closeDialog,getEpoch,showError,toast,onPlans,onStarted,onPrayer,onPhotos,onGPS,onManual,getParking=()=>null,carNotes=()=>'',onStopMode=()=>{},onChanged=()=>{},now=()=>Date.now()}={}){
   // stayPassed：「このまま次の札所へ」を押した日の区切り（巡礼ID:日）。この端末の画面の間だけ覚える。
   const $=s=>document.querySelector(s);let epoch=0,signature='',busy=false,stayPassed='';
   const temple=id=>getTemples().find(t=>t.id===id),label=id=>{const t=temple(id);return `第${id}番 ${t?.name||''}`;};
@@ -39,7 +39,7 @@ export function createTodayUI({document=globalThis.document,store,plans,getJourn
   }
   async function mutate(s,action,{token,after}={}){if(busy)return;busy=true;
     if(token===getEpoch())$('#dialog-content').inert=true;
-    try{const saved=await store.update(s,action);busy=false;signature='';if(token===getEpoch()){$('#dialog-content').inert=false;after?after(saved):closeDialog();}await render({force:true});}
+    try{const saved=await store.update(s,action);busy=false;signature='';if(token===getEpoch()){$('#dialog-content').inert=false;after?after(saved):closeDialog();}await render({force:true});onChanged(saved);}
     catch(e){busy=false;if(token===getEpoch())$('#dialog-content').inert=false;report(e,token);}
   }
   function resumeDialog(s){const p=outingProgress(s,getVisits(),japanDate(now()));const token=openDialog('巡礼の続きから再開',`<p>${esc(s.name)} · ${esc(s.dates[0])}開始</p><p>${p.done} / ${p.total}寺を記録、${p.skipped}寺を見送り。</p><p class="small">保存済みの順番と進行を保ちます。日付が変わった場合は本日の訪問も今回の進行に加えます。訪問記録や写真を追加する操作ではありません。</p><div class="dialog-actions"><button class="quiet" id="today-resume-cancel">戻る</button><button class="primary" id="today-resume-confirm">続きから再開する</button></div>`);$('#today-resume-cancel').onclick=closeDialog;$('#today-resume-confirm').onclick=()=>mutate(s,{type:'resume'},{token,after:()=>{closeDialog();onStarted();}});}
