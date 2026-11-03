@@ -13,10 +13,10 @@ export function getHere({geolocation=globalThis.navigator?.geolocation,secure=gl
   });
 }
 
-export function createQuickTrip({document=globalThis.document,getTemples,getVisits,getParking=()=>null,getKmh=()=>35,getSpeedLabel=()=>'',getJourney,plans,openDialog,closeDialog,toast,onStartToday=()=>{},here=getHere}){
+export function createQuickTrip({document=globalThis.document,getTemples,getVisits,getParking=()=>null,getKmh=()=>35,getPace=()=>1,getPaceNote=()=>'',getSpeedLabel=()=>'',getJourney,plans,openDialog,closeDialog,toast,onStartToday=()=>{},here=getHere}){
   const $=s=>document.querySelector(s);
   const label=id=>{const t=getTemples().find(t=>t.id===id);return `第${id}番 ${t?.name||''}`;};
-  const note=()=>`<p class="tiny">直線距離×1.4を${esc(getSpeedLabel())}で割った目安です。山道や休憩で変わるので、正確な時間はGoogleマップで確かめてください。現在地は保存しません。</p>`;
+  const note=()=>`<p class="tiny">直線距離×1.4を${esc(getSpeedLabel())}で割った目安です。山道の札所は約1.5倍の長めに見積もっています。${esc(getPaceNote())}休憩や道の混み具合で変わるので、正確な時間はGoogleマップで確かめてください。現在地は保存しません。</p>`;
   const nokyo=r=>r.inTime?'<p class="car-plan-msg info">納経の受付（8時〜17時）に間に合いそうです。</p>':r.beforeOpen?'<p class="car-plan-msg warn">受付の始まる8時より前に着きそうです。</p>':'<p class="car-plan-msg warn">納経の受付（17時まで）に間に合わないかもしれません。</p>';
 
   // 1. 札所の詳細：「今から行くと何分？」
@@ -24,9 +24,9 @@ export function createQuickTrip({document=globalThis.document,getTemples,getVisi
   function bindDetail(t){
     const btn=$('#quick-here-btn');if(!btn)return;
     btn.onclick=async()=>{btn.disabled=true;btn.textContent='現在地を確かめています…';
-      try{const at=await here(),park=getParking(t.id),r=estimateFromHere({here:at,to:park||t,kmh:getKmh()});
+      try{const at=await here(),park=getParking(t.id),r=estimateFromHere({here:at,to:park||t,kmh:getKmh(),templeId:t.id,pace:getPace()});
         if(!$('#quick-here-result'))return;
-        $('#quick-here-result').innerHTML=`<p class="quick-here-main"><strong>約${r.roadKm}km・約${formatMinutes(r.minutes)}</strong><span>今から出ると ${r.arriveText}ごろ${r.nextDay?'（翌日）':''}に${park?'駐車場に':''}着く見込み</span></p>${nokyo(r)}<a class="secondary quick-here-nav" href="${esc(routeUrl(t,'google',park))}" target="_blank" rel="noopener noreferrer">Googleマップで正確な時間を見る・ナビ ↗</a>${note()}`;
+        $('#quick-here-result').innerHTML=`<p class="quick-here-main"><strong>約${r.roadKm}km・約${formatMinutes(r.minutes)}</strong><span>今から出ると ${r.arriveText}ごろ${r.nextDay?'（翌日）':''}に${park?'駐車場に':''}着く見込み${r.mountain?'（山道を含めて長めに計算）':''}</span></p>${nokyo(r)}<a class="secondary quick-here-nav" href="${esc(routeUrl(t,'google',park))}" target="_blank" rel="noopener noreferrer">Googleマップで正確な時間を見る・ナビ ↗</a>${note()}`;
         btn.textContent='もう一度調べる';
       }catch(e){if($('#quick-here-result'))$('#quick-here-result').innerHTML=`<p class="car-plan-msg warn">${esc(e.message)}</p>`;btn.textContent='今から行くと何分？';}
       finally{btn.disabled=false;}};
@@ -50,12 +50,12 @@ export function createQuickTrip({document=globalThis.document,getTemples,getVisi
   function resultDialog(ids,at){
     const origin={kind:'here',lat:at.lat,lng:at.lng},clock=japanClock(),kmh=getKmh();
     const sorted=nearestOrder({stops:ids.map(templeId=>({templeId,minutes:30})),temples:getTemples(),parkingFor:getParking,origin}).stops;
-    const sc=planSchedule({stops:sorted,departAt:clock.departAt,temples:getTemples(),parkingFor:getParking,origin,kmh});
+    const sc=planSchedule({stops:sorted,departAt:clock.departAt,temples:getTemples(),parkingFor:getParking,origin,kmh,pace:getPace()});
     const journey=getJourney(),one=sorted.length===1;
     // ナビと保存用の予定：出発地は「現在地（Googleマップで選ぶ）」、出発は今の時刻。
     const plan={id:'quick',journeyId:journey?.id||'',revision:0,name:`今からめぐる ${clock.date.slice(5).replace('-','/')} ${clock.hm}`,departAt:clock.departAt,origin:{kind:'current'},returnTo:{kind:'none'},stops:sorted};
     let sections=[];try{sections=navigationSections(plan,getTemples(),getParking);}catch{}
-    openDialog('今からめぐる',`<div class="qt-total">${one?`<strong>約${sc.roadKm}km・約${formatMinutes(sc.driveMinutes)} · ${esc(sc.rows[0]?.arriveText||'')}ごろ着</strong><span>参拝30分として、${esc(sc.finishText)}ごろ${sc.overnight?'（翌日）':''}に出られる見込み</span>`:`<strong>${sorted.length}寺 · 回り終わるのは ${esc(sc.finishText)}ごろ${sc.overnight?'（翌日）':''}</strong><span>移動 約${sc.roadKm}km・${formatMinutes(sc.driveMinutes)} ／ 参拝 ${formatMinutes(sc.prayerMinutes)}（1寺30分）</span>`}</div>${sc.outsideCount?`<p class="car-plan-msg warn">${one?'納経の受付時間（8時〜17時）から外れそうです。':`${sc.outsideCount}か所で、納経の受付時間（8時〜17時）から外れそうです。札所を減らすか、別の日にしてください。`}</p>`:`<p class="car-plan-msg info">${one?'納経の受付（8時〜17時）に間に合いそうです。':'どの札所も納経の受付時間に間に合いそうです。'}</p>`}<ol class="qt-rows">${sc.rows.map(r=>`<li${r.outside?' class="out"':''}><strong>${esc(label(r.templeId))}</strong><span>${esc(r.arriveText)}ごろ着${r.leg?` · ${formatMinutes(r.leg.minutes)}`:''}${r.outside?' · 受付時間外':''}</span></li>`).join('')}</ol><div class="qt-actions">${sections.map((s,i)=>`<a class="primary" href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${sections.length>1?`Googleマップでナビ（${i+1}/${sections.length}）`:'Googleマップでナビ'} ↗</a>`).join('')}<button type="button" class="secondary" id="qt-today">この順番で今日の巡礼を始める</button><button type="button" class="quiet" id="qt-save">予定として保存</button><button type="button" class="quiet" id="qt-back">選び直す</button></div>${note()}`);
+    openDialog('今からめぐる',`<div class="qt-total">${one?`<strong>約${sc.roadKm}km・約${formatMinutes(sc.driveMinutes)} · ${esc(sc.rows[0]?.arriveText||'')}ごろ着</strong><span>参拝30分として、${esc(sc.finishText)}ごろ${sc.overnight?'（翌日）':''}に出られる見込み</span>`:`<strong>${sorted.length}寺 · 回り終わるのは ${esc(sc.finishText)}ごろ${sc.overnight?'（翌日）':''}</strong><span>移動 約${sc.roadKm}km・${formatMinutes(sc.driveMinutes)} ／ 参拝 ${formatMinutes(sc.prayerMinutes)}（1寺30分）</span>`}</div>${sc.outsideCount?`<p class="car-plan-msg warn">${one?'納経の受付時間（8時〜17時）から外れそうです。':`${sc.outsideCount}か所で、納経の受付時間（8時〜17時）から外れそうです。札所を減らすか、別の日にしてください。`}</p>`:`<p class="car-plan-msg info">${one?'納経の受付（8時〜17時）に間に合いそうです。':'どの札所も納経の受付時間に間に合いそうです。'}</p>`}<ol class="qt-rows">${sc.rows.map(r=>`<li${r.outside?' class="out"':''}><strong>${esc(label(r.templeId))}</strong><span>${esc(r.arriveText)}ごろ着${r.leg?` · ${formatMinutes(r.leg.minutes)}${r.leg.fromHistory?'（実績）':r.leg.mountain?'（山道）':''}`:''}${r.outside?' · 受付時間外':''}</span></li>`).join('')}</ol><div class="qt-actions">${sections.map((s,i)=>`<a class="primary" href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${sections.length>1?`Googleマップでナビ（${i+1}/${sections.length}）`:'Googleマップでナビ'} ↗</a>`).join('')}<button type="button" class="secondary" id="qt-today">この順番で今日の巡礼を始める</button><button type="button" class="quiet" id="qt-save">予定として保存</button><button type="button" class="quiet" id="qt-back">選び直す</button></div>${note()}`);
     // 「予定として保存」のあとに「今日の巡礼を始める」を押しても、同じ予定を2つ作らない。
     let saved=null;
     const save=async()=>{if(saved)return saved;if(!journey)throw new Error('巡礼の記録を読み込んでからお試しください。');saved=await plans.save({...plan,id:crypto.randomUUID(),journeyId:journey.id});return saved;};

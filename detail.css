@@ -49,6 +49,11 @@
 :root[data-text-size=xl] body{zoom:1.25}
 :root[data-text-size=l] .leaflet-container{zoom:.8929}
 :root[data-text-size=xl] .leaflet-container{zoom:.8}
+/* 大きい・特大：拡大しても小さいままの注記・ラベル（9〜10px）を読める大きさにそろえる */
+:root:is([data-text-size=l],[data-text-size=xl]) :is(.tiny,.eyebrow,.map-foot,.status-tag,.car-chip,.tile-meta,.tile-meta small,.qbadge small,.today-itinerary small,.today-heading p small,.today-status,.section-label>span,.map-legend,.pref-name small,.badge span,.history-item p,.history-item time,.temple-card p,.temple-card small,.selection-grid label,.sched small,.qt-rows li,.preview-list){font-size:11px;line-height:1.7}
+:root:is([data-text-size=l],[data-text-size=xl]) .temple-card .status-tag{position:static;display:table;margin:0 0 6px}
+:root[data-text-size=xl] .selection-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+:root[data-text-size=xl] .today-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
 .detail-pane .mini-map{height:180px}
 .detail-pane .car-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .detail-pane .car-actions .secondary{min-width:0;font-size:12px;padding:10px 8px}
@@ -56,3 +61,6 @@
 .detail-visits{list-style:none;margin:8px 0 14px;padding:0;display:grid;gap:6px}
 .detail-visits li{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);padding:6px 10px;border:1px solid var(--line);border-radius:10px}
 .detail-visits button{min-height:36px;padding:4px 12px;font-size:12.5px}
+@media(max-width:620px){:root[data-text-size=xl] :is(.page-heading,.intro) h1{font-size:24px}:root[data-text-size=l] :is(.page-heading,.intro) h1{font-size:27px}}
+/* 特大：2列のボタンがはみ出さないよう、中身の幅で押し広げない */
+:root:is([data-text-size=l],[data-text-size=xl]) :is(.detail-actions,.detail-pane .car-actions,.today-actions)>*{min-width:0;overflow-wrap:anywhere}
