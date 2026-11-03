@@ -8,18 +8,20 @@ const YOON = {ゃ:'a',ゅ:'u',ょ:'o'};
 // ひらがなの読み → ヘボン式ローマ字（長音は書かない：りょうぜんじ → Ryozenji、おおくぼじ → Okuboji）。
 export function romaji(kana) {
   const k = String(kana || '').trim();
-  let out = '', double = false;
+  // 長音は音のまとまりごとに省く：「こう」「りゅう」の う、「おお」の後ろの お。
+  // ローマ字にしてからまとめて省くと「こう・おん（香園）」が Konji になるので、仮名1つずつ判断する。
+  let out = '', double = false, last = '';
   for (let i = 0; i < k.length; i++) {
     const c = k[i], next = k[i + 1];
     if (c === 'っ') { double = true; continue; }
-    if (c === 'ん') { out += /^[あいうえおやゆよ]/.test(next || '') ? "n'" : 'n'; continue; }
+    if (c === 'ん') { out += /^[あいうえおやゆよ]/.test(next || '') ? "n'" : 'n'; last = 'n'; continue; }
     let r = ROMAJI[c];
     if (!r) continue;
     if (YOON[next]) { r = (r === 'shi' ? 'sh' : r === 'chi' ? 'ch' : r === 'ji' ? 'j' : r.slice(0, -1) + 'y') + YOON[next]; i++; }
+    if ((c === 'う' && (last === 'o' || last === 'u')) || (c === 'お' && last === 'o')) { last = 'long'; continue; }
     if (double) { out += r[0] === 'c' ? 't' : r[0]; double = false; }
-    out += r;
+    out += r; last = r.at(-1);
   }
-  out = out.replace(/ou/g, 'o').replace(/uu/g, 'u').replace(/oo/g, 'o');
   return out.charAt(0).toUpperCase() + out.slice(1);
 }
 
@@ -31,7 +33,7 @@ export function createI18n({document = globalThis.document, storage = globalThis
   let lang = 'ja';
   try { lang = storage.getItem(key) === 'en' ? 'en' : 'ja'; } catch {}
   const textOrig = new WeakMap(), attrOrig = new WeakMap();
-  let names = new Map(), observer = null, busy = false;
+  let names = new Map(), observer = null, busy = false, depth = 0;
 
   const buildNames = () => {
     names = new Map();
@@ -46,7 +48,10 @@ export function createI18n({document = globalThis.document, storage = globalThis
     if (names.has(s)) return names.get(s);
     const no = s.match(/^第(\d+)番 (.+)$/);
     if (no && names.has(no[2])) return `No.${no[1]} ${names.get(no[2])}`;
-    for (const [re, to] of PATTERNS) { const m = s.match(re); if (m) return typeof to === 'function' ? to(m, x => en(x) ?? x) : s.replace(re, to); }
+    // 決まった形の中の言葉（札所名など）も訳す。同じ文をもう一度訳そうとしたら止める（呼び合いで止まらなくならないように）。
+    if (depth > 4) return null;
+    const tr = x => { if (x.trim() === s) return x; depth++; try { return en(x) ?? x; } finally { depth--; } };
+    for (const [re, to] of PATTERNS) { const m = s.match(re); if (!m) continue; const out = typeof to === 'function' ? to(m, tr) : s.replace(re, to); if (out !== null) return out; }
     // 長い説明は「。」で文に分け、訳せる文だけ置き換える（全部訳せなくても、訳せた文は英語にする）。
     const parts = split ? s.split(/(?<=。)/).map(p => p.trim()).filter(Boolean) : [];
     if (parts.length > 1) { let hit = false; const out = parts.map(p => { const r = en(p, false); if (r !== null) hit = true; return r ?? p; }); if (hit) return out.join(' '); }
