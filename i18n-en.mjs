@@ -6,6 +6,22 @@ export const dur = s => { const m = String(s).match(/^(?:(\d+)時間)?(?:(\d+)�
 const D = '((?:\\d+時間)?(?:\\d+分)?)';
 const pl = (n, w) => `${n} ${w}${n === '1' ? '' : 's'}`;
 
+// 住所の市町村（88札所の住所に出てくる37か所）。英語では「Naruto City, Tokushima」を日本語の住所の上に出す。
+// 町名・番地は読みが一定でないため訳さず、日本語の住所をそのまま残す（現地で見せたり、ナビに入れたりできるように）。
+export const MUNI = {
+  鳴門市: 'Naruto City', 板野郡板野町: 'Itano Town', 板野郡上板町: 'Kamiita Town', 阿波市: 'Awa City', 吉野川市: 'Yoshinogawa City', 名西郡神山町: 'Kamiyama Town', 徳島市: 'Tokushima City', 小松島市: 'Komatsushima City', 勝浦郡勝浦町: 'Katsuura Town', 阿南市: 'Anan City', 海部郡美波町: 'Minami Town', 三好市: 'Miyoshi City',
+  室戸市: 'Muroto City', 安芸郡安田町: 'Yasuda Town', 香南市: 'Konan City', 南国市: 'Nankoku City', 高知市: 'Kochi City', 土佐市: 'Tosa City', 高岡郡四万十町: 'Shimanto Town', 土佐清水市: 'Tosashimizu City', 宿毛市: 'Sukumo City',
+  南宇和郡愛南町: 'Ainan Town', 宇和島市: 'Uwajima City', 西予市: 'Seiyo City', 上浮穴郡久万高原町: 'Kumakogen Town', 松山市: 'Matsuyama City', 今治市: 'Imabari City', 西条市: 'Saijo City', 四国中央市: 'Shikokuchuo City',
+  三豊市: 'Mitoyo City', 観音寺市: 'Kanonji City', 善通寺市: 'Zentsuji City', 仲多度郡多度津町: 'Tadotsu Town', 綾歌郡宇多津町: 'Utazu Town', 坂出市: 'Sakaide City', 高松市: 'Takamatsu City', さぬき市: 'Sanuki City',
+};
+// 「徳島県鳴門市大麻町…」→「Naruto City, Tokushima」。表に無い市町村なら null。
+export function addressEn(address) {
+  const m = String(address).match(/^(徳島県|高知県|愛媛県|香川県)((?:[^郡]+郡)?[^市町村]+?[市町村])/);
+  if (!m) return null;
+  const muni = MUNI[m[2]];
+  return muni ? `${muni}, ${PREF[m[1]]}` : null;
+}
+
 export const DICT = {
   // 上のバー・下のタブ・横のメニュー
   '四国八十八ヶ所': 'Shikoku 88 Temples', '車遍路の記録': 'Car pilgrimage log', '● この端末に保存': '● Saved on this device', 'ダークモードに切り替える': 'Switch to dark mode', 'ライトモードに切り替える': 'Switch to light mode', '表示モードを切り替える': 'Switch display mode', '☾ ダーク': '☾ Dark', '☀ ライト': '☀ Light', '設定': 'Settings',
@@ -148,7 +164,7 @@ export const DICT = {
   '日本道路交通情報センター（JARTIC） ↗': 'Japan Road Traffic Information Center (JARTIC) ↗', 'アイハイウェイ（NEXCO西日本） ↗': 'i-Highway (NEXCO West) ↗',
   'ナビは通信が必要です。経由地が多いときは区間を分けます。Googleマップで札所の順番・入口・通行規制を確認し、安全な場所に停車して操作してください。': 'Navigation needs a connection. With many stops it is split into sections. Check the order, entrances and restrictions in Google Maps, and stop somewhere safe before using it.',
   '写真はこの端末だけに保存します。追加しても訪問済みにはなりません。原本は別途保管し、設定から写真ZIPも書き出してください。': 'Photos are saved only on this device. Adding them does not mark a visit. Keep the originals elsewhere, and export a photo ZIP from Settings.',
-  'ライト': 'Light', 'ダーク': 'Dark',
+  'ライト': 'Light', 'ダーク': 'Dark', '訪問日不明': 'Date unknown',
   '今の巡礼の写真を、日付・メモ・お気に入りもいっしょに1つのZIPファイルに保存します。復元すると、今選んでいる巡礼に追加します。写真はまとめてバックアップにも入っています。': "Saves this pilgrimage's photos with dates, notes and favorites in one ZIP file. Restoring adds them to the selected pilgrimage. Photos are also in the full backup.",
   '移動時間の目安の速さを変更しました。': 'Changed the speed for estimates.', '自分たちのペースに合わせて目安を出します。': 'Estimates now match your own pace.', '選んだ速さだけで目安を出します。': 'Estimates now use the chosen speed only.', '文字の大きさを変更しました。': 'Changed the text size.',
 };

@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {romaji, createI18n} from '../i18n.mjs';
-import {dur} from '../i18n-en.mjs';
+import {dur, addressEn} from '../i18n-en.mjs';
 
 const temples = JSON.parse(readFileSync(new URL('../data/temples.json', import.meta.url)));
 const store = () => { const m = new Map(); return {getItem: k => m.get(k) ?? null, setItem: (k, v) => m.set(k, v)}; };
@@ -47,4 +47,13 @@ test('英語表記：決まった形が呼び合っても止まる・2回目の�
   assert.equal(en('前回の実績 1時間5分（2026-11-03・前の札所の参拝込み）'), 'Last time 1 h 5 min (2026-11-03, incl. previous visit)');
   // どんな文でも必ず終わる（止まらなくなる組み合わせが無い）
   for (const t of temples) for (const x of [`第${t.id}番 ${t.name}`, `${t.id}. ${t.name}`, `第${t.id}番 ${t.name}、${t.name}`, `${t.name} · ${t.name}`, `第${t.id}番 ${t.name}の写真の詳細`]) assert.doesNotThrow(() => en(x), x);
+});
+
+test('英語表記：住所は市町村までを英語にし、日本語の住所を残す', () => {
+  for (const t of temples) assert.match(addressEn(t.address) || '', /^[A-Z][a-z]+ (City|Town), (Tokushima|Kochi|Ehime|Kagawa)$/, `${t.id} ${t.address}`);
+  assert.equal(addressEn('徳島県鳴門市大麻町板東塚鼻126'), 'Naruto City, Tokushima');
+  assert.equal(addressEn('愛媛県上浮穴郡久万高原町菅生2-1173'), 'Kumakogen Town, Ehime');
+  assert.equal(addressEn('東京都千代田区'), null);
+  const en = createI18n({document: null, storage: store(), temples: () => temples}).en;
+  assert.equal(en('徳島県鳴門市大麻町板東塚鼻126'), 'Naruto City, Tokushima\n徳島県鳴門市大麻町板東塚鼻126');
 });
