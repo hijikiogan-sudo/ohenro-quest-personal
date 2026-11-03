@@ -14,6 +14,7 @@ import {routePoints,routeZigzag,spreadBadges,groupByKey,nearestUnvisited,nextByN
 import {createMiniMap} from './mini-map.mjs';
 import {createBackupUI} from './backup-ui.mjs';
 import {createBackupReminder} from './backup-reminder.mjs';
+import {createI18n} from './i18n.mjs';
 import {roadInfoHTML} from './road-info.mjs';
 import {creditsHTML,isNativeApp} from './credits.mjs';
 import {DOJO} from './badges.mjs';
@@ -49,6 +50,8 @@ let textSize='m';try{textSize=applyTextSize(localStorage.getItem(textKey));}catc
 function getVehicle(){try{const v=localStorage.getItem(vehicleKey);return VEHICLES.some(x=>x.id===v)?v:'standard';}catch{return 'standard';}}
 function setVehicle(v){try{localStorage.setItem(vehicleKey,v);}catch{}if(view==='temples')renderTemples();}
 let temples=[],coast=null,state=null,journeyId='',view='home',initialized=false,connected=false;
+// 英語表記：表示中の文字を辞書で置き換える（設定の「言語 / Language」で切り替え）。
+const i18n=createI18n({document,scope:new URL('.',import.meta.url).pathname,temples:()=>temples});i18n.start();
 const personal=createPersonalStore({scope:new URL('.',import.meta.url).pathname,temples:()=>temples});
 const parkingStore=createParkingStore({scope:new URL('.',import.meta.url).pathname});
 async function reloadParkings(){try{parkingPoints=await parkingStore.list();}catch{parkingPoints=[];}try{ratingRows=await parkingStore.listRatings();}catch{ratingRows=[];}try{memoRows=await parkingStore.listMemos();}catch{memoRows=[];}try{sharedPacks=await parkingStore.listShared();}catch{sharedPacks=[];}ratings=new Map(ratingRows.map(r=>[r.templeId,r.level]));parkingFor=createParkingResolver(carData,parkingPoints,sharedPacks);if(initialized)renderBadges();if(initialized&&view==='temples')renderTemples();}
@@ -304,7 +307,7 @@ async function nextAfterCheckin(t){
 }
 function voidDialog(id){const v=state.visits.find(v=>v.id===id),t=temples[v.templeId-1];openDialog('訪問記録を取り消す',`<p>${esc(t.name)} · ${esc(v.date||'訪問日不明')} の訪問を取り消します。</p><p class="small">この端末の記録から取り消します。直後に表示される「元に戻す」で復元できます。</p><div class="dialog-actions"><button class="quiet" id="cancel-void">戻る</button><button class="primary" id="confirm-void">この訪問を取り消す</button></div>`);$('#cancel-void').onclick=closeDialog;$('#confirm-void').onclick=async e=>{e.target.disabled=true;try{await api('visit/void',{id});closeDialog();await refresh();toast('訪問記録を取り消しました。',{label:'元に戻す',run:async()=>{try{await api('visit/undo',{id});await refresh();toast('記録を復元しました。');}catch(err){showError(err);}}});}catch(err){showError(err);e.target.disabled=false;}};}
 function newJourneyDialog(){openDialog('新しい巡礼をつくる',`<form id="journey-form" class="dialog-form"><label>巡礼の名前<input name="name" required maxlength="60" placeholder="例：自分の2周目"></label><p class="small">訪問記録・XP・達成率は巡礼ごとに分かれます。今の記録は残ります。</p><div class="actions"><button class="primary">作成する</button></div></form>`);$('#journey-form').onsubmit=async e=>{e.preventDefault();e.submitter.disabled=true;try{const r=await api('journeys',{name:new FormData(e.target).get('name')});journeyId=r.id;closeDialog();await refresh();setView('home');toast('新しい巡礼を作成しました。');}catch(err){showError(err);e.submitter.disabled=false;}};}
-$('#text-size').value=textSize;$('#text-size').onchange=e=>{textSize=applyTextSize(e.target.value);try{localStorage.setItem(textKey,textSize);}catch{}toast('文字の大きさを変更しました。');setTimeout(()=>roadMap.reset(),50);};
+$('#lang').value=i18n.lang;$('#lang').onchange=e=>{i18n.set(e.target.value);toast(i18n.lang==='en'?'Switched to English.':'日本語の表示にしました。');setTimeout(()=>roadMap.reset(),50);};$('#text-size').value=textSize;$('#text-size').onchange=e=>{textSize=applyTextSize(e.target.value);try{localStorage.setItem(textKey,textSize);}catch{}toast('文字の大きさを変更しました。');setTimeout(()=>roadMap.reset(),50);};
 $('#open-credits').onclick=()=>openDialog('出典とライセンス',creditsHTML());
 $('#all-backup-save').onclick=()=>requireAuth(()=>backupUI.save());$('#all-backup-restore').onchange=e=>{const f=e.target.files?.[0];e.target.value='';if(f)requireAuth(()=>backupUI.restore(f));};
 $('#photos-export').onclick=()=>requireAuth(()=>photoUI.exportPhotos());
@@ -405,6 +408,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!$('#dial
 setInterval(()=>{if(!document.hidden&&!$('#dialog').open)refresh({silent:true});},30000);
 try{
   [temples,coast]=await Promise.all([fetch('./data/temples.json').then(r=>{if(!r.ok)throw new Error();return r.json();}),fetch('./data/japan-coast.geojson').then(r=>{if(!r.ok)throw new Error();return r.json();})]);
+  i18n.refresh();
   try{carData=validateCarData(await fetch('./data/car.json').then(r=>{if(!r.ok)throw new Error();return r.json();}));}catch{carData=null;}
   await reloadParkings();
   await refresh({silent:true});
