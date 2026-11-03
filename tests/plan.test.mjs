@@ -81,3 +81,28 @@ test('泊まりがけ：近い順は日ごとに並べ、札所を別の日へ�
   assert.deepEqual(ids(r.stops.slice(3)).sort((a, b) => a - b), [2, 8, 10]);
   assert.ok(r.afterKm <= r.beforeKm);
 });
+
+import {validateOuting, outingProgress} from '../today-store.mjs';
+const outing = (ids, extra = {}) => ({version: 1, id: 'o1', journeyId: 'j1', planId: 'p1', name: '一泊二日', status: 'active', revision: 1, dates: ['2026-11-14'], startedAt: 1, updatedAt: 1, endedAt: null, stops: ids.map(templeId => ({templeId, minutes: 30, skipped: false})), ...extra});
+const visit = (templeId, date) => ({id: 'v' + templeId, journeyId: 'j1', templeId, date});
+
+test('今日の巡礼：日の区切りの検証。区切りの無い進行もそのまま通る', () => {
+  assert.doesNotThrow(() => validateOuting(outing([1, 2, 3])));
+  assert.doesNotThrow(() => validateOuting(outing([1, 2, 3], {nights: [{after: 0, place: '宿'}]})));
+  for (const nights of [[{after: 2, place: ''}], [{after: 0, place: 1}], [{after: 1, place: ''}, {after: 0, place: ''}], {}])
+    assert.throws(() => validateOuting(outing([1, 2, 3], {nights})), JSON.stringify(nights));
+});
+
+test('今日の巡礼：日と宿の表示用の情報、その日の札所を終えたら宿へ', () => {
+  const s = outing([1, 2, 3, 4], {nights: [{after: 1, place: ' 鳴門の宿 '}]});
+  const start = outingProgress(s, [], '2026-11-14');
+  assert.equal(start.days, 2);
+  assert.deepEqual(start.rows.map(r => [r.day, r.firstOfDay, r.stayAfter]), [[1, true, null], [1, false, '鳴門の宿'], [2, true, null], [2, false, null]]);
+  assert.equal(start.toStay, null);
+  const evening = outingProgress(s, [visit(1, '2026-11-14'), visit(2, '2026-11-14')], '2026-11-14');
+  assert.deepEqual(evening.toStay, {day: 1, place: '鳴門の宿'});
+  assert.equal(evening.next.templeId, 3);
+  const morning = outingProgress({...s, dates: ['2026-11-14', '2026-11-15']}, [visit(1, '2026-11-14'), visit(2, '2026-11-14')], '2026-11-15');
+  assert.equal(morning.toStay, null, '翌朝は宿の案内を出さず次の札所へ');
+  assert.equal(outingProgress(outing([1, 2]), [visit(1, '2026-11-14')], '2026-11-14').toStay, null, '区切りが無ければ出さない');
+});

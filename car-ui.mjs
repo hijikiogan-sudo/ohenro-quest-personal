@@ -133,13 +133,12 @@ export function createCarUI({document = globalThis.document, store, getCarData, 
   }
 
   // 車メモ：同じ札所・同じ日のメモがあれば編集する。
-  // afterCheckin のときは、記録できたことと次の札所へのナビ（next）を上に出し、その下に車メモ（任意）を置く。
+  // afterCheckin のときは、記録できたことと次の行き先へのナビ（next：{href, label, sub}）を上に出し、その下に車メモ（任意）を置く。
   function memoDialog(t, {afterCheckin = false, memo = null, back = null, next = null} = {}) {
     const today = japanDate(), current = memo || getMemos().find(m => m.templeId === t.id && m.date === today) || null;
     const val = {...Object.fromEntries(MEMO_FIELDS.map(f => [f.key, current?.[f.key] ?? null]))};
     const goBack = back || (() => backToTemple(t.id));
-    const np = next ? getParkingFor(next.temple.id) : null;
-    const done = afterCheckin ? `<div class="checkin-done"><p class="checkin-ok">✓ 第${t.id}番 ${esc(t.name)} を記録しました</p>${next ? `<a class="stop-btn primary checkin-next" id="checkin-next" href="${esc(routeUrl(next.temple, 'google', np))}" target="_blank" rel="noopener noreferrer">次の札所へ${np ? '駐車場へ' : ''}ナビ<small>第${next.temple.id}番 ${esc(next.temple.name)} · ${esc(next.why)} · Googleマップ</small></a>` : ''}</div><h3 class="checkin-memo-title">ここまでの道はどうでしたか（任意）</h3>` : '';
+    const done = afterCheckin ? `<div class="checkin-done"><p class="checkin-ok">✓ 第${t.id}番 ${esc(t.name)} を記録しました</p>${next ? `<a class="stop-btn primary checkin-next" id="checkin-next" href="${esc(next.href)}" target="_blank" rel="noopener noreferrer">${esc(next.label)}<small>${esc(next.sub)}</small></a>` : ''}</div><h3 class="checkin-memo-title">ここまでの道はどうでしたか（任意）</h3>` : '';
     openDialog(afterCheckin ? 'チェックインしました' : '車メモ', `${done}<p class="small">第${t.id}番 ${esc(t.name)} · ${esc(current?.date || today)}${afterCheckin ? '。停車中に、当てはまるものだけタップしてください（あとからでも書けます）。' : ''}</p><form id="car-memo-form" class="car-memo-form">${MEMO_FIELDS.map(f => `<fieldset><legend>${esc(f.label)}</legend><div class="car-seg">${f.options.map(([id, label]) => `<button type="button" data-field="${f.key}" data-value="${id}" aria-pressed="${val[f.key] === id}">${esc(label)}</button>`).join('')}</div></fieldset>`).join('')}<label>ひとこと（任意・200文字まで）<textarea id="car-memo-note" maxlength="200" placeholder="例：手前の分岐を右。待避所が3か所">${esc(current?.note || '')}</textarea></label><div class="dialog-actions"><button type="button" class="quiet" id="car-memo-skip">${afterCheckin ? 'あとで' : '戻る'}</button><button type="submit" class="primary">車メモを保存</button></div></form><p class="tiny">車メモはこの端末だけに保存します。もう一度押すと選択を外せます。</p>`);
     document.querySelectorAll('[data-field]').forEach(b => b.onclick = () => {
       const k = b.dataset.field, v = b.dataset.value; val[k] = val[k] === v ? null : v;

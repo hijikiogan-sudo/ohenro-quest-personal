@@ -3,3 +3,7 @@
 @media(max-width:620px){.today-card{padding:18px;margin:17px 0 22px;border-radius:20px}.today-welcome{display:block}.today-welcome h2{font-size:21px}.today-welcome>.primary{margin-top:14px;width:100%}.today-heading h2{font-size:20px}.today-heading p{font-size:12px}.today-heading p small{font-size:10px}.today-count{font-size:31px}.today-count small{font-size:12px}.today-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.today-actions>*{font-size:12px;min-height:48px}.today-next{gap:13px;margin-top:19px}.today-next h3{font-size:25px}.today-next .temple-number{width:56px;height:56px}.today-itinerary strong{font-size:12px}.today-itinerary small{font-size:9px;max-width:90px}.today-manage-list li{display:block;padding:13px}.today-order-buttons{justify-content:flex-end;margin-top:12px}.today-order-buttons button{font-size:11px}.plan-today-start .primary{width:100%;font-size:12px}}
 
 #view-home.today-in-progress .intro,#view-home.today-in-progress .card.next{display:none}#view-home.today-in-progress .summary{grid-column:1/-1}
+.today-itinerary li.today-day,.today-manage-list li.today-day{border:0;padding:12px 0 2px;font-weight:700;font-size:13px;color:var(--ink)}
+.today-itinerary li.today-stay-row,.today-manage-list li.today-stay-row{color:var(--muted);border-bottom-style:dashed}
+.today-manage-list li.today-stay-row{display:flex;gap:10px;align-items:center;padding:8px 0}
+.today-stay .temple-number{font-size:28px}
