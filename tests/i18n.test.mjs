@@ -22,7 +22,7 @@ test('英語表記：辞書・札所名・数字入りの文・文ごとの置�
   const en = i.en;
   assert.equal(en('札所'), 'Temples');
   assert.equal(en('今からめぐる'), 'Go now');
-  assert.equal(en('お経・真言'), null, '辞書に無い文言は訳さない');
+  assert.equal(en('まだ辞書に無い文言'), null, '辞書に無い文言は訳さない');
   assert.equal(en('Google'), null, '日本語でなければ触らない');
   assert.equal(dur('1時間30分'), '1 h 30 min');
   assert.equal(dur('35分'), '35 min');

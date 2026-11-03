@@ -139,3 +139,6 @@
 .fee-local-form{display:grid;gap:10px;margin:12px 0}.fee-local-form label{display:grid;gap:6px;font-size:13px}.fee-local-form label.inline{display:flex;align-items:center;gap:8px}
 .fee-local-head{font-size:14px;margin:18px 0 6px}.fee-diff-list{list-style:none;padding:0;margin:8px 0;display:grid;gap:6px}.fee-diff-list li{display:grid;gap:2px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:12px}.fee-diff-list span{color:var(--muted)}
 :root[data-theme=dark] .fee-own{background:#1c2a33;border-color:#4b6a80}:root[data-theme=dark] .stale-note{background:#3a3220;color:#f3dda0}
+.report-open{display:block;margin:14px auto 4px;font-size:13px;text-decoration:underline}
+.report-items{display:grid;gap:8px;margin:10px 0}.report-items label{display:flex;align-items:center;gap:8px;font-size:13px;min-height:36px}
+#report-general{margin-top:10px}
