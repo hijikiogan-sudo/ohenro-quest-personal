@@ -128,3 +128,8 @@
 .road-sources{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px}
 :root[data-theme=dark] .road-card{background:#20332c;border-color:#3f5a4f}:root[data-theme=dark] .road-card.lv2{background:#3a3020;border-color:#6b5a32}:root[data-theme=dark] .road-card.lv3{background:#3e2521;border-color:#74443a}
 :root[data-theme=dark] .road-chip{background:#244236;color:#a8e2c4}:root[data-theme=dark] .road-chip.lv2{background:#4a3a1c;color:#f3cf8f}:root[data-theme=dark] .road-chip.lv3{background:#4d2620;color:#f5b0a0}
+.fee-chip{display:inline-block;margin:8px 6px 0 0;padding:3px 8px;border-radius:6px;font-size:10.5px;font-weight:700;background:#e8f1f8;color:#2d5e80}
+.fee-chip.free{background:#e3f3ea;color:#2f6b4f}.fee-chip.unknown,.fee-chip.none{background:#eef0ec;color:#66706a}
+.fee-card{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 14px;background:#f3f8fc}
+.fee-card>p{margin:8px 0 0;font-size:13px;line-height:1.75;color:var(--ink)}.fee-card .tiny{color:var(--muted)}.fee-extra{font-weight:600}
+:root[data-theme=dark] .fee-card{background:#1f2d38;border-color:#3d5566}:root[data-theme=dark] .fee-chip{background:#223a4c;color:#a9d3f0}:root[data-theme=dark] .fee-chip.free{background:#244236;color:#a8e2c4}:root[data-theme=dark] .fee-chip.unknown,:root[data-theme=dark] .fee-chip.none{background:#2f3533;color:#b9c2bd}

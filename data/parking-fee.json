@@ -1,0 +1,1692 @@
+{
+ "format": "kuruma-henro-parking-fee",
+ "version": 1,
+ "checkedAt": "2026-11-03",
+ "note": "普通車1回の駐車料金。fee は free（無料）・paid（有料）・donation（志納・冥加料・協力金）・none（寺の駐車場がなく近くの駐車場を使う。yen はその料金）・unknown。道の難しさ（road.json）と同じく、車で行けるいちばん近い駐車場で調べた（太龍寺・雲辺寺は山上近くの駐車場、八栗寺はケーブルカーの登山口）。extra は林道の通行料・ロープウェイなど駐車場以外にかかる車の費用。霊場会の札所案内を基本に、寺・自治体・観光の案内、車遍路の案内サイト、参拝の記録を調べた。出典で金額が分かれたときは新しい・公式に近いほうを採った。料金は変わることがある。",
+ "temples": [
+  {
+   "id": 1,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車100台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/01ryozenji/"
+    },
+    {
+     "label": "車遍路の費用一覧（2024更新）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 2,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車40台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/02gokurakuji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 3,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車14台（終日）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/03konsenji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 4,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車20台（7時〜17時）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/04dainichiji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 5,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車50台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/05jizoji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 6,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車80台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/06anrakuji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 7,
+   "fee": "free",
+   "yen": null,
+   "detail": "普通車は無料（営業車・バスは有料）。普通車20台、7時〜17時。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式（料金記載なし）",
+     "url": "https://88shikokuhenro.jp/07jurakuji/"
+    },
+    {
+     "label": "ohenrocar（2026更新）",
+     "url": "https://ohenrocar.com/十楽寺（7番）じゅうらくじ/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 8,
+   "fee": "donation",
+   "yen": null,
+   "detail": "志納金制（額の定めなし。ブログでは100〜300円程度）。普通車約20台＋臨時。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/08kumataniji/"
+    },
+    {
+     "label": "ohenrocar（2026更新）",
+     "url": "https://ohenrocar.com/%E7%86%8A%E8%B0%B7%E5%AF%BA%EF%BC%888%E7%95%AA%EF%BC%89%E3%81%8F%E3%81%BE%E3%81%9F%E3%81%AB%E3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 9,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車50台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/09horinji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 10,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、下の境内に普通車20台（7時〜17時、大型不可）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/10kirihataji/"
+    },
+    {
+     "label": "ohenrocar（2026更新）",
+     "url": "https://ohenrocar.com/切幡寺（10番）きりはたじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 11,
+   "fee": "none",
+   "yen": 300,
+   "detail": "寺の駐車場なし。門前の民間「本家ふじや」駐車場、参拝の間300円／1日500円。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/11fujiidera/"
+    },
+    {
+     "label": "ohenrocar（2026更新）",
+     "url": "https://ohenrocar.com/%E8%97%A4%E4%BA%95%E5%AF%BA%EF%BC%8811%E7%95%AA%EF%BC%89%E3%81%B5%E3%81%98%E3%81%84%E3%81%A7%E3%82%89/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 12,
+   "fee": "donation",
+   "yen": 500,
+   "detail": "志納料として普通車500円を納経所で納める（以前は300円）。約70〜80台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式（料金記載なし）",
+     "url": "https://88shikokuhenro.jp/12shozanji"
+    },
+    {
+     "label": "ohenrocar（2026-11更新、500円に値上げ）",
+     "url": "https://ohenrocar.com/%E7%84%BC%E5%B1%B1%E5%AF%BA%EF%BC%8812%E7%95%AA%EF%BC%89%E3%81%97%E3%82%87%E3%81%86%E3%81%96%E3%82%93%E3%81%98/"
+    },
+    {
+     "label": "あわなび（志納料300円・旧情報）",
+     "url": "https://www.awanavi.jp/archives/spot/2793"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 13,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車15台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/13dainichiji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 14,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車約10台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/14jorakuji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 15,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車10台（大型不可）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/15kokubunji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 16,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車6〜7台（7時〜17時）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/16kanonji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 17,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車30台（境内外の駐車場へ誘導）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式（料金記載なし）",
+     "url": "https://88shikokuhenro.jp/17idoji/"
+    },
+    {
+     "label": "ohenrocar（2025更新）",
+     "url": "https://ohenrocar.com/井戸寺（17番）いどじ/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 18,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車20台（7時〜17時）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/18onzanji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 19,
+   "fee": "paid",
+   "yen": 300,
+   "detail": "寺の駐車場は普通車300円（ゲート式、30台）。満車時は近隣民間200円。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/19tatsueji/"
+    },
+    {
+     "label": "あわなび",
+     "url": "https://www.awanavi.jp/archives/spot/2803"
+    },
+    {
+     "label": "ohenrocar（2025更新）",
+     "url": "https://ohenrocar.com/立江寺（19番）たつえじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 20,
+   "fee": "donation",
+   "yen": 300,
+   "detail": "志納金制だが実際は普通車300円を納経所で納める。約20台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/20kakurinji"
+    },
+    {
+     "label": "あわなび",
+     "url": "https://www.awanavi.jp/archives/spot/2794"
+    },
+    {
+     "label": "ohenrocar（2025更新）",
+     "url": "https://ohenrocar.com/%E9%B6%B4%E6%9E%97%E5%AF%BA%EF%BC%8820%E7%95%AA%EF%BC%89%E3%81%8B%E3%81%8F%E3%82%8A%E3%82%93%E3%81%98/"
+    },
+    {
+     "label": "じゃらん（志納料300円）",
+     "url": "https://www.jalan.net/kankou/spt_36301ag2130011280/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 21,
+   "fee": "paid",
+   "yen": 500,
+   "detail": "車で山上へ行く道の先の駐車場は普通車500円。",
+   "extra": "ロープウェイを使う場合は山麓駐車場が無料、大人往復2,800円（2026年10月改定）。",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/tokushima/21tairyuji/"
+    },
+    {
+     "label": "太龍寺ロープウェイ料金",
+     "url": "https://www.shikoku-cable.co.jp/tairyuji/price"
+    },
+    {
+     "label": "ohenrocar（2025更新）",
+     "url": "https://ohenrocar.com/太龍寺（21番）たいりゅうじ/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 22,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車30台（7時〜17時）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/22byodoji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 23,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車350台（7時〜17時）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式",
+     "url": "https://88shikokuhenro.jp/23yakuoji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 24,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車37台（7時〜17時）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/24hotsumisakiji/"
+    },
+    {
+     "label": "おへんろカー",
+     "url": "https://ohenrocar.com/%e6%9c%80%e5%be%a1%e5%b4%8e%e5%af%ba%ef%bc%8824%e7%95%aa%ef%bc%89%e3%81%bb%e3%81%a4%e3%81%bf%e3%81%95%e3%81%8d%e3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 25,
+   "fee": "free",
+   "yen": null,
+   "detail": "寺の駐車場ではなく港の広場を無料で借りる。車は境内に入れない。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/25shinshoji/"
+    },
+    {
+     "label": "四国88遍路net 車遍路の費用一覧（2014〜16年記録）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 26,
+   "fee": "paid",
+   "yen": 200,
+   "detail": "普通車200円、20台（7時〜17時）。納経所で支払う。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/26kongochoji/"
+    },
+    {
+     "label": "こうち旅ネット",
+     "url": "https://kochi-tabi.jp/search_spot.html?id=873"
+    },
+    {
+     "label": "らくどらぶーん（2024・2026更新）",
+     "url": "https://rakudoraboon.com/shikoku-pilgrimage-26-kongochoji/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 27,
+   "fee": "paid",
+   "yen": 300,
+   "detail": "普通車300円、30台。納経所で支払う（軽200円・6人乗り以上500円の口コミあり）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/27kounomineji"
+    },
+    {
+     "label": "おへんろカー",
+     "url": "https://ohenrocar.com/%E7%A5%9E%E5%B3%AF%E5%AF%BA%EF%BC%8827%E7%95%AA%EF%BC%89%E3%81%93%E3%81%86%E3%81%AE%E3%81%BF%E3%81%AD%E3%81%98/"
+    },
+    {
+     "label": "フォートラベル口コミ（2014〜17年）",
+     "url": "https://4travel.jp/dm_shisetsu/10002923"
+    },
+    {
+     "label": "四国88遍路net 車遍路の費用一覧（2014〜16年記録）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 28,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車30台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/28dainichiji/"
+    },
+    {
+     "label": "四国88遍路net 車遍路の費用一覧（2014〜16年記録）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 29,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車45台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/29kokubunji/"
+    },
+    {
+     "label": "四国88遍路net 車遍路の費用一覧（2014〜16年記録）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 30,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車20台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/30zenrakuji/"
+    },
+    {
+     "label": "四国88遍路net 車遍路の費用一覧（2014〜16年記録）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 31,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車100台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/31chikurinji/"
+    },
+    {
+     "label": "四国88遍路net 車遍路の費用一覧（2014〜16年記録）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 32,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車30台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/32zenjibuji/"
+    },
+    {
+     "label": "四国88遍路net 車遍路の費用一覧（2014〜16年記録）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 33,
+   "fee": "donation",
+   "yen": 100,
+   "detail": "志納制、普通車10台（6時〜18時）。目安は普通車100円、納経所で納める。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/33sekeiji/"
+    },
+    {
+     "label": "とくしま御朱印（2020年）",
+     "url": "https://tokushimagoshuin.com/kouchi-sekkeiji-goshuin"
+    },
+    {
+     "label": "おへんろカー",
+     "url": "https://ohenrocar.com/%E9%9B%AA%E8%B9%8A%E5%AF%BA%EF%BC%8833%E7%95%AA%EF%BC%89%E3%81%9B%E3%81%A3%E3%81%91%E3%81%84%E3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 34,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車70台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/34tanemaji/"
+    },
+    {
+     "label": "四国88遍路net 車遍路の費用一覧（2014〜16年記録）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 35,
+   "fee": "donation",
+   "yen": 200,
+   "detail": "境内の駐車場。納経所で志納、普通車200円（2023年参拝記）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/35kiyotakiji/"
+    },
+    {
+     "label": "とくしま御朱印（2023年参拝）",
+     "url": "https://tokushimagoshuin.com/kouchi-kiyotakiji-goshuin"
+    },
+    {
+     "label": "おへんろカー",
+     "url": "https://ohenrocar.com/%E6%B8%85%E7%80%A7%E5%AF%BA%EF%BC%8835%E7%95%AA%EF%BC%89%E3%81%8D%E3%82%88%E3%81%9F%E3%81%8D%E3%81%98/"
+    },
+    {
+     "label": "こうち旅ネット",
+     "url": "https://kochi-tabi.jp/search_spot_sightseeing.html?id=878"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 36,
+   "fee": "free",
+   "yen": null,
+   "detail": "寺に近い駐車場は無料、普通車20台。離れた隣の駐車場は100円。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/36shoryuji/"
+    },
+    {
+     "label": "おへんろカー",
+     "url": "https://ohenrocar.com/%E9%9D%92%E9%BE%8D%E5%AF%BA%EF%BC%8836%E7%95%AA%EF%BC%89%E3%81%97%E3%82%87%E3%81%86%E3%82%8A%E3%82%85%E3%81%86%E3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 37,
+   "fee": "donation",
+   "yen": 200,
+   "detail": "駐車協力金。200円との記載あり（無料とする案内もある）。小さな駐車場が点在。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/37iwamotoji/"
+    },
+    {
+     "label": "おへんろカー",
+     "url": "https://ohenrocar.com/%E5%B2%A9%E6%9C%AC%E5%AF%BA%EF%BC%8837%E7%95%AA%EF%BC%89%E3%81%84%E3%82%8F%E3%82%82%E3%81%A8%E3%81%98/"
+    },
+    {
+     "label": "るるぶ&more.",
+     "url": "https://rurubu.jp/andmore/spot/80037572"
+    },
+    {
+     "label": "こうち旅ネット",
+     "url": "https://kochi-tabi.jp/search_spot_sightseeing.html?id=885"
+    },
+    {
+     "label": "四国88遍路net 車遍路の費用一覧（2014〜16年記録）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 38,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車40台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/38kongofukuji/"
+    },
+    {
+     "label": "四国88遍路net 車遍路の費用一覧（2014〜16年記録）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 39,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、普通車50台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会 公式ガイド",
+     "url": "https://88shikokuhenro.jp/39enkoji/"
+    },
+    {
+     "label": "四国88遍路net 車遍路の費用一覧（2014〜16年記録）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 40,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。山門下に普通車15台・小学校前に5台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/40kanzaiji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%e8%a6%b3%e8%87%aa%e5%9c%a8%e5%af%ba%ef%bc%8840%e7%95%aa%ef%bc%89%e3%81%8b%e3%82%93%e3%81%98%e3%81%95%e3%81%84%e3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 41,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。石段手前の寺駐車場（手前の道は狭い）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/41ryukoji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E9%BE%8D%E5%85%89%E5%AF%BA%EF%BC%8841%E7%95%AA%EF%BC%89%E3%82%8A%E3%82%85%E3%81%86%E3%81%93%E3%81%86%E3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 42,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。山門すぐ横。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/42butsumokuji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%e4%bb%8f%e6%9c%a8%e5%af%ba%ef%bc%8842%e7%95%aa%ef%bc%89%e3%81%b6%e3%81%a4%e3%82%82%e3%81%8f%e3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 43,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料（バスのみ有料）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/43meisekiji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E6%98%8E%E7%9F%B3%E5%AF%BA%EF%BC%8843%E7%95%AA%EF%BC%89%E3%82%81%E3%81%84%E3%81%9B%E3%81%8D%E3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 44,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。手前と境内近くの2か所。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/44daihoji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E5%A4%A7%E5%AF%B6%E5%AF%BA%EF%BC%8844%E7%95%AA%EF%BC%89%E3%81%A0%E3%81%84%E3%81%BB%E3%81%86%E3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 45,
+   "fee": "paid",
+   "yen": 300,
+   "detail": "普通車300円。参道入口の民営駐車場2か所、境内まで徒歩約20分。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/45iwayaji"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E5%B2%A9%E5%B1%8B%E5%AF%BA%EF%BC%8845%E7%95%AA%EF%BC%89%E3%81%84%E3%82%8F%E3%82%84%E3%81%98/"
+    },
+    {
+     "label": "車遍路の費用一覧(2014-16年記録)",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    },
+    {
+     "label": "ツーリズム四国（公式観光）",
+     "url": "https://shikoku-tourism.com/spot/13027"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 46,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/46joruriji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E6%B5%84%E7%91%A0%E7%92%83%E5%AF%BA%EF%BC%8846%E7%95%AA%EF%BC%89%E3%81%98%E3%82%87%E3%81%86%E3%82%8B%E3%82%8A%E3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 47,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/47yasakaji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E5%85%AB%E5%9D%82%E5%AF%BA%EF%BC%8847%E7%95%AA%EF%BC%89%E3%82%84%E3%81%95%E3%81%8B%E3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 48,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/48sairinji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%e8%a5%bf%e6%9e%97%e5%af%ba%ef%bc%8848%e7%95%aa%ef%bc%89%e3%81%9b%e3%81%84%e3%82%8a%e3%82%93%e3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 49,
+   "fee": "donation",
+   "yen": 200,
+   "detail": "山門前の駐車場。志納金（協力金）普通車200円（2014-16年頃は100円）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/49jodoji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E6%B5%84%E5%9C%9F%E5%AF%BA%EF%BC%8849%E7%95%AA%EF%BC%89%E3%81%98%E3%82%87%E3%81%86%E3%81%A9%E3%81%98/"
+    },
+    {
+     "label": "車遍路の費用一覧(2014-16年記録)",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 50,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/50hantaji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E7%B9%81%E5%A4%9A%E5%AF%BA%EF%BC%8850%E7%95%AA%EF%BC%89%E3%81%AF%E3%82%93%E3%81%9F%E3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 51,
+   "fee": "free",
+   "yen": null,
+   "detail": "参拝者向け無料駐車場あり（使えない日も）。近隣に民間有料（150〜300円程度）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/51ishiteji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%e7%9f%b3%e6%89%8b%e5%af%ba%ef%bc%8851%e7%95%aa%ef%bc%89%e3%81%84%e3%81%97%e3%81%a7%e3%81%98/"
+    },
+    {
+     "label": "愛媛の観光まとめ記事(2023年)",
+     "url": "https://kaizoku-ehime.jp/18047/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 52,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。納経所横と境内横（3〜4台）の2か所。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/52taisanji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E5%A4%AA%E5%B1%B1%E5%AF%BA%EF%BC%8852%E7%95%AA%EF%BC%89%E3%81%9F%E3%81%84%E3%81%95%E3%82%93%E3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 53,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。山門の目の前。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/53enmyoji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E5%9C%93%E6%98%8E%E5%AF%BA%EF%BC%8853%E7%95%AA%EF%BC%89%E3%81%88%E3%82%93%E3%81%BF%E3%82%87%E3%81%86%E3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 54,
+   "fee": "donation",
+   "yen": 100,
+   "detail": "冥加料（協力金）普通車100円。山門前の広い駐車場。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/54enmeiji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E5%BB%B6%E5%91%BD%E5%AF%BA%EF%BC%8854%E7%95%AA%EF%BC%89%E3%81%88%E3%82%93%E3%82%81%E3%81%84%E3%81%98/"
+    },
+    {
+     "label": "車遍路の費用一覧(2014-16年記録)",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 55,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/55nankobo/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E5%8D%97%E5%85%89%E5%9D%8A%EF%BC%8855%E7%95%AA%EF%BC%89%E3%81%AA%E3%82%93%E3%81%93%E3%81%86%E3%81%BC%E3%81%86/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 56,
+   "fee": "paid",
+   "yen": 200,
+   "detail": "普通車200円（納経所で支払う例も）。県道沿いの広い駐車場。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/56taizanji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E6%B3%B0%E5%B1%B1%E5%AF%BA%EF%BC%8856%E7%95%AA%EF%BC%89%E3%81%9F%E3%81%84%E3%81%95%E3%82%93%E3%81%98/"
+    },
+    {
+     "label": "Wikipedia 泰山寺",
+     "url": "https://ja.wikipedia.org/wiki/%E6%B3%B0%E5%B1%B1%E5%AF%BA"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 57,
+   "fee": "paid",
+   "yen": 100,
+   "detail": "普通車100円。手前50mは細い道。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/57eifukuji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E6%A0%84%E7%A6%8F%E5%AF%BA%EF%BC%8857%E7%95%AA%EF%BC%89%E3%81%88%E3%81%84%E3%81%B5%E3%81%8F%E3%81%98/"
+    },
+    {
+     "label": "車遍路の費用一覧(2014-16年記録)",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 58,
+   "fee": "paid",
+   "yen": 400,
+   "detail": "山頂の駐車場、道路維持費として普通車400円。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/58senyuji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E4%BB%99%E9%81%8A%E5%AF%BA%EF%BC%8858%E7%95%AA%EF%BC%89%E3%81%9B%E3%82%93%E3%82%86%E3%81%86%E3%81%98/"
+    },
+    {
+     "label": "車遍路の費用一覧(2014-16年記録)",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 59,
+   "fee": "paid",
+   "yen": 200,
+   "detail": "普通車200円。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/59kokubunji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E5%9B%BD%E5%88%86%E5%AF%BA%EF%BC%8859%E7%95%AA%EF%BC%89%E3%81%93%E3%81%8F%E3%81%B6%E3%82%93%E3%81%98/"
+    },
+    {
+     "label": "車遍路の費用一覧(2014-16年記録)",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 60,
+   "fee": "free",
+   "yen": null,
+   "detail": "林道終点の駐車場、別料金なし（林道通行料に駐車料込み）。境内まで約10分。",
+   "extra": "平野林道通行料 普通車2,000円（冬期は通行止め）",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/ehime/60yokomineji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E6%A8%AA%E5%B3%B0%E5%AF%BA%EF%BC%8860%E7%95%AA%EF%BC%89%E3%82%88%E3%81%93%E3%81%BF%E3%81%AD%E3%81%98/"
+    },
+    {
+     "label": "Yahoo!トラベル 横峰寺",
+     "url": "https://travel.yahoo.co.jp/kanko/spot-00021633/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 61,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。第1駐車場約25台、繁忙期は第2約50台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/61koonji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E9%A6%99%E5%9C%92%E5%AF%BA%EF%BC%8861%E7%95%AA%EF%BC%89%E3%81%93%E3%81%86%E3%81%8A%E3%82%93%E3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 62,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。境内すぐ横（国道沿い）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/62houjyuji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E5%AE%9D%E5%AF%BF%E5%AF%BA%EF%BC%8862%E7%95%AA%EF%BC%89%E3%81%BB%E3%81%86%E3%81%98%E3%82%85%E3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 63,
+   "fee": "none",
+   "yen": 200,
+   "detail": "寺の駐車場なし。少し離れた参拝者用の有料駐車場200円（隣のJA駐車場は不可）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/63kichijoji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E5%90%89%E7%A5%A5%E5%AF%BA%EF%BC%8863%E7%95%AA%EF%BC%89%E3%81%8D%E3%81%A1%E3%81%98%E3%82%87%E3%81%86%E3%81%98/"
+    },
+    {
+     "label": "車遍路の費用一覧(2014-16年記録)",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 64,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/64maegamiji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E5%89%8D%E7%A5%9E%E5%AF%BA%EF%BC%8864%E7%95%AA%EF%BC%89%E3%81%BE%E3%81%88%E3%81%8C%E3%81%BF%E3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 65,
+   "fee": "none",
+   "yen": 200,
+   "detail": "寺と無関係の民間駐車場で200円（境内直結、73段の石段）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/65sankakuji/"
+    },
+    {
+     "label": "マイカーお遍路(ohenrocar)",
+     "url": "https://ohenrocar.com/%E4%B8%89%E8%A7%92%E5%AF%BA%EF%BC%8865%E7%95%AA%EF%BC%89%E3%81%95%E3%82%93%E3%81%8B%E3%81%8F%E3%81%98/"
+    },
+    {
+     "label": "車遍路の費用一覧(2014-16年記録)",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 66,
+   "fee": "paid",
+   "yen": 500,
+   "detail": "山頂の参拝者専用駐車場（徳島側の県道268号経由）は普通車500円、納経所で納める。",
+   "extra": "車道を使わない場合はロープウェイ（山麓駐車場は無料、往復大人2,200円）",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/66unpenji"
+    },
+    {
+     "label": "らくどらぶーん（訪問記）",
+     "url": "https://rakudoraboon.com/unpenji_directions/"
+    },
+    {
+     "label": "登山口P",
+     "url": "https://tozanguchi-p.com/unpenji_p/"
+    },
+    {
+     "label": "雲辺寺ロープウェイ公式 料金",
+     "url": "https://www.shikoku-cable.co.jp/unpenji/price"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/雲辺寺（66番）うんべんじ/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 67,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。境内まで91段の石段。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/67daikoji/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/大興寺（67番）だいこうじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 68,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。琴弾山麓の駐車場（69番観音寺と共通）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/68jinnein/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/神恵院（68番）じんねいん/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 69,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。琴弾山麓の駐車場（68番神恵院と共通）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/69kannonji/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/観音寺（69番）かんのんじ/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 70,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。五重塔の左手に駐車場。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/70motoyamaji/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/本山寺（70番）もとやまじ/"
+    },
+    {
+     "label": "車遍路の費用一覧（2014〜16年調べ）",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E8%B2%BB%E7%94%A8%E4%B8%80%E8%A6%A7_%E5%9B%9B%E5%9B%BD%E5%85%AB%E5%8D%81%E5%85%AB%E3%83%B6%E6%89%80%E3%81%AE%E9%A7%90%E8%BB%8A%E5%A0%B4%E4%BB%A3%E3%81%A8%E6%9C%89"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 71,
+   "fee": "free",
+   "yen": null,
+   "detail": "登山口下の駐車場は無料。中腹の駐車場は普通車500円（ゲート先払い）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/71iyadaniji/"
+    },
+    {
+     "label": "弥谷寺公式 駐車場",
+     "url": "https://iyadanizi.xsrv.jp/kotu-2.html"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/弥谷寺（71番）いやたにじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 72,
+   "fee": "paid",
+   "yen": 200,
+   "detail": "軽・普通車200円。納経所で納める。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/72mandaraji/"
+    },
+    {
+     "label": "うどん県旅ネット（香川県観光協会）",
+     "url": "https://www.my-kagawa.jp/point/333/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/曼荼羅寺（72番）まんだらじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 73,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。普通車30台・大型5台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/73shusyakaji/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/出釈迦寺（73番）しゅつしゃかじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 74,
+   "fee": "paid",
+   "yen": 200,
+   "detail": "軽・普通車200円（寺の公式案内）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/74koyamaji/"
+    },
+    {
+     "label": "甲山寺公式 アクセス",
+     "url": "https://koyamaji.or.jp/access/"
+    },
+    {
+     "label": "うどん県旅ネット（香川県観光協会）",
+     "url": "https://www.my-kagawa.jp/point/325"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 75,
+   "fee": "paid",
+   "yen": 300,
+   "detail": "参拝者駐車場は普通車300円（8時〜18時、350台）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/75zentsuji/"
+    },
+    {
+     "label": "善通寺公式 アクセス",
+     "url": "https://www.zentsuji.com/access/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 76,
+   "fee": "paid",
+   "yen": 200,
+   "detail": "軽・普通車200円。境内に隣接、先払い。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/76konzoji/"
+    },
+    {
+     "label": "金倉寺公式 アクセス",
+     "url": "https://www.kagawa-konzouji.or.jp/access/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/金倉寺（76番）こんぞうじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 77,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/77doryuji/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/道隆寺（77番）どうりゅうじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 78,
+   "fee": "free",
+   "yen": null,
+   "detail": "普通車は無料（大型バスは有料）。入口の道が狭い。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/78goshoji/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/郷照寺（78番）ごうしょうじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 79,
+   "fee": "paid",
+   "yen": 200,
+   "detail": "境内の駐車場は有料、普通車200円（約10台）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/79tennoji/"
+    },
+    {
+     "label": "坂出市 天皇寺",
+     "url": "https://www.city.sakaide.lg.jp/soshiki/sangyoukankou/tennnouji.html"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/天皇寺（79番）てんのうじ/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 80,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、約20台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/80kokubunji/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/國分寺（80番）こくぶんじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 81,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料、約200台。区画が狭い。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/81shiromineji"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/白峯寺（81番）/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 82,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。山門前に駐車場。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/82negoroji"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/根香寺（82番）ねごろじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 83,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。県道沿いと山門横の2か所。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/83ichinomiyaji/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/一宮寺（83番）いちのみやじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 84,
+   "fee": "none",
+   "yen": 300,
+   "detail": "寺の駐車場はなく市営の屋島山上駐車場を使う。普通車1日300円。混雑日は値上げあり。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/84yashimaji/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/屋島寺（84番）やしまじ/"
+    },
+    {
+     "label": "KSB瀬戸内海放送（2026年9月）",
+     "url": "https://news.ksb.co.jp/article/16907838"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 85,
+   "fee": "free",
+   "yen": null,
+   "detail": "寺までは車で行かず、ケーブル登山口駅の無料駐車場に停める。",
+   "extra": "八栗ケーブル往復 大人1,000円（上り600円・下り500円）",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/85yakuriji/"
+    },
+    {
+     "label": "八栗ケーブル公式 料金",
+     "url": "https://www.shikoku-cable.co.jp/yakuri/price"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/八栗寺（85番）やくりじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 86,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。山門に向かって右側。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/86shidoji/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/志度寺（86番）しどじ/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 87,
+   "fee": "paid",
+   "yen": 200,
+   "detail": "普通車200円。納経所の料金箱に納める。約40台。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/87nagaoji/"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/長尾寺（87番）ながおじ/"
+    },
+    {
+     "label": "個人ブログ（2018年）",
+     "url": "https://ameblo.jp/red-moon-momo/entry-12402253358.html"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 88,
+   "fee": "free",
+   "yen": null,
+   "detail": "無料。西側の仁王門側が寺の駐車場（茶店横は茶店用）。",
+   "extra": "",
+   "sources": [
+    {
+     "label": "霊場会公式ガイド",
+     "url": "https://88shikokuhenro.jp/88ookuboji"
+    },
+    {
+     "label": "マイカーお遍路（2026年更新）",
+     "url": "https://ohenrocar.com/大窪寺（88番）おおくぼじ/"
+    }
+   ],
+   "confidence": "high"
+  }
+ ]
+}
