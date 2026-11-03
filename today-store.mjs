@@ -1,4 +1,4 @@
-import {validatePlan} from './plan-domain.mjs';
+import {validatePlan,moveStop} from './plan-domain.mjs';
 import {japanDate} from './domain.mjs';
 const fail=message=>{throw new Error(message);};
 const idOK=v=>typeof v==='string'&&v.length>0&&v.length<=100;
@@ -9,13 +9,19 @@ export function validateOuting(s){
   if(!Number.isFinite(s.startedAt)||!Number.isFinite(s.updatedAt)||s.updatedAt<s.startedAt||(s.status==='active'?s.endedAt!==null:(!Number.isFinite(s.endedAt)||s.endedAt<s.startedAt||s.endedAt>s.updatedAt)))fail('巡礼の開始・終了情報を確認できません。');
   if(!Array.isArray(s.stops)||!s.stops.length||s.stops.length>88||new Set(s.stops.map(p=>p?.templeId)).size!==s.stops.length)fail('巡礼の札所を確認できません。');
   for(const p of s.stops)if(!p||!Number.isInteger(p.templeId)||p.templeId<1||p.templeId>88||!Number.isInteger(p.minutes)||p.minutes<0||p.minutes>480||typeof p.skipped!=='boolean')fail('巡礼の札所・参拝時間を確認できません。');
+  // 泊まりがけの予定から始めたときだけ、日の区切りと宿（予定の nights の写し）を持つ。
+  if(s.nights!==undefined){if(!Array.isArray(s.nights)||s.nights.length>30)fail('巡礼の日の区切りを確認できません。');let last=-1;for(const n of s.nights){if(!n||!Number.isInteger(n.after)||n.after<=last||n.after>s.stops.length-2||typeof n.place!=='string'||n.place.length>120)fail('巡礼の日の区切りを確認できません。');last=n.after;}}
   return s;
 }
 export function outingProgress(s,visits,today=japanDate()){
   validateOuting(s);
   const current=visits.filter(v=>v.journeyId===s.journeyId&&s.dates.includes(v.date)&&!v.deletedAt),done=new Set(current.map(v=>v.templeId)),todayDone=new Set(current.filter(v=>v.date===today).map(v=>v.templeId));
-  const rows=s.stops.map(p=>({...p,status:done.has(p.templeId)?'visited':p.skipped?'skipped':'pending',todayVisited:todayDone.has(p.templeId)}));
-  return {rows,next:rows.find(p=>p.status==='pending')||null,done:rows.filter(p=>p.status==='visited').length,skipped:rows.filter(p=>p.status==='skipped').length,total:rows.length,todayDone:rows.filter(p=>p.todayVisited).length,needsResume:s.status==='active'&&!s.dates.includes(today)};
+  const nights=s.nights||[],dayOf=i=>1+nights.filter(n=>n.after<i).length;
+  const rows=s.stops.map((p,i)=>{const night=nights.find(n=>n.after===i);return {...p,status:done.has(p.templeId)?'visited':p.skipped?'skipped':'pending',todayVisited:todayDone.has(p.templeId),day:dayOf(i),firstOfDay:i===0||nights.some(n=>n.after===i-1),stayAfter:night?night.place.trim():null};});
+  // 次の札所が2日目以降の先頭で、前の日の札所を今日記録していれば、その日はここまで（宿へ向かうところ）。
+  const ni=rows.findIndex(p=>p.status==='pending');let toStay=null;
+  if(ni>0&&rows[ni].firstOfDay&&rows.some(r=>r.day===rows[ni].day-1&&r.todayVisited))toStay={day:rows[ni].day-1,place:rows[ni-1].stayAfter||''};
+  return {rows,next:rows.find(p=>p.status==='pending')||null,days:nights.length+1,toStay,done:rows.filter(p=>p.status==='visited').length,skipped:rows.filter(p=>p.status==='skipped').length,total:rows.length,todayDone:rows.filter(p=>p.todayVisited).length,needsResume:s.status==='active'&&!s.dates.includes(today)};
 }
 export function createTodayStore({indexedDB=globalThis.indexedDB,scope='/',now=()=>Date.now(),uuid=()=>crypto.randomUUID()}={}){
   let db,pending;
@@ -33,7 +39,7 @@ export function createTodayStore({indexedDB=globalThis.indexedDB,scope='/',now=(
   async function start(plan){const copy=structuredClone(plan);validatePlan(copy);if(!copy.stops.length)fail('予定に札所を1つ以上選んで保存してください。');return transact(copy.journeyId,true,(rows,store)=>{
     if(rows.some(s=>s.status==='active'))fail('進行中の巡礼があります。先に終了するか、続きから再開してください。');
     if(rows.length>=500)fail('この巡礼の進行履歴は500件までです。新しい巡礼の記録をご利用ください。');
-    const at=now(),s={version:1,id:uuid(),journeyId:copy.journeyId,planId:copy.id,name:copy.name,status:'active',revision:1,dates:[japanDate(at)],startedAt:at,updatedAt:at,endedAt:null,stops:copy.stops.map(p=>({templeId:p.templeId,minutes:p.minutes,skipped:false}))};validateOuting(s);store.add(s);return s;
+    const at=now(),s={version:1,id:uuid(),journeyId:copy.journeyId,planId:copy.id,name:copy.name,status:'active',revision:1,dates:[japanDate(at)],startedAt:at,updatedAt:at,endedAt:null,stops:copy.stops.map(p=>({templeId:p.templeId,minutes:p.minutes,skipped:false})),...(copy.nights?.length?{nights:copy.nights.map(n=>({after:n.after,place:n.place}))}:{})};validateOuting(s);store.add(s);return s;
   });}
   async function update(ref,action){const expected=structuredClone(ref),op=structuredClone(action);if(!idOK(expected.id)||!idOK(expected.journeyId)||!Number.isInteger(expected.revision))fail('進行の参照を確認してください。');return transact(expected.journeyId,true,(rows,store)=>{
     const original=rows.find(s=>s.id===expected.id);if(!original||original.revision!==expected.revision)fail('別の画面で進行が更新されています。閉じてホームを開き直してください。');
@@ -45,7 +51,7 @@ export function createTodayStore({indexedDB=globalThis.indexedDB,scope='/',now=(
     }else{if(s.status!=='active')fail('巡礼は終了しています。先に続きから再開してください。');
       if(op.type==='end'){s.status='ended';s.endedAt=at;}
       else if(op.type==='skip'){const p=s.stops.find(p=>p.templeId===op.templeId);if(!p||typeof op.skipped!=='boolean')fail('見送る札所を確認してください。');p.skipped=op.skipped;}
-      else if(op.type==='move'){const i=s.stops.findIndex(p=>p.templeId===op.templeId),j=i+op.delta;if(i<0||![-1,1].includes(op.delta)||j<0||j>=s.stops.length)fail('変更する順番を確認してください。');[s.stops[i],s.stops[j]]=[s.stops[j],s.stops[i]];}
+      else if(op.type==='move'){const i=s.stops.findIndex(p=>p.templeId===op.templeId),j=i+op.delta;if(i<0||![-1,1].includes(op.delta)||j<0||j>=s.stops.length)fail('変更する順番を確認してください。');const r=moveStop(s.stops,s.nights||[],i,op.delta);s.stops=r.stops;if(s.nights)s.nights=r.nights;}
       else fail('この操作には対応していません。');
     }
     s.updatedAt=at;s.revision++;validateOuting(s);store.put(s);return s;

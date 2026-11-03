@@ -3,7 +3,7 @@ import {createTodayUI} from './today-ui.mjs';
 import {createPrayerUI,templePrayerCard} from './prayer.mjs';
 import {createPlanStore} from './plan-store.mjs';
 import {createPlanUI} from './plan-ui.mjs';
-import {DAY_START} from './plan-domain.mjs';
+import {DAY_START,mapsURL,stayLocation} from './plan-domain.mjs';
 import {createPhotoStore} from './photo-store.mjs';
 import {createPhotoUI} from './photo-ui.mjs';
 import {groupNearby,templeGlyph} from './temple-marker.mjs';
@@ -280,9 +280,13 @@ function gpsDialog(t){
   if(seen)$('#gps-measure').click();
 }
 // チェックインのあとに案内する次の札所：進行中の巡礼があればその次、なければ次の番号の未訪問札所。
+// 泊まりがけでその日の最後の札所だったときは、宿を入れてあれば宿へ案内する。
 async function nextAfterCheckin(t){
-  const n=await todayUI.nextStop();if(n&&n.id!==t.id)return {temple:n,why:'今日の巡礼の次の札所'};
-  const x=nextByNumber(temples,new Set(currentVisits().map(v=>v.templeId)),t.id);return x?{temple:x,why:'次の番号の未訪問の札所'}:null;
+  const toTemple=(x,why)=>{const park=parkingFor(x.id);return {href:routeUrl(x,'google',park),label:`次の札所へ${park?'駐車場へ':''}ナビ`,sub:`第${x.id}番 ${x.name} · ${why} · Googleマップ`};};
+  const n=await todayUI.nextStop();
+  if(n&&n.toStay?.place)return {href:mapsURL(null,[stayLocation(n.toStay.place)]),label:'宿へナビ',sub:`${n.toStay.day}日目はここまで · ${n.toStay.place} · Googleマップ`};
+  if(n&&n.temple.id!==t.id)return toTemple(n.temple,n.toStay?`${n.toStay.day+1}日目の最初の札所`:'今日の巡礼の次の札所');
+  const x=nextByNumber(temples,new Set(currentVisits().map(v=>v.templeId)),t.id);return x?toTemple(x,'次の番号の未訪問の札所'):null;
 }
 function voidDialog(id){const v=state.visits.find(v=>v.id===id),t=temples[v.templeId-1];openDialog('訪問記録を取り消す',`<p>${esc(t.name)} · ${esc(v.date||'訪問日不明')} の訪問を取り消します。</p><p class="small">この端末の記録から取り消します。直後に表示される「元に戻す」で復元できます。</p><div class="dialog-actions"><button class="quiet" id="cancel-void">戻る</button><button class="primary" id="confirm-void">この訪問を取り消す</button></div>`);$('#cancel-void').onclick=closeDialog;$('#confirm-void').onclick=async e=>{e.target.disabled=true;try{await api('visit/void',{id});closeDialog();await refresh();toast('訪問記録を取り消しました。',{label:'元に戻す',run:async()=>{try{await api('visit/undo',{id});await refresh();toast('記録を復元しました。');}catch(err){showError(err);}}});}catch(err){showError(err);e.target.disabled=false;}};}
 function newJourneyDialog(){openDialog('新しい巡礼をつくる',`<form id="journey-form" class="dialog-form"><label>巡礼の名前<input name="name" required maxlength="60" placeholder="例：自分の2周目"></label><p class="small">訪問記録・XP・達成率は巡礼ごとに分かれます。今の記録は残ります。</p><div class="actions"><button class="primary">作成する</button></div></form>`);$('#journey-form').onsubmit=async e=>{e.preventDefault();e.submitter.disabled=true;try{const r=await api('journeys',{name:new FormData(e.target).get('name')});journeyId=r.id;closeDialog();await refresh();setView('home');toast('新しい巡礼を作成しました。');}catch(err){showError(err);e.submitter.disabled=false;}};}
