@@ -25,11 +25,18 @@ export function readRoadData(json) {
   return {checkedAt: typeof json.checkedAt === 'string' ? json.checkedAt : '', temples: map};
 }
 
+// 調べた日から1年以上たったら、画面で知らせる（道や料金は変わるため。見直しの手順は DATA-SOURCES.md）。
+export const STALE_DAYS = 365;
+export function isStale(checkedAt, now = Date.now()) {
+  const t = Date.parse(`${checkedAt}T00:00:00+09:00`);
+  return Number.isFinite(t) && now - t > STALE_DAYS * 24 * 60 * 60 * 1000;
+}
+export const staleHTML = (checkedAt, now) => isStale(checkedAt, now) ? `<p class="stale-note">調べてから1年以上たっています（${esc(checkedAt)}調べ）。変わっているかもしれないので、出典や現地の案内で確かめてください。</p>` : '';
 export const roadLabel = level => ROAD_LEVELS[level]?.label || '';
 // 札所の一覧のカードに付ける印
 export const roadChipHTML = r => r ? `<span class="road-chip lv${r.level}">道：${esc(roadLabel(r.level))}</span>` : '';
 // 札所の詳細「車」タブのいちばん上に出す説明
-export function roadCardHTML(r, checkedAt = '') {
+export function roadCardHTML(r, checkedAt = '', now = Date.now()) {
   if (!r) return '';
-  return `<section class="road-card lv${r.level}"><div class="road-card-head"><span>道の難しさ（目安）</span><strong>${esc(roadLabel(r.level))}</strong><span class="road-meter" aria-hidden="true">${[1, 2, 3].map(n => `<i${n <= r.level ? ' class="on"' : ''}></i>`).join('')}</span></div><p>${esc(r.reason)}</p>${r.confidence === 'low' ? '<p class="tiny">調べた範囲では詳しい記録が少なく、目安の確からしさは低めです。</p>' : ''}<p class="tiny">普通車で駐車場まで行く道と、駐車場から本堂までの目安です。公式の格付けではありません。道の状態は変わるので、出発前に通行止めも確認してください。${checkedAt ? `（${esc(checkedAt)}調べ）` : ''}</p><p class="road-sources">${r.sources.map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.label)} ↗</a>`).join('')}</p></section>`;
+  return `<section class="road-card lv${r.level}"><div class="road-card-head"><span>道の難しさ（目安）</span><strong>${esc(roadLabel(r.level))}</strong><span class="road-meter" aria-hidden="true">${[1, 2, 3].map(n => `<i${n <= r.level ? ' class="on"' : ''}></i>`).join('')}</span></div><p>${esc(r.reason)}</p>${staleHTML(checkedAt, now)}${r.confidence === 'low' ? '<p class="tiny">調べた範囲では詳しい記録が少なく、目安の確からしさは低めです。</p>' : ''}<p class="tiny">普通車で駐車場まで行く道と、駐車場から本堂までの目安です。公式の格付けではありません。道の状態は変わるので、出発前に通行止めも確認してください。${checkedAt ? `（${esc(checkedAt)}調べ）` : ''}</p><p class="road-sources">${r.sources.map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.label)} ↗</a>`).join('')}</p></section>`;
 }

@@ -2,7 +2,7 @@
 // 写真ZIPは従来の写真バックアップ（v2）と同じ形式なので、取り出して従来の方法でも復元できる。
 import {makePhotoZip, crc32, ZIP_MAX_BYTES} from './photo-zip.mjs';
 
-export const SETTING_PREFIXES = ['ohenro-vehicle:', 'ohenro-speed:', 'ohenro-pace:', 'ohenro-map-style:', 'ohenro-map-overlay:', 'ohenro-theme:', 'ohenro-text-size:', 'ohenro-lang:'];
+export const SETTING_PREFIXES = ['ohenro-vehicle:', 'ohenro-speed:', 'ohenro-pace:', 'ohenro-map-style:', 'ohenro-map-overlay:', 'ohenro-theme:', 'ohenro-text-size:', 'ohenro-lang:', 'ohenro-fee-local:'];
 export const SETTING_KEYS = ['ohenro-share-name'];
 const fail = m => { throw new Error(m); };
 
@@ -18,7 +18,8 @@ export function collectSettings(storage, scope) {
 export function applySettings(storage, scope, settings) {
   let n = 0;
   for (const [k, v] of Object.entries(settings || {})) {
-    if (typeof v !== 'string' || v.length > 2000) continue;
+    // 現地の料金の記録（88寺分のJSON）だけは長くなるので上限を広げる
+    if (typeof v !== 'string' || v.length > (k === 'ohenro-fee-local:' ? 20000 : 2000)) continue;
     try {
       if (SETTING_PREFIXES.includes(k)) { storage.setItem(k + scope, v); n++; }
       else if (SETTING_KEYS.includes(k)) { storage.setItem(k, v); n++; }
