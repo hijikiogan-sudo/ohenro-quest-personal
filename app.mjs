@@ -386,12 +386,29 @@ $$('[data-map-pref]').forEach(b=>b.onclick=()=>{mapPref=b.dataset.mapPref;fitMap
 function redrawMap(){const done=new Set(currentVisits().map(v=>v.templeId));drawMap(done);renderMapPanel(done);}
 let mapResizeTimer;
 window.addEventListener('resize',()=>{clearTimeout(mapResizeTimer);mapResizeTimer=setTimeout(()=>{if(view!=='home')return;const a=mapAspect();if(fittedAspect&&Math.abs(a/fittedAspect-1)>.03){fittedAspect=a;fitMapCounty();}redrawMap();},120);});
-function zoom(factor){const width=Math.max(100,Math.min(1000,mapBox[2]*factor));const ratio=width/mapBox[2];mapBox=[mapBox[0]+(mapBox[2]-width)/2,mapBox[1]+(mapBox[3]-mapBox[3]*ratio)/2,width,mapBox[3]*ratio];redrawMap();}
+// 拡大・縮小は、指定した点（地図上の座標）を画面上で動かさずに行う。幅は25〜1000の範囲（すぐ近くの札所も1寺ずつ見分けられるまで）。
+function zoomAt(factor,cx,cy,{redraw=true}={}){const width=Math.max(25,Math.min(1000,mapBox[2]*factor)),ratio=width/mapBox[2];mapBox=[cx-(cx-mapBox[0])*ratio,cy-(cy-mapBox[1])*ratio,width,mapBox[3]*ratio];if(redraw)redrawMap();else $('#map').setAttribute('viewBox',mapBox.join(' '));}
+// ＋−ボタンは、いま見えている札所のまん中に向かって拡大する（札所の無い海の方へ寄っていかない）。
+function zoom(factor){const pts=mapTemples().map(t=>projection([t.lng,t.lat])).filter(([x,y])=>x>=mapBox[0]&&x<=mapBox[0]+mapBox[2]&&y>=mapBox[1]&&y<=mapBox[1]+mapBox[3]);
+  const [cx,cy]=factor<1&&pts.length?[pts.reduce((s,p)=>s+p[0],0)/pts.length,pts.reduce((s,p)=>s+p[1],0)/pts.length]:[mapBox[0]+mapBox[2]/2,mapBox[1]+mapBox[3]/2];
+  // 札所のまん中を画面の中央へ寄せてから拡大する。
+  if(factor<1){mapBox=[mapBox[0]+(cx-(mapBox[0]+mapBox[2]/2))*.5,mapBox[1]+(cy-(mapBox[1]+mapBox[3]/2))*.5,mapBox[2],mapBox[3]];}
+  zoomAt(factor,mapBox[0]+mapBox[2]/2,mapBox[1]+mapBox[3]/2);}
 $('#map-in').onclick=()=>zoom(.65);$('#map-out').onclick=()=>zoom(1/.65);$('#map-reset').onclick=()=>{fitMapCounty();redrawMap();};
-let drag=null;
-$('#map').addEventListener('pointerdown',e=>{if(e.target.closest('[data-map-temple],[data-map-cluster]'))return;drag={x:e.clientX,y:e.clientY,box:[...mapBox]};$('#map').setPointerCapture(e.pointerId);});
-$('#map').addEventListener('pointermove',e=>{if(!drag)return;const rect=$('#map').getBoundingClientRect(),scale=Math.min(rect.width/drag.box[2],rect.height/drag.box[3]);mapBox=[drag.box[0]-(e.clientX-drag.x)/scale,drag.box[1]-(e.clientY-drag.y)/scale,...drag.box.slice(2)];$('#map').setAttribute('viewBox',mapBox.join(' '));});
-$('#map').addEventListener('pointerup',()=>{drag=null;});$('#map').addEventListener('pointercancel',()=>{drag=null;});
+// 画面上の点を地図の座標に直す。
+const mapPoint=(clientX,clientY)=>{const rect=$('#map').getBoundingClientRect(),scale=Math.min(rect.width/mapBox[2],rect.height/mapBox[3]),ox=(rect.width-mapBox[2]*scale)/2,oy=(rect.height-mapBox[3]*scale)/2;return [mapBox[0]+(clientX-rect.left-ox)/scale,mapBox[1]+(clientY-rect.top-oy)/scale];};
+// 1本指で移動、2本指で広げる・つまむ（ピンチ）。指を離したら印の大きさとまとまりを描き直す。
+let drag=null,pinch=null;const pointers=new Map();
+$('#map').addEventListener('pointerdown',e=>{if(e.target.closest('[data-map-temple],[data-map-cluster]')&&!pointers.size)return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});$('#map').setPointerCapture(e.pointerId);
+  if(pointers.size===2){const [a,b]=[...pointers.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1};drag=null;}else if(pointers.size===1)drag={x:e.clientX,y:e.clientY,box:[...mapBox]};});
+$('#map').addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pinch&&pointers.size===2){const [a,b]=[...pointers.values()],d=Math.hypot(a.x-b.x,a.y-b.y)||1,[cx,cy]=mapPoint((a.x+b.x)/2,(a.y+b.y)/2);zoomAt(pinch.d/d,cx,cy,{redraw:false});pinch.d=d;pinch.moved=true;return;}
+  if(!drag)return;const rect=$('#map').getBoundingClientRect(),scale=Math.min(rect.width/drag.box[2],rect.height/drag.box[3]);mapBox=[drag.box[0]-(e.clientX-drag.x)/scale,drag.box[1]-(e.clientY-drag.y)/scale,...drag.box.slice(2)];$('#map').setAttribute('viewBox',mapBox.join(' '));});
+const endPointer=e=>{pointers.delete(e.pointerId);if(pinch&&pointers.size<2){const moved=pinch.moved;pinch=null;drag=null;if(moved)redrawMap();}else if(!pointers.size)drag=null;};
+$('#map').addEventListener('pointerup',endPointer);$('#map').addEventListener('pointercancel',endPointer);
+// パソコン：トラックパッドのピンチ（ctrl＋ホイール）でカーソルの位置を中心に拡大・縮小。ダブルクリック・ダブルタップでその場所を拡大。
+let wheelTimer;$('#map').addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();const [cx,cy]=mapPoint(e.clientX,e.clientY);zoomAt(Math.exp(e.deltaY*.01),cx,cy,{redraw:false});clearTimeout(wheelTimer);wheelTimer=setTimeout(redrawMap,150);},{passive:false});
+$('#map').addEventListener('dblclick',e=>{if(e.target.closest('[data-map-temple],[data-map-cluster]'))return;e.preventDefault();const [cx,cy]=mapPoint(e.clientX,e.clientY);zoomAt(.6,cx,cy);});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('#install').hidden=false;});$('#install').onclick=async()=>{if(!installPrompt)return;await installPrompt.prompt();installPrompt=null;$('#install').hidden=true;};
 window.addEventListener('offline',()=>render());window.addEventListener('online',()=>refresh({silent:true}));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!$('#dialog').open)refresh({silent:true});});
