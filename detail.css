@@ -64,3 +64,5 @@
 @media(max-width:620px){:root[data-text-size=xl] :is(.page-heading,.intro) h1{font-size:24px}:root[data-text-size=l] :is(.page-heading,.intro) h1{font-size:27px}}
 /* 特大：2列のボタンがはみ出さないよう、中身の幅で押し広げない */
 :root:is([data-text-size=l],[data-text-size=xl]) :is(.detail-actions,.detail-pane .car-actions,.today-actions)>*{min-width:0;overflow-wrap:anywhere}
+/* 英語表記：「Ryozenji 霊山寺」の漢字の札所名を途中で折り返さない */
+:root[lang=en] :is(h1,h2,h3,h4,strong){word-break:keep-all;overflow-wrap:break-word}
