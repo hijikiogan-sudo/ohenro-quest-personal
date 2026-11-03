@@ -66,3 +66,5 @@
 :root:is([data-text-size=l],[data-text-size=xl]) :is(.detail-actions,.detail-pane .car-actions,.today-actions)>*{min-width:0;overflow-wrap:anywhere}
 /* 英語表記：「Ryozenji 霊山寺」の漢字の札所名を途中で折り返さない */
 :root[lang=en] :is(h1,h2,h3,h4,strong){word-break:keep-all;overflow-wrap:break-word}
+/* 英語表記：住所は「Naruto City, Tokushima」と日本語の住所の2行 */
+:root[lang=en] :is(.temple-card p,.next p,.detail-meta){white-space:pre-line}

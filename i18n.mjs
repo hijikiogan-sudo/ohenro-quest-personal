@@ -1,7 +1,7 @@
 // 英語表記。画面の文言は日本語のまま作り、英語のときだけ表示中の文字を辞書で置き換える（各画面の作りは変えない）。
 // 辞書に無い文言は日本語のまま出す。お経・自分で入力した文字（メモ・予定名など）は辞書に載せないので置き換わらない。
 // 札所名は読みからローマ字を作り「Ryozenji 霊山寺」のように漢字を残す（現地の看板と照らし合わせられるように）。
-import {DICT, PATTERNS} from './i18n-en.mjs';
+import {DICT, PATTERNS, addressEn} from './i18n-en.mjs';
 
 const ROMAJI = {あ:'a',い:'i',う:'u',え:'e',お:'o',か:'ka',き:'ki',く:'ku',け:'ke',こ:'ko',さ:'sa',し:'shi',す:'su',せ:'se',そ:'so',た:'ta',ち:'chi',つ:'tsu',て:'te',と:'to',な:'na',に:'ni',ぬ:'nu',ね:'ne',の:'no',は:'ha',ひ:'hi',ふ:'fu',へ:'he',ほ:'ho',ま:'ma',み:'mi',む:'mu',め:'me',も:'mo',や:'ya',ゆ:'yu',よ:'yo',ら:'ra',り:'ri',る:'ru',れ:'re',ろ:'ro',わ:'wa',を:'o',が:'ga',ぎ:'gi',ぐ:'gu',げ:'ge',ご:'go',ざ:'za',じ:'ji',ず:'zu',ぜ:'ze',ぞ:'zo',だ:'da',ぢ:'ji',づ:'zu',で:'de',ど:'do',ば:'ba',び:'bi',ぶ:'bu',べ:'be',ぼ:'bo',ぱ:'pa',ぴ:'pi',ぷ:'pu',ぺ:'pe',ぽ:'po'};
 const YOON = {ゃ:'a',ゅ:'u',ょ:'o'};
@@ -37,7 +37,11 @@ export function createI18n({document = globalThis.document, storage = globalThis
 
   const buildNames = () => {
     names = new Map();
-    for (const t of temples()) { names.set(t.name, `${romaji(t.kana)} ${t.name}`); names.set(t.kana.trim(), romaji(t.kana)); }
+    for (const t of temples()) {
+      names.set(t.name, `${romaji(t.kana)} ${t.name}`); names.set(t.kana.trim(), romaji(t.kana));
+      // 住所は英語の市町村名を上に足し、日本語の住所を残す（改行で2行に。見た目は detail.css）。
+      const city = addressEn(t.address); if (city) names.set(t.address, `${city}\n${t.address}`);
+    }
   };
   // 1つの文言を英語に。辞書 → 札所名を含む決まった形 → その他の決まった形（数字入り）の順に探す。
   function en(text, split = true) {
