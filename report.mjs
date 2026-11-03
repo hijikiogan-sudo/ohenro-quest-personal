@@ -4,10 +4,10 @@
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
 export const REPORT_FORM = {
-  // 例：'https://docs.google.com/forms/d/e/1FAIpQL.../viewform'
-  url: '',
-  // 例：{temple: 'entry.111', item: 'entry.222', shown: 'entry.333', version: 'entry.444'}
-  fields: {temple: '', item: '', shown: '', version: ''},
+  // 運営の Google フォーム「くるま遍路 間違いの報告」（2026-11-03 作成・公開、回答者はリンクを知っている全員、メールアドレスは収集しない）
+  url: 'https://docs.google.com/forms/d/e/1FAIpQLScYxT7R01MP8zBgd4y6PTAo-LQq2-ptgtgm4nts_9YYnlrVeQ/viewform',
+  // 札所・項目・今の表示・アプリの版の質問（正しい情報・気づいたこと＝entry.1309703713 と 連絡先＝entry.489669648 は報告する人が書く）
+  fields: {temple: 'entry.1656010744', item: 'entry.1529826271', shown: 'entry.2115417839', version: 'entry.1019773458'},
 };
 export const REPORT_ITEMS = ['道の難しさ', '駐車場の費用', '駐車場の場所・台数', '住所・場所', '車の注意・通行止め', 'お経・真言', '画面の表示・使い方', 'そのほか'];
 
