@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>くるま遍路 | 車でゆっくり、八十八の旅</title>
   <link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css"><link rel="stylesheet" href="./style.css?v=personal-28"><link rel="stylesheet" href="./display.css"><link rel="stylesheet" href="./memories.css"><link rel="stylesheet" href="./quest-map.css"><link rel="stylesheet" href="./album.css"><link rel="stylesheet" href="./plan.css"><link rel="stylesheet" href="./prayer.css"><link rel="stylesheet" href="./today.css"><link rel="stylesheet" href="./car.css"><link rel="stylesheet" href="./badges.css"><link rel="stylesheet" href="./map.css"><link rel="stylesheet" href="./detail.css"><script type="module" src="./app.mjs?v=personal-28"></script>
+  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css"><link rel="stylesheet" href="./style.css?v=personal-29"><link rel="stylesheet" href="./display.css"><link rel="stylesheet" href="./memories.css"><link rel="stylesheet" href="./quest-map.css"><link rel="stylesheet" href="./album.css"><link rel="stylesheet" href="./plan.css"><link rel="stylesheet" href="./prayer.css"><link rel="stylesheet" href="./today.css"><link rel="stylesheet" href="./car.css"><link rel="stylesheet" href="./badges.css"><link rel="stylesheet" href="./map.css"><link rel="stylesheet" href="./detail.css"><script type="module" src="./app.mjs?v=personal-29"></script>
 </head>
 <body>
   <a class="skip" href="#main">本文へ移動</a>
@@ -16,13 +16,13 @@
     <div class="side-caption">車でゆっくり、一寺ずつ。</div>
     <nav aria-label="メインメニュー">
       <button class="nav active" data-view="home"><span aria-hidden="true">⌂</span>巡礼ホーム</button>
-      <button class="nav" data-view="temples"><span aria-hidden="true">◉</span>札所をさがす</button>
       <button class="nav" data-view="plan"><span aria-hidden="true">⌖</span>行き先予定</button>
+      <button class="nav" data-view="temples"><span aria-hidden="true">◉</span>札所をさがす</button>
       <button class="nav" data-view="album"><span aria-hidden="true">▧</span>写真アルバム</button>
       <button class="nav" data-view="history"><span aria-hidden="true">▤</span>訪問の記録</button>
       <button class="nav" data-view="family"><span aria-hidden="true">♧</span>記録と設定</button>
     </nav>
-    <div class="side-footer"><span class="small-seal">同行二人</span><p>次の札所まで、寄り道しながら。</p><span class="version">個人テスト版 · v0.29</span></div>
+    <div class="side-footer"><span class="small-seal">同行二人</span><p>次の札所まで、寄り道しながら。</p><span class="version">個人テスト版 · v0.30</span></div>
   </aside>
   <div class="workspace">
     <header class="topbar"><span class="breadcrumb">四国八十八ヶ所 <span>/</span> 車遍路の記録</span><div class="top-actions"><span id="connection" class="connection">● 保存領域を確認</span><button id="theme-toggle" class="quiet" aria-label="表示モードを切り替える">☾ ダーク</button><button id="account" class="quiet">設定</button></div></header>
@@ -57,7 +57,7 @@
       <footer class="footer"><span>くるま遍路</span> 車でゆっくり、八十八の旅。<small>個人テスト版 · 記録はこの端末に保存</small></footer>
     </main>
   </div>
-  <nav class="mobile-nav" aria-label="モバイルメニュー"><button class="active" data-view="home">⌂<span>ホーム</span></button><button data-view="temples">◉<span>札所</span></button><button data-view="album">▧<span>写真</span></button><button data-view="plan">⌖<span>予定</span></button><button data-view="family">♧<span>設定</span></button></nav>
+  <nav class="mobile-nav" aria-label="モバイルメニュー"><button class="active" data-view="home">⌂<span>ホーム</span></button><button data-view="plan">⌖<span>予定</span></button><button data-view="temples">◉<span>札所</span></button><button data-view="album">▧<span>写真</span></button><button data-view="family">♧<span>設定</span></button></nav>
   <dialog id="dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button id="dialog-close" class="icon-button" aria-label="閉じる">×</button></div><div id="dialog-content"></div><p id="dialog-error" class="error" role="alert" hidden></p></dialog>
   <div id="toast" class="toast" role="status" hidden></div>
 </body></html>
