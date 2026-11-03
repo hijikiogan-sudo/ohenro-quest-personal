@@ -116,3 +116,5 @@
 .backup-reminder-actions .primary{white-space:nowrap}
 :root[data-theme=dark] .backup-reminder{background:#3a3220;border-color:#6b5a32}:root[data-theme=dark] .backup-reminder strong{color:#f3dda0}:root[data-theme=dark] .backup-reminder span{color:#e3cf9e}
 @media(max-width:620px){.backup-reminder{display:block;padding:15px}.backup-reminder-actions{margin-top:12px}.backup-reminder-actions .primary{flex:1}}
+.car-pace{display:flex;align-items:center;gap:10px;margin:14px 0 0;font-size:13px;min-height:44px}
+.car-pace input{flex-shrink:0}

@@ -227,9 +227,17 @@ export const ROAD_FACTOR = 1.4;
 export const SPEEDS = [{id: 'slow', label: 'ゆっくり（時速30km）', kmh: 30}, {id: 'normal', label: 'ふつう（時速35km）', kmh: 35}, {id: 'fast', label: '早め（時速40km）', kmh: 40}];
 export const speedOf = id => SPEEDS.find(s => s.id === id) || SPEEDS[1];
 
-export function estimateLeg(from, to, kmh = 35) {
+// 車で山道を上り下りする札所。霊場会の案内に「山道」「スカイライン」「ドライブウェイ」・ロープウェイ・冬季閉鎖のある札所に、
+// 山上にあることがよく知られた札所を加えた目安の一覧。ここに出入りする区間は、曲がりくねった道のぶん長めに見積もる。
+export const MOUNTAIN_TEMPLES = new Set([12, 20, 21, 24, 27, 28, 31, 32, 35, 44, 45, 58, 60, 65, 66, 71, 81, 82, 84, 85, 88]);
+export const MOUNTAIN_FACTOR = 1.5;
+export const isMountain = id => MOUNTAIN_TEMPLES.has(id);
+// 区間の倍率：自分たちのペース（pace）×山道の札所に出入りするなら MOUNTAIN_FACTOR。
+export const legFactor = (fromId, toId, pace = 1) => pace * (isMountain(fromId) || isMountain(toId) ? MOUNTAIN_FACTOR : 1);
+
+export function estimateLeg(from, to, kmh = 35, factor = 1) {
   const straightKm = distanceMeters(from, to) / 1000, roadKm = straightKm * ROAD_FACTOR;
-  return {straightKm, roadKm, minutes: Math.max(5, Math.round(roadKm / kmh * 60 / 5) * 5)};
+  return {straightKm, roadKm, minutes: Math.max(5, Math.round(roadKm / kmh * 60 * factor / 5) * 5)};
 }
 
 const hm = m => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
@@ -241,8 +249,8 @@ export function japanClock(now = Date.now()) {
 }
 
 // 今いる場所から1つの札所へ、今出たら何分・何時ごろ着くか（直線距離×1.4の目安）。納経の受付時間に間に合うかも返す。
-export function estimateFromHere({here, to, kmh = 35, now = Date.now()}) {
-  const leg = estimateLeg(here, to, kmh), clock = japanClock(now), arrive = clock.minutes + leg.minutes;
+export function estimateFromHere({here, to, kmh = 35, now = Date.now(), templeId = null, pace = 1}) {
+  const leg = {...estimateLeg(here, to, kmh, legFactor(null, templeId, pace)), mountain: isMountain(templeId)}, clock = japanClock(now), arrive = clock.minutes + leg.minutes;
   return {...leg, roadKm: Math.round(leg.roadKm), arriveText: hm(arrive), nextDay: arrive >= 24 * 60, inTime: arrive >= NOKYO_OPEN && arrive + 15 <= NOKYO_CLOSE, beforeOpen: arrive < NOKYO_OPEN};
 }
 
@@ -263,12 +271,35 @@ export function legHistory(visits) {
   return map;
 }
 
+// 自分たちのペース：GPSチェックインで続けて記録した区間の実際の時間（参拝を prayer 分として引いた移動時間）と、
+// 計算の目安との比の中央値。3区間たまるまでは 1（目安のまま）。極端な値にならないよう 0.7〜1.8倍に収める。
+export const PACE_MIN_LEGS = 3;
+export function personalPace({history, temples, parkingFor = () => null, kmh = 35, prayer = 30}) {
+  const point = stopPoint(temples, parkingFor), ratios = [];
+  for (const [key, rows] of history) {
+    const [a, b] = key.split('-').map(Number), pa = point(a), pb = point(b);
+    if (!pa || !pb) continue;
+    const est = estimateLeg(pa, pb, kmh, legFactor(a, b)).minutes;
+    for (const r of rows) { const drive = r.minutes - prayer; if (drive >= 5) ratios.push(drive / est); }
+  }
+  if (ratios.length < PACE_MIN_LEGS) return {factor: 1, legs: ratios.length};
+  ratios.sort((x, y) => x - y);
+  const mid = ratios.length % 2 ? ratios[(ratios.length - 1) / 2] : (ratios[ratios.length / 2 - 1] + ratios[ratios.length / 2]) / 2;
+  return {factor: Math.round(Math.min(1.8, Math.max(0.7, mid)) * 10) / 10, legs: ratios.length};
+}
+export function paceText({factor, legs}, on = true) {
+  if (!on) return '自分たちのペースは使わず、選んだ速さで計算しています。';
+  if (legs < PACE_MIN_LEGS) return `札所でGPSチェックインした区間が${PACE_MIN_LEGS}つたまると、実際にかかった時間に合わせて目安を直します（今${legs}区間）。`;
+  if (factor === 1) return `これまでのチェックイン${legs}区間では、目安とほぼ同じ時間で移動しています。`;
+  return `これまでのチェックイン${legs}区間から、移動の目安を約${factor}倍にしています（${factor > 1 ? 'ゆっくりめ' : '早め'}。参拝を30分として計算）。`;
+}
+
 // 予定の時間割（目安）。札所の位置は駐車場があれば駐車場、なければ地図上の札所マーカー。
 // 札所の位置：駐車場があれば駐車場、なければ地図上の札所マーカー。
 const stopPoint = (temples, parkingFor) => id => { const p = parkingFor(id); if (p) return p; const t = temples.find(t => t.id === id); return t ? {lat: t.lat, lng: t.lng} : null; };
 
 // nights があれば日ごとに分け、2日目からは dayStart に宿を出て最初の札所へ着く計算にする（宿からの移動は含めない）。
-export function planSchedule({stops, departAt = '', temples, parkingFor = () => null, origin = null, returnTo = null, kmh = 35, history = new Map(), nights = [], dayStart = '08:00'}) {
+export function planSchedule({stops, departAt = '', temples, parkingFor = () => null, origin = null, returnTo = null, kmh = 35, history = new Map(), nights = [], dayStart = '08:00', pace = 1}) {
   const point = stopPoint(temples, parkingFor);
   // 出発地・帰着地：札所、または「今いる場所」（{kind:'here', lat, lng}。保存はせず、その場の計算だけに使う）。
   const endPoint = e => e?.kind === 'temple' ? point(e.templeId) : e?.kind === 'here' && Number.isFinite(e.lat) && Number.isFinite(e.lng) ? {lat: e.lat, lng: e.lng} : null;
@@ -279,7 +310,7 @@ export function planSchedule({stops, departAt = '', temples, parkingFor = () => 
     const here = point(s.templeId), dayHead = dayHeads.has(i);
     if (dayHead) { day++; clock = morning; prev = null; prevId = null; }
     let leg = null;
-    if (prev && here) { leg = estimateLeg(prev, here, kmh); driveTotal += leg.minutes; kmTotal += leg.roadKm; }
+    if (prev && here) { leg = {...estimateLeg(prev, here, kmh, legFactor(prevId, s.templeId, pace)), mountain: isMountain(prevId) || isMountain(s.templeId)}; driveTotal += leg.minutes; kmTotal += leg.roadKm; }
     else if (i === 0) unknownFirst = true;
     const past = prevId ? history.get(`${prevId}-${s.templeId}`) || [] : [];
     // 自分の実績があれば、実績（前の札所の参拝込み）から予定の参拝時間を引いた値を移動時間に使う。
@@ -293,7 +324,7 @@ export function planSchedule({stops, departAt = '', temples, parkingFor = () => 
   });
   let back = null;
   const end = endPoint(returnTo);
-  if (end && prev) { back = estimateLeg(prev, end, kmh); driveTotal += back.minutes; kmTotal += back.roadKm; if (clock !== null) clock += back.minutes; }
+  if (end && prev) { back = estimateLeg(prev, end, kmh, legFactor(prevId, returnTo?.kind === 'temple' ? returnTo.templeId : null, pace)); driveTotal += back.minutes; kmTotal += back.roadKm; if (clock !== null) clock += back.minutes; }
   return {rows, back, days: day, driveMinutes: driveTotal, roadKm: Math.round(kmTotal), prayerMinutes: stops.reduce((n, s) => n + s.minutes, 0), finishText: clock === null ? '' : hm(clock), overnight: clock !== null && clock >= 24 * 60, unknownFirst, outsideCount: rows.filter(r => r.outside).length};
 }
 

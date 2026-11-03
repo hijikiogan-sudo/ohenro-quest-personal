@@ -131,3 +131,38 @@ test('今から：今いる場所を出発地にして近い順と時間の目�
   assert.equal(sc.unknownFirst, false, '最初の札所までの移動も計算する');
   assert.ok(sc.rows[0].leg && sc.rows[0].leg.minutes >= 5);
 });
+
+import {legHistory, personalPace, paceText, estimateLeg, legFactor, isMountain} from '../car-domain.mjs';
+test('時間の目安：山道の札所に出入りする区間は長めに見積もる', () => {
+  assert.equal(isMountain(12), true);
+  assert.equal(isMountain(1), false);
+  assert.equal(legFactor(11, 12), 1.5);
+  assert.equal(legFactor(12, 13, 1.2), 1.5 * 1.2);
+  assert.equal(legFactor(1, 2, 1.2), 1.2);
+  const t = id => temples.find(t => t.id === id);
+  const flat = planSchedule({stops: [11, 12].map(templeId => ({templeId, minutes: 30})), departAt: '2026-11-03T09:00', temples});
+  assert.equal(flat.rows[1].leg.mountain, true);
+  assert.equal(flat.rows[1].leg.minutes, estimateLeg(t(11), t(12), 35, 1.5).minutes);
+  assert.ok(flat.rows[1].leg.minutes > estimateLeg(t(11), t(12), 35).minutes);
+});
+
+test('時間の目安：GPSチェックインの実績から自分たちのペースを出す', () => {
+  const t = id => temples.find(t => t.id === id), est = (a, b) => estimateLeg(t(a), t(b), 35, legFactor(a, b)).minutes;
+  let clock = Date.UTC(2026, 10, 3, 0, 0);
+  const visits = [], legs = [[1, 2], [2, 3], [3, 4], [4, 5]];
+  visits.push({id: 'v0', journeyId: 'j1', templeId: 1, date: '2026-11-03', method: 'gps-self-reported', createdAt: clock, deletedAt: null});
+  // 毎区間、目安の1.5倍の移動＋参拝30分かかった
+  legs.forEach(([a, b], i) => { clock += (est(a, b) * 1.5 + 30) * 60000; visits.push({id: 'v' + (i + 1), journeyId: 'j1', templeId: b, date: '2026-11-03', method: 'gps-self-reported', createdAt: clock, deletedAt: null}); });
+  const history = legHistory(visits);
+  const pace = personalPace({history, temples});
+  assert.equal(pace.legs, 4);
+  assert.ok(pace.factor >= 1.4 && pace.factor <= 1.6, `約1.5倍（分の丸めで前後する）: ${pace.factor}`);
+  assert.deepEqual(personalPace({history: legHistory(visits.slice(0, 3)), temples}), {factor: 1, legs: 2}, '3区間たまるまでは目安のまま');
+  assert.match(paceText({factor: 1.5, legs: 4}), /約1.5倍/);
+  assert.match(paceText({factor: 1, legs: 2}), /今2区間/);
+  assert.match(paceText({factor: 1.5, legs: 4}, false), /使わず/);
+  const far = [[1, 12], [12, 20], [20, 24]].map(([a, b]) => [`${a}-${b}`, [{minutes: 36, date: '2026-11-03'}]]);
+  assert.equal(personalPace({history: new Map(far), temples}).factor, 0.7, '速すぎる実績は0.7倍まで');
+  const slow = far.map(([k]) => [k, [{minutes: 600, date: '2026-11-03'}]]);
+  assert.equal(personalPace({history: new Map(slow), temples}).factor, 1.8, '遅すぎる実績は1.8倍まで');
+});
