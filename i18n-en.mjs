@@ -164,7 +164,9 @@ export const DICT = {
   '日本道路交通情報センター（JARTIC） ↗': 'Japan Road Traffic Information Center (JARTIC) ↗', 'アイハイウェイ（NEXCO西日本） ↗': 'i-Highway (NEXCO West) ↗',
   'ナビは通信が必要です。経由地が多いときは区間を分けます。Googleマップで札所の順番・入口・通行規制を確認し、安全な場所に停車して操作してください。': 'Navigation needs a connection. With many stops it is split into sections. Check the order, entrances and restrictions in Google Maps, and stop somewhere safe before using it.',
   '写真はこの端末だけに保存します。追加しても訪問済みにはなりません。原本は別途保管し、設定から写真ZIPも書き出してください。': 'Photos are saved only on this device. Adding them does not mark a visit. Keep the originals elsewhere, and export a photo ZIP from Settings.',
-  'ライト': 'Light', 'ダーク': 'Dark', '訪問日不明': 'Date unknown',
+  'ライト': 'Light', 'ダーク': 'Dark',
+  '道の難しさ（目安）': 'Road difficulty (estimate)', 'やさしい': 'Easy', 'やや難しい': 'Somewhat hard', '道：やさしい': 'Road: easy', '道：ふつう': 'Road: normal', '道：やや難しい': 'Road: somewhat hard', '道：難所': 'Road: difficult',
+  '調べた範囲では詳しい記録が少なく、目安の確からしさは低めです。': 'Few detailed reports were found, so this estimate is less certain.', '訪問日不明': 'Date unknown',
   '今の巡礼の写真を、日付・メモ・お気に入りもいっしょに1つのZIPファイルに保存します。復元すると、今選んでいる巡礼に追加します。写真はまとめてバックアップにも入っています。': "Saves this pilgrimage's photos with dates, notes and favorites in one ZIP file. Restoring adds them to the selected pilgrimage. Photos are also in the full backup.",
   '移動時間の目安の速さを変更しました。': 'Changed the speed for estimates.', '自分たちのペースに合わせて目安を出します。': 'Estimates now match your own pace.', '選んだ速さだけで目安を出します。': 'Estimates now use the chosen speed only.', '文字の大きさを変更しました。': 'Changed the text size.',
 };
@@ -257,6 +259,7 @@ export const PATTERNS = [
   [/^(第\d+番 .+)の写真$/, (m, tr) => `Photo of ${tr(m[1])}`],
   [/^(第\d+番 [^、]+)、(.+)$/, (m, tr) => `${tr(m[1])}, ${tr(m[2])}`],
   [/^(\d+)枚を選択$/, '$1 selected'],
+  [/^普通車で駐車場まで行く道と、駐車場から本堂までの目安です。公式の格付けではありません。道の状態は変わるので、出発前に通行止めも確認してください。(?:（(.+)調べ）)?$/, m => `An estimate for a standard car: the road to the parking lot and the walk to the main hall. Not an official rating. Roads change, so check closures before you go.${m[1] ? ` (researched ${m[1]})` : ''}`],
   [/^駐車場から約(\d+)m$/, 'About $1 m from parking'],
   [/^（国土地理院）。(.+)$/, ' (GSI). $1'],
   [/^この端末に (\d+)枚 · ([\d.]+MB) · 空き容量の目安 (.+?)（上限なし・端末の空きまで）$/, m => `${m[1]} photo${m[1] === '1' ? '' : 's'} on this device · ${m[2]} · about ${m[3]} free (no limit beyond device space)`],

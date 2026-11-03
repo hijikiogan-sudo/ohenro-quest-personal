@@ -1,0 +1,1364 @@
+{
+ "format": "kuruma-henro-road",
+ "version": 1,
+ "checkedAt": "2026-11-03",
+ "note": "普通車で、車で行けるいちばん近い駐車場まで行く道と、そこから本堂までの難しさの目安（0やさしい・1ふつう・2やや難しい・3難所）。四国八十八ヶ所霊場会の札所案内を基本に、車遍路の案内サイト・走った人の記録などを調べてまとめたもので、公式の格付けではない。太龍寺・雲辺寺は山上近くの駐車場まで車で行く道で評価し、ロープウェイのことは reason に書いた。八栗寺は山上に駐車場がないため、ケーブルカーの登山口の駐車場まで。confidence が low の札所は詳しい記録が少ない。",
+ "temples": [
+  {
+   "id": 1,
+   "level": 0,
+   "reason": "県道12号沿いの平地の寺。普通車100台の無料駐車場がある。",
+   "sources": [
+    {
+     "label": "霊場会 1番霊山寺",
+     "url": "https://88shikokuhenro.jp/01ryozenji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 2,
+   "level": 0,
+   "reason": "県道12号沿いの平地の寺。普通車40台の無料駐車場がある。",
+   "sources": [
+    {
+     "label": "霊場会 2番極楽寺",
+     "url": "https://88shikokuhenro.jp/02gokurakuji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 3,
+   "level": 0,
+   "reason": "板野町の平地の寺。普通車14台の無料駐車場がある。",
+   "sources": [
+    {
+     "label": "霊場会 3番金泉寺",
+     "url": "https://88shikokuhenro.jp/03konsenji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 4,
+   "level": 1,
+   "reason": "三方を山に囲まれた黒谷の標高約70mの寺。普通車20台・大型も入れる駐車場がある。道路の難所の報告は見つからない。",
+   "sources": [
+    {
+     "label": "霊場会 4番大日寺",
+     "url": "https://88shikokuhenro.jp/04dainichiji/"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 5,
+   "level": 0,
+   "reason": "平地の寺。普通車50台・大型10台の無料駐車場がある。",
+   "sources": [
+    {
+     "label": "霊場会 5番地蔵寺",
+     "url": "https://88shikokuhenro.jp/05jizoji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 6,
+   "level": 0,
+   "reason": "県道139号沿いの寺。普通車80台・大型バス10台の無料駐車場がある。",
+   "sources": [
+    {
+     "label": "霊場会 6番安楽寺",
+     "url": "https://88shikokuhenro.jp/06anrakuji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 7,
+   "level": 0,
+   "reason": "高速道路沿いの道沿いにある平地の寺。普通車20台・大型5台の駐車場がある。",
+   "sources": [
+    {
+     "label": "霊場会 7番十楽寺",
+     "url": "https://88shikokuhenro.jp/07jurakuji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 8,
+   "level": 1,
+   "reason": "山すその谷あいの寺。普通車20台と臨時駐車場があり大型も入れる。境内に石段がある。",
+   "sources": [
+    {
+     "label": "霊場会 8番熊谷寺",
+     "url": "https://88shikokuhenro.jp/08kumataniji/"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 9,
+   "level": 0,
+   "reason": "田園の中の平地の寺。普通車50台・大型10台の無料駐車場がある。",
+   "sources": [
+    {
+     "label": "霊場会 9番法輪寺",
+     "url": "https://88shikokuhenro.jp/09horinji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 10,
+   "level": 2,
+   "reason": "集落を抜ける進入路がかなり狭く、急なS字カーブがある。下の駐車場からは333段の石段。納経所横にも駐車場がある。",
+   "sources": [
+    {
+     "label": "霊場会 10番切幡寺",
+     "url": "https://88shikokuhenro.jp/10kirihataji/"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    },
+    {
+     "label": "凸凹玉手箱 車遍路徳島編",
+     "url": "https://mattyanp2016.hatenadiary.jp/entry/2023/01/19/134327"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 11,
+   "level": 1,
+   "reason": "山すその寺で、門前に有料の民間駐車場がある。車道の難所の報告は見つからない。",
+   "sources": [
+    {
+     "label": "霊場会 11番藤井寺",
+     "url": "https://88shikokuhenro.jp/11fujiidera/"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 12,
+   "level": 3,
+   "reason": "山上まで長い山道。崖沿いでガードレールのない所や1台幅の区間、つづら折りが続く。駐車場から本堂まで徒歩5〜10分。",
+   "sources": [
+    {
+     "label": "霊場会 12番焼山寺",
+     "url": "https://88shikokuhenro.jp/12shozanji"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    },
+    {
+     "label": "車お遍路の難所トップ5",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E3%81%AE%E9%9B%A3%E6%89%80%E3%83%88%E3%83%83%E3%83%975"
+    },
+    {
+     "label": "フィアットで日本一周（焼山寺）",
+     "url": "https://ameblo.jp/tabi-butsuzou/entry-12901823657.html"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 13,
+   "level": 1,
+   "reason": "県道21号沿いの寺。駐車場は普通車15台。寺の前の県道は車の往来が激しい。",
+   "sources": [
+    {
+     "label": "霊場会 13番大日寺",
+     "url": "https://88shikokuhenro.jp/13dainichiji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 14,
+   "level": 2,
+   "reason": "寺に近づくとかなり狭い道になり、ナビだけでは駐車場に着けないことがある。駐車場は普通車約10台。",
+   "sources": [
+    {
+     "label": "霊場会 14番常楽寺",
+     "url": "https://88shikokuhenro.jp/14jorakuji/"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    },
+    {
+     "label": "凸凹玉手箱 車遍路徳島編",
+     "url": "https://mattyanp2016.hatenadiary.jp/entry/2023/01/19/134327"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 15,
+   "level": 1,
+   "reason": "田んぼと住宅の間の狭い道を通る経路がある。大型車は入車不可。駐車場は普通車10台。",
+   "sources": [
+    {
+     "label": "霊場会 15番國分寺",
+     "url": "https://88shikokuhenro.jp/15kokubunji/"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 16,
+   "level": 1,
+   "reason": "国府町の住宅地の寺。駐車場は普通車6〜7台と小さい。道路状況の具体的な報告は見つからない。",
+   "sources": [
+    {
+     "label": "霊場会 16番観音寺",
+     "url": "https://88shikokuhenro.jp/16kanonji/"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 17,
+   "level": 0,
+   "reason": "国府町の平地の寺。普通車30台・大型5台の駐車場がある。",
+   "sources": [
+    {
+     "label": "霊場会 17番井戸寺",
+     "url": "https://88shikokuhenro.jp/17idoji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 18,
+   "level": 1,
+   "reason": "国道55号から山すその谷に入った所の寺。普通車20台・大型4台の無料駐車場がある。道路の具体的な報告は見つからない。",
+   "sources": [
+    {
+     "label": "霊場会 18番恩山寺",
+     "url": "https://88shikokuhenro.jp/18onzanji/"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 19,
+   "level": 0,
+   "reason": "小松島市の平地の寺。普通車30台（有料300円）・大型6台の駐車場がある。",
+   "sources": [
+    {
+     "label": "霊場会 19番立江寺",
+     "url": "https://88shikokuhenro.jp/19tatsueji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 20,
+   "level": 2,
+   "reason": "県道16号から山道を上る。最後の約1.5kmは細く曲がりくねり、すれ違える所が少ない。駐車場から本堂まで徒歩約4分・石段51段。",
+   "sources": [
+    {
+     "label": "霊場会 20番鶴林寺",
+     "url": "https://88shikokuhenro.jp/20kakurinji"
+    },
+    {
+     "label": "ohenrocar 鶴林寺",
+     "url": "https://ohenrocar.com/%E9%B6%B4%E6%9E%97%E5%AF%BA%EF%BC%8820%E7%95%AA%EF%BC%89%E3%81%8B%E3%81%8F%E3%82%8A%E3%82%93%E3%81%98/"
+    },
+    {
+     "label": "四国お遍路旅行記（明星企画）",
+     "url": "https://myojo-kikaku.com/shikoku-drive-4/"
+    },
+    {
+     "label": "車お遍路の難所（徳島県）",
+     "url": "https://ohenro.konenki-iyashi.com/category6/entry76.html"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 21,
+   "level": 3,
+   "reason": "車道は約3.5kmの細いつづら折りで、切り返しが要るカーブやガードレールのない所がある。駐車場から急坂を約1.2km歩く。麓にロープウェイ駐車場（150台）がある。",
+   "sources": [
+    {
+     "label": "霊場会 21番太龍寺",
+     "url": "https://88shikokuhenro.jp/tokushima/21tairyuji/"
+    },
+    {
+     "label": "車お遍路の難所トップ5",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E3%81%AE%E9%9B%A3%E6%89%80%E3%83%88%E3%83%83%E3%83%975"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 22,
+   "level": 0,
+   "reason": "新野町の集落の寺。普通車30台・大型5台の無料駐車場がある。",
+   "sources": [
+    {
+     "label": "霊場会 22番平等寺",
+     "url": "https://88shikokuhenro.jp/22byodoji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 23,
+   "level": 1,
+   "reason": "普通車350台の広い無料駐車場がある。本堂までは33段と42段の石段を上る。",
+   "sources": [
+    {
+     "label": "霊場会 23番薬王寺",
+     "url": "https://88shikokuhenro.jp/23yakuoji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 24,
+   "level": 1,
+   "reason": "国道55号から室戸スカイラインへ入り約9kmのカーブが多い山道。駐車場は寺の正面にあり、山門まで徒歩数分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 24番",
+     "url": "https://88shikokuhenro.jp/24hotsumisakiji/"
+    },
+    {
+     "label": "みんカラ 高知の札所まとめ",
+     "url": "https://minkara.carview.co.jp/smart/summary/1442/19185/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 25,
+   "level": 1,
+   "reason": "室津の町なかの細い道を通る。車は境内に入れず、港の広場に停めて歩き、本堂へは急な石段を上る。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 25番",
+     "url": "https://88shikokuhenro.jp/25shinshoji/"
+    },
+    {
+     "label": "みんカラ 高知の札所まとめ",
+     "url": "https://minkara.carview.co.jp/smart/summary/1442/19185/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 26,
+   "level": 1,
+   "reason": "国道55号の元橋から約2kmの登り坂。駐車場は有料で、境内に石段がある。道幅について具体的な記述は見つからない。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 26番",
+     "url": "https://88shikokuhenro.jp/26kongochoji/"
+    },
+    {
+     "label": "みんカラ 高知の札所まとめ",
+     "url": "https://minkara.carview.co.jp/smart/summary/1442/19185/"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 27,
+   "level": 3,
+   "reason": "最後の約2kmが急勾配とヘアピンの続く細い道で、すれ違いに苦労する。駐車場から本堂まで石段がある。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 27番",
+     "url": "https://88shikokuhenro.jp/27kounomineji"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    },
+    {
+     "label": "車遍路の難所トップ10",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E9%9B%A3%E6%89%80%E3%83%88%E3%83%83%E3%83%9710"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 28,
+   "level": 2,
+   "reason": "短い山道だが、切り返しが要る急カーブがある。途中ですれ違える場所は少ない。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 28番",
+     "url": "https://88shikokuhenro.jp/28dainichiji/"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 29,
+   "level": 0,
+   "reason": "平地の県道からわき道へ入り約400m。駐車場は普通車45台分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 29番",
+     "url": "https://88shikokuhenro.jp/29kokubunji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 30,
+   "level": 0,
+   "reason": "高知市街の県道から入る平地の寺。駐車場は普通車20台分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 30番",
+     "url": "https://88shikokuhenro.jp/30zenrakuji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 31,
+   "level": 1,
+   "reason": "五台山の観光道路を登る。一方通行の区間があり、道を間違えると戻りにくい。駐車場は普通車100台分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 31番",
+     "url": "https://88shikokuhenro.jp/31chikurinji/"
+    },
+    {
+     "label": "車遍路の難所トップ10",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E9%81%8D%E8%B7%AF%E3%81%AE%E9%9B%A3%E6%89%80%E3%83%88%E3%83%83%E3%83%9710"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 32,
+   "level": 2,
+   "reason": "住宅街を通る狭い直線道と山道を通る。観光バスと対向することがあり、普通車が後退して譲る場合がある。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 32番",
+     "url": "https://88shikokuhenro.jp/32zenjibuji/"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 33,
+   "level": 1,
+   "reason": "長浜の市街地の寺。駐車場は隣の神社の土地で、普通車約10台と小さい。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 33番",
+     "url": "https://88shikokuhenro.jp/33sekeiji/"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 34,
+   "level": 0,
+   "reason": "春野町の平地の寺。駐車場は普通車70台分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 34番",
+     "url": "https://88shikokuhenro.jp/34tanemaji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 35,
+   "level": 3,
+   "reason": "最後の約1kmが車1台分の幅の急坂で、すれ違える場所は数か所しかない。下の高速道路の高架下に停め、約1.3km歩く方法もある。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 35番",
+     "url": "https://88shikokuhenro.jp/35kiyotakiji/"
+    },
+    {
+     "label": "清瀧寺に安全に行く方法（ohenrocar）",
+     "url": "https://ohenrocar.com/%E6%B8%85%E7%80%A7%E5%AF%BA%EF%BC%8835%E7%95%AA%EF%BC%89%E3%81%AB%E5%AE%89%E5%85%A8%E3%81%AB%E8%A1%8C%E3%81%8F%E6%96%B9%E6%B3%95/"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 36,
+   "level": 1,
+   "reason": "宇佐の海沿いの県道から入る。駐車場は普通車20台分で、本堂へは約170段の石段を上る。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 36番",
+     "url": "https://88shikokuhenro.jp/36shoryuji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 37,
+   "level": 1,
+   "reason": "窪川の市街地の寺。信号や突き当たりを何度か曲がって町なかの道を通る。駐車場は普通車20台分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 37番",
+     "url": "https://88shikokuhenro.jp/37iwamotoji/"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 38,
+   "level": 1,
+   "reason": "37番から80km余りの長距離移動。国道321号と県道27号を通り、駐車場は寺の前にあり普通車40台分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 38番",
+     "url": "https://88shikokuhenro.jp/38kongofukuji/"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 39,
+   "level": 0,
+   "reason": "国道56号から約1km直進した先の寺。駐車場は普通車50台分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 39番",
+     "url": "https://88shikokuhenro.jp/39enkoji/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 40,
+   "level": 0,
+   "reason": "町中の寺。山門横の駐車場へ狭い一方通行の進入路で入り、境内まで約1分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/40kanzaiji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e8%a6%b3%e8%87%aa%e5%9c%a8%e5%af%ba%ef%bc%8840%e7%95%aa%ef%bc%89%e3%81%8b%e3%82%93%e3%81%98%e3%81%95%e3%81%84%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 41,
+   "level": 2,
+   "reason": "最後の100〜200mが軒やブロック塀の迫る1車線の直線で、途中ですれ違いできない。駐車場から本堂へ約90段の石段。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/41ryukoji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e9%be%8d%e5%85%89%e5%af%ba%ef%bc%8841%e7%95%aa%ef%bc%89%e3%82%8a%e3%82%85%e3%81%86%e3%81%93%e3%81%86%e3%81%98/"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 42,
+   "level": 0,
+   "reason": "三間町の田園地帯の寺。山門すぐ横に無料駐車場があり、境内まで約2分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/42butsumokuji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e4%bb%8f%e6%9c%a8%e5%af%ba%ef%bc%8842%e7%95%aa%ef%bc%89%e3%81%b6%e3%81%a4%e3%82%82%e3%81%8f%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 43,
+   "level": 1,
+   "reason": "42番からの近道の山越えは道が細いとされ、高速道路の無料区間経由が勧められる。駐車場から本堂へ階段がある。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/43meisekiji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e6%98%8e%e7%9f%b3%e5%af%ba%ef%bc%8843%e7%95%aa%ef%bc%89%e3%82%81%e3%81%84%e3%81%9b%e3%81%8d%e3%81%98/"
+    },
+    {
+     "label": "クルマで行く難易度が高いお寺（note）",
+     "url": "https://note.com/mofp/n/n0234a5e8f15a"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 44,
+   "level": 1,
+   "reason": "久万高原町の山裾の寺。広い駐車場から山門・石段を歩いて約8分。近い駐車場への道は未舗装の1車線で対向できない。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/44daihoji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e5%a4%a7%e5%af%b6%e5%af%ba%ef%bc%8844%e7%95%aa%ef%bc%89%e3%81%a0%e3%81%84%e3%81%bb%e3%81%86%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 45,
+   "level": 2,
+   "reason": "県道12号沿いの有料駐車場から本堂まで石段と急な坂道を徒歩約20分。寺までの道も狭いとの声がある。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/45iwayaji"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e5%b2%a9%e5%b1%8b%e5%af%ba%ef%bc%8845%e7%95%aa%ef%bc%89%e3%81%84%e3%82%8f%e3%82%84%e3%81%98/"
+    },
+    {
+     "label": "岩屋寺 口コミ（4travel）",
+     "url": "https://4travel.jp/dm_shisetsu/10002957"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 46,
+   "level": 1,
+   "reason": "以前は鋭いヘアピンから進入する狭い道だったが、2022年に北側から入りやすい道ができた。駐車場から境内約1分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/46joruriji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e6%b5%84%e7%91%a0%e7%92%83%e5%af%ba%ef%bc%8846%e7%95%aa%ef%bc%89%e3%81%98%e3%82%87%e3%81%86%e3%82%8b%e3%82%8a%e3%81%98/"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 47,
+   "level": 0,
+   "reason": "松山市郊外の寺。正面に無料駐車場があり、境内まで約1分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/47yasakaji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e5%85%ab%e5%9d%82%e5%af%ba%ef%bc%8847%e7%95%aa%ef%bc%89%e3%82%84%e3%81%95%e3%81%8b%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 48,
+   "level": 0,
+   "reason": "松山市郊外の平地の寺。無料駐車場が境内に隣接。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/48sairinji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e8%a5%bf%e6%9e%97%e5%af%ba%ef%bc%8848%e7%95%aa%ef%bc%89%e3%81%9b%e3%81%84%e3%82%8a%e3%82%93%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 49,
+   "level": 1,
+   "reason": "駐車場までの道は細く対向できない箇所があるが距離は短い。山門前に駐車場（志納金）。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/49jodoji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e6%b5%84%e5%9c%9f%e5%af%ba%ef%bc%8849%e7%95%aa%ef%bc%89%e3%81%98%e3%82%87%e3%81%86%e3%81%a9%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 50,
+   "level": 0,
+   "reason": "住宅地の先の正面に無料駐車場があり、境内に隣接。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/50hantaji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e7%b9%81%e5%a4%9a%e5%af%ba%ef%bc%8850%e7%95%aa%ef%bc%89%e3%81%af%e3%82%93%e3%81%9f%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 51,
+   "level": 0,
+   "reason": "道後近くの国道317号沿い。寺横や向かいに駐車場があり、境内に隣接。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/51ishiteji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e7%9f%b3%e6%89%8b%e5%af%ba%ef%bc%8851%e7%95%aa%ef%bc%89%e3%81%84%e3%81%97%e3%81%a7%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 52,
+   "level": 1,
+   "reason": "納経所横の駐車場から本堂まで約250mの坂道と石段。境内横の駐車場（3〜4台）へは対向できない細い道。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/52taisanji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e5%a4%aa%e5%b1%b1%e5%af%ba%ef%bc%8852%e7%95%aa%ef%bc%89%e3%81%9f%e3%81%84%e3%81%95%e3%82%93%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 53,
+   "level": 0,
+   "reason": "市街地の寺。山門の目の前に無料駐車場がある。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/53enmyoji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e5%9c%93%e6%98%8e%e5%af%ba%ef%bc%8853%e7%95%aa%ef%bc%89%e3%81%88%e3%82%93%e3%81%bf%e3%82%87%e3%81%86%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 54,
+   "level": 1,
+   "reason": "国道196号から県道38号の細い道を経由し、駐車場直前にやや狭い道がある。駐車場は山門前で境内に隣接。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/54enmeiji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e5%bb%b6%e5%91%bd%e5%af%ba%ef%bc%8854%e7%95%aa%ef%bc%89%e3%81%88%e3%82%93%e3%82%81%e3%81%84%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 55,
+   "level": 0,
+   "reason": "今治市街の大通り沿い。中央分離帯があるため裏側から入る。駐車場は境内の中。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/55nankobo/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e5%8d%97%e5%85%89%e5%9d%8a%ef%bc%8855%e7%95%aa%ef%bc%89%e3%81%aa%e3%82%93%e3%81%93%e3%81%86%e3%81%bc%e3%81%86/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 56,
+   "level": 0,
+   "reason": "県道沿いに広い駐車場があり、細い路地を歩いて境内まで約2分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/56taizanji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e6%b3%b0%e5%b1%b1%e5%af%ba%ef%bc%8856%e7%95%aa%ef%bc%89%e3%81%9f%e3%81%84%e3%81%95%e3%82%93%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 57,
+   "level": 1,
+   "reason": "小高い山の中腹の寺。駐車場手前の約50mが細い道で、対向車に注意が要る。境内まで約2分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/57eifukuji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e6%a0%84%e7%a6%8f%e5%af%ba%ef%bc%8857%e7%95%aa%ef%bc%89%e3%81%88%e3%81%84%e3%81%b5%e3%81%8f%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 58,
+   "level": 2,
+   "reason": "大須木から山頂まで林道を上る。駐車場手前に鋭角のヘアピンカーブがある。山頂駐車場（400円）から境内約2分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/58senyuji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e4%bb%99%e9%81%8a%e5%af%ba%ef%bc%8858%e7%95%aa%ef%bc%89%e3%81%9b%e3%82%93%e3%82%86%e3%81%86%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 59,
+   "level": 1,
+   "reason": "市街地の寺。駐車場の出入口が狭い。駐車場から境内まで約2分、石段30段ほど。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/59kokubunji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e5%9b%bd%e5%88%86%e5%af%ba%ef%bc%8859%e7%95%aa%ef%bc%89%e3%81%93%e3%81%8f%e3%81%b6%e3%82%93%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 60,
+   "level": 3,
+   "reason": "有料の平野林道（2,000円）が約5〜6km続き、車1台がやっとの細い道。12月下旬〜2月末は通行止め。駐車場から境内約10分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/ehime/60yokomineji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e6%a8%aa%e5%b3%b0%e5%af%ba%ef%bc%8860%e7%95%aa%ef%bc%89%e3%82%88%e3%81%93%e3%81%bf%e3%81%ad%e3%81%98/"
+    },
+    {
+     "label": "横峰寺 車での体験記（みんカラ）",
+     "url": "https://minkara.carview.co.jp/smart/summary/1442/19190/"
+    },
+    {
+     "label": "車お遍路難所（ohenrocar）",
+     "url": "https://ohenrocar.com/%E8%BB%8A%E3%81%8A%E9%81%8D%E8%B7%AF%E9%9B%A3%E6%89%80/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 61,
+   "level": 0,
+   "reason": "国道11号近くの寺。無料駐車場が境内のすぐ横にある。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/61koonji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e9%a6%99%e5%9c%92%e5%af%ba%ef%bc%8861%e7%95%aa%ef%bc%89%e3%81%93%e3%81%86%e3%81%8a%e3%82%93%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 62,
+   "level": 0,
+   "reason": "国道11号沿いの寺。無料駐車場が境内のすぐ横にある。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/62houjyuji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e5%ae%9d%e5%af%bf%e5%af%ba%ef%bc%8862%e7%95%aa%ef%bc%89%e3%81%bb%e3%81%86%e3%81%98%e3%82%85%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 63,
+   "level": 0,
+   "reason": "国道11号沿い。寺の駐車場はなく、少し離れた参拝用有料駐車場から境内まで約4分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/63kichijoji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e5%90%89%e7%a5%a5%e5%af%ba%ef%bc%8863%e7%95%aa%ef%bc%89%e3%81%8d%e3%81%a1%e3%81%98%e3%82%87%e3%81%86%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 64,
+   "level": 0,
+   "reason": "石鎚山麓の平地の寺。無料駐車場から境内まで約4分。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/64maegamiji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e5%89%8d%e7%a5%9e%e5%af%ba%ef%bc%8864%e7%95%aa%ef%bc%89%e3%81%be%e3%81%88%e3%81%8c%e3%81%bf%e3%81%98/"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 65,
+   "level": 2,
+   "reason": "国道192号から約4kmの山道で、細くくねった所があり対向車とすれ違いにくい。駐車場から急な石段73段。",
+   "sources": [
+    {
+     "label": "四国八十八ヶ所霊場会 公式",
+     "url": "https://88shikokuhenro.jp/65sankakuji/"
+    },
+    {
+     "label": "マイカーお遍路（ohenrocar）",
+     "url": "https://ohenrocar.com/%e4%b8%89%e8%a7%92%e5%af%ba%ef%bc%8865%e7%95%aa%ef%bc%89%e3%81%95%e3%82%93%e3%81%8b%e3%81%8f%e3%81%98/"
+    },
+    {
+     "label": "三角寺 口コミ（4travel）",
+     "url": "https://4travel.jp/dm_shisetsu/10002985"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 66,
+   "level": 2,
+   "reason": "ロープウェイ山麓駅までは狭い山道（一方通行規制あり）。車で山上へ行く道は離合困難な細道があり、寺の駐車場直前約800mが狭い。",
+   "sources": [
+    {
+     "label": "霊場会 雲辺寺",
+     "url": "https://88shikokuhenro.jp/66unpenji"
+    },
+    {
+     "label": "ohenrocar 雲辺寺ロープウェイを使わない方法",
+     "url": "https://ohenrocar.com/%e9%9b%b2%e8%be%ba%e5%af%ba%e3%83%ad%e3%83%bc%e3%83%97%e3%82%a6%e3%82%a7%e3%82%a4%e3%82%92%e4%bd%bf%e3%82%8f%e3%81%9a%e3%81%ab%e3%81%8a%e5%8f%82%e3%82%8a%e3%81%99%e3%82%8b%e6%96%b9%e6%b3%95/"
+    },
+    {
+     "label": "車お遍路の難所トップ5",
+     "url": "https://www.shikoku88henro.net/%E8%BB%8A%E3%81%AE%E9%9B%A3%E6%89%80%E3%83%88%E3%83%83%E3%83%975"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 67,
+   "level": 1,
+   "reason": "直前に狭いあぜ道を通るが見通しはよい。駐車場から境内へ91段のやや急な石段がある。",
+   "sources": [
+    {
+     "label": "ohenrocar 大興寺",
+     "url": "https://ohenrocar.com/%e5%a4%a7%e8%88%88%e5%af%ba%ef%bc%8867%e7%95%aa%ef%bc%89%e3%81%a0%e3%81%84%e3%81%93%e3%81%86%e3%81%98/"
+    },
+    {
+     "label": "車お遍路の難所（香川）",
+     "url": "https://ohenro.konenki-iyashi.com/category6/entry96.html"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 68,
+   "level": 0,
+   "reason": "観音寺市街の琴弾公園そばで、観音寺と同じ境内。無料駐車場から境内まで徒歩約1分。",
+   "sources": [
+    {
+     "label": "ohenrocar 神恵院",
+     "url": "https://ohenrocar.com/%e7%a5%9e%e6%81%b5%e9%99%a2%ef%bc%8868%e7%95%aa%ef%bc%89%e3%81%98%e3%82%93%e3%81%ad%e3%81%84%e3%82%93/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 69,
+   "level": 0,
+   "reason": "観音寺市街にあり、神恵院と同じ境内。無料駐車場から境内まで徒歩約1分。",
+   "sources": [
+    {
+     "label": "ohenrocar 観音寺",
+     "url": "https://ohenrocar.com/%e8%a6%b3%e9%9f%b3%e5%af%ba%ef%bc%8869%e7%95%aa%ef%bc%89%e3%81%8b%e3%82%93%e3%81%ae%e3%82%93%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 70,
+   "level": 0,
+   "reason": "三豊市豊中町の平地の集落にある。無料駐車場から境内まで徒歩約1分。",
+   "sources": [
+    {
+     "label": "ohenrocar 本山寺",
+     "url": "https://ohenrocar.com/%e6%9c%ac%e5%b1%b1%e5%af%ba%ef%bc%8870%e7%95%aa%ef%bc%89%e3%82%82%e3%81%a8%e3%82%84%e3%81%be%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 71,
+   "level": 2,
+   "reason": "麓の無料駐車場からは石段約400段。中腹へは細い裏参道の有料道（普通車500円・約15台）で、そこからも約120段＋本堂へ急な石段。",
+   "sources": [
+    {
+     "label": "霊場会 弥谷寺",
+     "url": "https://88shikokuhenro.jp/71iyadaniji/"
+    },
+    {
+     "label": "ohenrocar 弥谷寺",
+     "url": "https://ohenrocar.com/%e5%bc%a5%e8%b0%b7%e5%af%ba%ef%bc%8871%e7%95%aa%ef%bc%89%e3%81%84%e3%82%84%e3%81%9f%e3%81%ab%e3%81%98/"
+    },
+    {
+     "label": "伊予遍路 弥谷寺山上駐車場",
+     "url": "https://blog.iyohenro.jp/%E3%80%90%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B%E3%80%9171%E7%95%AA%E5%BC%A5%E8%B0%B7%E5%AF%BA%E3%80%80%E5%B1%B1%E4%B8%8A%E9%A7%90%E8%BB%8A%E5%A0%B4%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 72,
+   "level": 1,
+   "reason": "田園地帯の寺。ナビどおりだと狭い道に入ることがある。駐車場（200円）から境内まで約1分。",
+   "sources": [
+    {
+     "label": "ohenrocar 曼荼羅寺",
+     "url": "https://ohenrocar.com/%e6%9b%bc%e8%8d%bc%e7%be%85%e5%af%ba%ef%bc%8872%e7%95%aa%ef%bc%89%e3%81%be%e3%82%93%e3%81%a0%e3%82%89%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 73,
+   "level": 1,
+   "reason": "山すその緩い坂の上にあり、国道11号側に看板がない。無料駐車場から境内まで約2分。",
+   "sources": [
+    {
+     "label": "霊場会 出釋迦寺",
+     "url": "https://88shikokuhenro.jp/73shusyakaji/"
+    },
+    {
+     "label": "ohenrocar 出釈迦寺",
+     "url": "https://ohenrocar.com/%e5%87%ba%e9%87%88%e8%bf%a6%e5%af%ba%ef%bc%8873%e7%95%aa%ef%bc%89%e3%81%97%e3%82%85%e3%81%a4%e3%81%97%e3%82%83%e3%81%8b%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 74,
+   "level": 0,
+   "reason": "善通寺市の平地にあり、山門前に無料駐車場がある。",
+   "sources": [
+    {
+     "label": "ohenrocar 甲山寺",
+     "url": "https://ohenrocar.com/%e7%94%b2%e5%b1%b1%e5%af%ba%ef%bc%8874%e7%95%aa%ef%bc%89%e3%81%93%e3%81%86%e3%82%84%e3%81%be%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 75,
+   "level": 0,
+   "reason": "善通寺市街の大きな寺で、境内に隣接したゲート式駐車場（普通車200円）がある。",
+   "sources": [
+    {
+     "label": "ohenrocar 善通寺",
+     "url": "https://ohenrocar.com/%e5%96%84%e9%80%9a%e5%af%ba%ef%bc%8875%e7%95%aa%ef%bc%89%e3%81%9c%e3%82%93%e3%81%a4%e3%81%86%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 76,
+   "level": 0,
+   "reason": "平地の住宅地にあり、駐車場（200円）から境内まで約1分。",
+   "sources": [
+    {
+     "label": "ohenrocar 金倉寺",
+     "url": "https://ohenrocar.com/%e9%87%91%e5%80%89%e5%af%ba%ef%bc%8876%e7%95%aa%ef%bc%89%e3%81%93%e3%82%93%e3%81%9e%e3%81%86%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 77,
+   "level": 0,
+   "reason": "多度津町の市街地にあり、無料駐車場から境内まで約1分。仁王門は道路の反対側。",
+   "sources": [
+    {
+     "label": "霊場会 道隆寺",
+     "url": "https://88shikokuhenro.jp/77doryuji/"
+    },
+    {
+     "label": "ohenrocar 道隆寺",
+     "url": "https://ohenrocar.com/%e9%81%93%e9%9a%86%e5%af%ba%ef%bc%8877%e7%95%aa%ef%bc%89%e3%81%a9%e3%81%86%e3%82%8a%e3%82%85%e3%81%86%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 78,
+   "level": 2,
+   "reason": "入口から駐車場までの道が細く、すれ違う余地がない。入口が分かりにくく、車で山門をくぐって入る。",
+   "sources": [
+    {
+     "label": "ohenrocar 郷照寺",
+     "url": "https://ohenrocar.com/%e9%83%b7%e7%85%a7%e5%af%ba%ef%bc%8878%e7%95%aa%ef%bc%89%e3%81%94%e3%81%86%e3%81%97%e3%82%87%e3%81%86%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 79,
+   "level": 1,
+   "reason": "西庄町交差点から参道へ入る。境内の駐車場は普通車のみで、出口の段差で車高の低い車は底を擦りやすい。",
+   "sources": [
+    {
+     "label": "霊場会 天皇寺",
+     "url": "https://88shikokuhenro.jp/79tennoji/"
+    },
+    {
+     "label": "ohenrocar 天皇寺",
+     "url": "https://ohenrocar.com/%e5%a4%a9%e7%9a%87%e5%af%ba%ef%bc%8879%e7%95%aa%ef%bc%89%e3%81%a6%e3%82%93%e3%81%ae%e3%81%86%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 80,
+   "level": 1,
+   "reason": "県道から本堂前の無料駐車場へ通じるが、ナビは寺の前の狭い道へ案内することがある。",
+   "sources": [
+    {
+     "label": "ohenrocar 國分寺",
+     "url": "https://ohenrocar.com/%e5%9c%8b%e5%88%86%e5%af%ba%ef%bc%8880%e7%95%aa%ef%bc%89%e3%81%93%e3%81%8f%e3%81%b6%e3%82%93%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 81,
+   "level": 2,
+   "reason": "五色台の狭くカーブの多い山道を約10分登る。駐車場の区画は狭く、本堂へは約100段の石段。",
+   "sources": [
+    {
+     "label": "霊場会 白峯寺",
+     "url": "https://88shikokuhenro.jp/81shiromineji"
+    },
+    {
+     "label": "ohenrocar 白峯寺",
+     "url": "https://ohenrocar.com/%e7%99%bd%e5%b3%af%e5%af%ba%ef%bc%8881%e7%95%aa%ef%bc%89/"
+    },
+    {
+     "label": "まるがめ 白峯寺ライトアップ",
+     "url": "https://www.marugame2.jp/topics/88927"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 82,
+   "level": 2,
+   "reason": "五色台の山上にあり、県道180号の曲がりの多い山道で山門前へ。危険な箇所は少ないとの報告。山門から石段の上り下りあり。",
+   "sources": [
+    {
+     "label": "霊場会 根香寺",
+     "url": "https://88shikokuhenro.jp/82negoroji"
+    },
+    {
+     "label": "ohenrocar 根香寺",
+     "url": "https://ohenrocar.com/%e6%a0%b9%e9%a6%99%e5%af%ba%ef%bc%8882%e7%95%aa%ef%bc%89%e3%81%ad%e3%81%94%e3%82%8d%e3%81%98/"
+    },
+    {
+     "label": "車お遍路の難所（香川）",
+     "url": "https://ohenro.konenki-iyashi.com/category6/entry96.html"
+    }
+   ],
+   "confidence": "low"
+  },
+  {
+   "id": 83,
+   "level": 1,
+   "reason": "高松市郊外の平地。山門横の駐車場があるが、県道沿いの駐車場からは狭い道を通る。",
+   "sources": [
+    {
+     "label": "ohenrocar 一宮寺",
+     "url": "https://ohenrocar.com/%e4%b8%80%e5%ae%ae%e5%af%ba%ef%bc%8883%e7%95%aa%ef%bc%89%e3%81%84%e3%81%a1%e3%81%ae%e3%81%bf%e3%82%84%e3%81%98/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 84,
+   "level": 1,
+   "reason": "約3.7kmの屋島ドライブウェイ（無料）で山上へ。道幅に大きな問題はない。山上駐車場は有料で、繁忙期は渋滞。",
+   "sources": [
+    {
+     "label": "霊場会 屋島寺",
+     "url": "https://88shikokuhenro.jp/84yashimaji/"
+    },
+    {
+     "label": "ohenrocar 屋島寺",
+     "url": "https://ohenrocar.com/%e5%b1%8b%e5%b3%b6%e5%af%ba%ef%bc%8884%e7%95%aa%ef%bc%89%e3%82%84%e3%81%97%e3%81%be%e3%81%98/"
+    },
+    {
+     "label": "車お遍路の難所（香川）",
+     "url": "https://ohenro.konenki-iyashi.com/category6/entry96.html"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 85,
+   "level": 1,
+   "reason": "ケーブル登山口駅の無料駐車場まではやや細い道。車で山上へ行く裏参道（約1.5km）は離合不可の箇所があり駐車場もない。",
+   "sources": [
+    {
+     "label": "霊場会 八栗寺",
+     "url": "https://88shikokuhenro.jp/85yakuriji/"
+    },
+    {
+     "label": "ohenrocar 八栗寺",
+     "url": "https://ohenrocar.com/%e5%85%ab%e6%a0%97%e5%af%ba%ef%bc%8885%e7%95%aa%ef%bc%89%e3%82%84%e3%81%8f%e3%82%8a%e3%81%98/"
+    },
+    {
+     "label": "ohenrocar 八栗寺 裏参道",
+     "url": "https://ohenrocar.com/%E5%85%AB%E6%A0%97%E5%AF%BA%EF%BC%8885%E7%95%AA%EF%BC%89%E3%82%B1%E3%83%BC%E3%83%96%E3%83%AB%E3%82%AB%E3%83%BC%E3%82%92%E4%BD%BF%E3%82%8F%E3%81%9A%E8%A3%8F%E5%8F%82%E9%81%93%E3%81%A7%E8%A1%8C%E3%81%8F/"
+    }
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": 86,
+   "level": 0,
+   "reason": "志度の町中で大きな道に近く、運転の難しい道はない。山門の右手に無料駐車場。",
+   "sources": [
+    {
+     "label": "ohenrocar 志度寺",
+     "url": "https://ohenrocar.com/%e5%bf%97%e5%ba%a6%e5%af%ba%ef%bc%8886%e7%95%aa%ef%bc%89%e3%81%97%e3%81%a9%e3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 87,
+   "level": 0,
+   "reason": "田園地帯の道路沿いにあり分かりやすい。舗装された駐車場（200円）から境内まですぐ。",
+   "sources": [
+    {
+     "label": "ohenrocar 長尾寺",
+     "url": "https://ohenrocar.com/%e9%95%b7%e5%b0%be%e5%af%ba%ef%bc%8887%e7%95%aa%ef%bc%89%e3%81%aa%e3%81%8c%e3%81%8a%e3%81%98/"
+    }
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": 88,
+   "level": 2,
+   "reason": "国道377号の舗装された山道（片側1車線）でカーブが多く、路肩の傷みや落石がある。冬は積雪・凍結。駐車場は寺のそば。",
+   "sources": [
+    {
+     "label": "霊場会 大窪寺",
+     "url": "https://88shikokuhenro.jp/88ookuboji"
+    },
+    {
+     "label": "ohenrocar 大窪寺",
+     "url": "https://ohenrocar.com/%e5%a4%a7%e7%aa%aa%e5%af%ba%ef%bc%8888%e7%95%aa%ef%bc%89%e3%81%8a%e3%81%8a%e3%81%8f%e3%81%bc%e3%81%98/"
+    },
+    {
+     "label": "車お遍路の難所（香川）",
+     "url": "https://ohenro.konenki-iyashi.com/category6/entry96.html"
+    },
+    {
+     "label": "かがわん 大窪寺",
+     "url": "https://kagawan.com/okuboji"
+    }
+   ],
+   "confidence": "medium"
+  }
+ ]
+}

@@ -118,3 +118,13 @@
 @media(max-width:620px){.backup-reminder{display:block;padding:15px}.backup-reminder-actions{margin-top:12px}.backup-reminder-actions .primary{flex:1}}
 .car-pace{display:flex;align-items:center;gap:10px;margin:14px 0 0;font-size:13px;min-height:44px}
 .car-pace input{flex-shrink:0}
+.road-chip{display:inline-block;margin:8px 6px 0 0;padding:3px 8px;border-radius:6px;font-size:10.5px;font-weight:700;background:#e3f3ea;color:#2f6b4f}
+.road-chip.lv1{background:#eef1e4;color:#55663a}.road-chip.lv2{background:#fdf0dc;color:#9a5b14}.road-chip.lv3{background:#fbe3dd;color:#a83a24}
+.road-card{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 14px;background:#f2faf5}
+.road-card.lv1{background:#f6f8ef}.road-card.lv2{background:#fff7ea;border-color:#efd6ad}.road-card.lv3{background:#fdf0ec;border-color:#efc3b6}
+.road-card-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.road-card-head>span:first-child{font-size:12px;color:var(--muted)}.road-card-head strong{font-size:18px;color:var(--ink)}
+.road-meter{display:inline-flex;gap:3px;margin-left:auto}.road-meter i{width:18px;height:8px;border-radius:4px;background:#d9dfd4}.road-meter i.on{background:#c9772b}.road-card.lv3 .road-meter i.on{background:#c0442b}
+.road-card>p{margin:8px 0 0;font-size:13px;line-height:1.75;color:var(--ink)}.road-card .tiny{color:var(--muted)}
+.road-sources{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px}
+:root[data-theme=dark] .road-card{background:#20332c;border-color:#3f5a4f}:root[data-theme=dark] .road-card.lv2{background:#3a3020;border-color:#6b5a32}:root[data-theme=dark] .road-card.lv3{background:#3e2521;border-color:#74443a}
+:root[data-theme=dark] .road-chip{background:#244236;color:#a8e2c4}:root[data-theme=dark] .road-chip.lv2{background:#4a3a1c;color:#f3cf8f}:root[data-theme=dark] .road-chip.lv3{background:#4d2620;color:#f5b0a0}

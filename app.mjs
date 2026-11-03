@@ -15,6 +15,7 @@ import {createMiniMap} from './mini-map.mjs';
 import {createBackupUI} from './backup-ui.mjs';
 import {createBackupReminder} from './backup-reminder.mjs';
 import {createI18n} from './i18n.mjs';
+import {readRoadData, roadChipHTML, roadCardHTML} from './road-level.mjs';
 import {roadInfoHTML} from './road-info.mjs';
 import {creditsHTML,isNativeApp} from './credits.mjs';
 import {DOJO} from './badges.mjs';
@@ -31,6 +32,7 @@ const $ = selector=>document.querySelector(selector);
 const $$ = selector=>[...document.querySelectorAll(selector)];
 const esc = value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizeTerm=value=>value.normalize('NFKC').toLocaleLowerCase().replace(/[國寶佛圓瀧釋峯]/g,c=>({'國':'国','寶':'宝','佛':'仏','圓':'円','瀧':'滝','釋':'釈','峯':'峰'}[c]));
+let roadData={checkedAt:'',temples:new Map()};
 let carData=null,parkingPoints=[],parkingFor=()=>null,ratingRows=[],ratings=new Map(),memoRows=[],sharedPacks=[];
 const speedKey='ohenro-speed:'+new URL('.',import.meta.url).pathname;
 // 「個人用テスト版です」の案内を閉じたか（一時的な表示状態なので、まとめてバックアップには含めない）。
@@ -195,7 +197,7 @@ function renderTemples(){
   const rows=temples.filter(t=>(!term||normalizeTerm(`${t.id} ${t.name} ${t.kana} ${t.address}`).includes(term))&&(!pref||t.prefecture===pref)&&(!status||(status==='visited'?done.has(t.id):!done.has(t.id)))&&carOK(t));
   $('#result-count').textContent=`${rows.length} 件の札所${!state?' · 保存領域を確認してください':''}`;
   $('#status-filter').disabled=!state;
-  $('#temple-list').innerHTML=rows.length?rows.map(t=>`<button class="temple-card" data-temple="${t.id}"><span class="temple-number">${t.id.toString().padStart(2,'0')}</span>${done.has(t.id)?'<span class="status-tag">✓ 訪問済み</span>':''}<small>${esc(t.prefecture)} · 第${t.id}番</small><h2>${esc(t.name)}</h2><p>${esc(t.address)}</p>${chipsHTML(flags.get(t.id))}</button>`).join(''):'<div class="empty">該当する札所がありません。検索条件を変えてください。</div>';
+  $('#temple-list').innerHTML=rows.length?rows.map(t=>`<button class="temple-card" data-temple="${t.id}"><span class="temple-number">${t.id.toString().padStart(2,'0')}</span>${done.has(t.id)?'<span class="status-tag">✓ 訪問済み</span>':''}<small>${esc(t.prefecture)} · 第${t.id}番</small><h2>${esc(t.name)}</h2><p>${esc(t.address)}</p>${roadChipHTML(roadData.temples.get(t.id))}${chipsHTML(flags.get(t.id))}</button>`).join(''):'<div class="empty">該当する札所がありません。検索条件を変えてください。</div>';
   $$('#temple-list [data-temple]').forEach(el=>el.onclick=()=>detailDialog(Number(el.dataset.temple)));
 }
 $('#search').oninput=renderTemples;$('#pref-filter').onchange=renderTemples;$('#car-filter').onchange=renderTemples;$('#status-filter').onchange=renderTemples;
@@ -218,7 +220,7 @@ function detailDialog(id,tab=detailTab){
   if(!tabs.some(([k])=>k===tab))tab='basic';
   const panes={
     basic:`${quickTrip.detailHTML()}<div class="detail-actions"><button class="secondary" id="single-manual">過去の訪問を記録</button><button class="secondary" id="add-to-plan">行き先予定に追加</button><a class="secondary route-link" href="${esc(routeUrl(t,'google',park))}" target="_blank" rel="noopener noreferrer"><strong>Googleマップ ↗</strong><small>${park?'駐車場へ':'車ルート'}</small></a><a class="secondary route-link" href="${esc(routeUrl(t,'apple',park))}" target="_blank" rel="noopener noreferrer"><strong>Appleマップ ↗</strong><small>${park?'駐車場へ':'車ルート'}</small></a></div><p class="small">${park?'ルート先は登録された駐車場の位置です。':'ルート先は札所名・住所で検索します。'}入口や通行規制は公式案内で確認し、安全な場所に停車して操作してください。</p><details><summary>情報の出典・座標を確認</summary><div class="source-links"><p>緯度 ${t.lat} / 経度 ${t.lng}<br>公式公開地図と照合：${t.verifiedAt}<br>${esc(t.coordinateNote)}</p><a href="${esc(t.associationSourceUrl)}" target="_blank" rel="noopener noreferrer">霊場会の札所案内 ↗</a><br><a href="${esc(t.sourceUrl)}" target="_blank" rel="noopener noreferrer">日本遺産の札所案内 ↗</a>${t.addressSupplementSourceUrl?`<br><a href="${esc(t.addressSupplementSourceUrl)}" target="_blank" rel="noopener noreferrer">所在地の補足確認 ↗</a>`:''}${t.address!==t.heritageAddress?`<p>所在地は出典間に表記差があります。日本遺産掲載値：${esc(t.heritageAddress)}。採用理由は検証記録を参照してください。</p>`:''}</div></details>`,
-    car:carUI.card(t),
+    car:roadCardHTML(roadData.temples.get(t.id),roadData.checkedAt)+carUI.card(t),
     prayer:templePrayerCard(t),
     photo:`<section class="temple-album-card"><div class="album-section-title"><span>この札所の写真</span><span id="album-count">確認中</span></div><div id="album-preview" class="album-preview"></div><button class="secondary" id="open-album">写真を撮る・アルバムを開く →</button></section>`
   };
@@ -410,6 +412,7 @@ try{
   [temples,coast]=await Promise.all([fetch('./data/temples.json').then(r=>{if(!r.ok)throw new Error();return r.json();}),fetch('./data/japan-coast.geojson').then(r=>{if(!r.ok)throw new Error();return r.json();})]);
   i18n.refresh();
   try{carData=validateCarData(await fetch('./data/car.json').then(r=>{if(!r.ok)throw new Error();return r.json();}));}catch{carData=null;}
+  try{roadData=readRoadData(await fetch('./data/road.json').then(r=>{if(!r.ok)throw new Error();return r.json();}));}catch{roadData={checkedAt:'',temples:new Map()};}
   await reloadParkings();
   await refresh({silent:true});
   // アプリ版（App Store）ではファイルを同梱するため、Service Workerは登録しない。
