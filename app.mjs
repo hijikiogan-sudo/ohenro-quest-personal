@@ -159,7 +159,8 @@ function render(){
   $('#view-home').classList.toggle('home-compact',p.count>0);
   $('#journey').innerHTML=state?state.journeys.map(j=>`<option value="${esc(j.id)}">${esc(j.name)}</option>`).join(''):'<option>はじめての巡礼</option>';
   if(state)$('#journey').value=journeyId;$('#journey').disabled=!state;
-  $('#group-label').textContent='自分の巡礼 · この端末だけに保存';
+  // 巡礼が1つしかない間は、ホーム上の「巡礼の記録」の切り替えを出さない（2周目を作ると出る）。
+  $('.journey-line').hidden=!state||state.journeys.length<2;
   $('#journey-label').textContent=currentJourney()?.name||'はじめての巡礼';
   $('#achievement').textContent=`達成率 ${p.percent}%`;
   $('#traveler-title').textContent=p.title;$('#remaining').textContent=p.count===88?'八十八の出会い、おめでとうございます。':`あと${88-p.count}の出会いが待っています。`;
@@ -172,8 +173,7 @@ function render(){
   if(next){$('#next-detail').onclick=()=>detailDialog(next.id);$('#next-near').onclick=()=>nearDialog(done);$('#next-manual').onclick=()=>requireAuth(()=>manualDialog());}
   renderBadges();
   drawMap(done);renderMapPanel(done);refreshRouteOptions();renderTemples();renderHistory();renderFamily();photoUI.stats();photos.status().then(st=>{if(photoCount!==st.count){photoCount=st.count;renderBadges();}}).catch(()=>{});if(view==='album')photoUI.library({soft:true});if(view==='plan')planUI.render({soft:true});if(view==='home')todayUI.render();
-  $('#install-note').textContent=window.isSecureContext?'この画面はPWA・位置情報が使える接続です（対応ブラウザ・端末の許可が必要）。':'この接続ではGPS・PWA機能に制限があります。iPhoneでの本利用には、信頼されたHTTPS接続が必要です。';
-}
+  }
 function renderTemples(){
   const done=new Set(currentVisits().map(v=>v.templeId)),term=normalizeTerm($('#search').value.trim()),pref=$('#pref-filter').value,status=state?$('#status-filter').value:'';
   const carFilter=$('#car-filter')?.value||'',flags=new Map(temples.map(t=>[t.id,carUI.flagsFor(t.id)]));
@@ -194,7 +194,7 @@ function renderHistory(){
 function renderFamily(){
   const last=state?.lastExportAt?new Date(state.lastExportAt).toLocaleString('ja-JP'):'まだ書き出していません';
   if($('#all-backup-last'))$('#all-backup-last').textContent=`前回のバックアップ：${last}`;
-  $('#family-content').innerHTML=`<p>自分たちのペースで、八十八の出会いを。</p><p class="version" id="settings-version">${esc($('.side-footer .version')?.textContent||'')}</p><p class="small">ログイン不要の個人版です。記録はこの端末・このブラウザに保存します。家族や別の端末とは自動共有しません。</p><button class="secondary" id="new-journey">新しい巡礼を作成</button><button class="quiet" id="settings-history">訪問の記録を見る</button><p class="small">前回のバックアップ書き出し：${esc(last)}</p><p class="tiny">プライベートブラウズは使わず、先にホーム画面へ追加してください。端末の容量不足・ブラウザのデータ削除・機種変更で記録が失われる場合があります。JSONバックアップを「ファイル」などに保存してください。</p>`;
+  $('#family-content').innerHTML=`<p>自分たちのペースで、八十八の出会いを。</p><p class="version" id="settings-version">${esc($('.side-footer .version')?.textContent||'')}</p><p class="small">ログイン不要の個人版です。記録・写真はこの端末だけに保存し、インターネットには送りません。家族や別の端末とも自動では共有しません。</p><button class="secondary" id="new-journey">新しい巡礼を作成</button><button class="quiet" id="settings-history">訪問の記録を見る</button><p class="tiny">プライベートブラウズは使わず、ホーム画面に追加して使ってください。機種変更や端末の故障に備えて、ときどき「すべてを1つのファイルに保存」でバックアップしてください。</p>`;
   if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));$('#new-journey').onclick=()=>requireAuth(()=>newJourneyDialog());$('#settings-history').onclick=()=>setView('history');
 }
 let detailTab='basic';
@@ -292,35 +292,11 @@ async function nextAfterCheckin(t){
 }
 function voidDialog(id){const v=state.visits.find(v=>v.id===id),t=temples[v.templeId-1];openDialog('訪問記録を取り消す',`<p>${esc(t.name)} · ${esc(v.date||'訪問日不明')} の訪問を取り消します。</p><p class="small">この端末の記録から取り消します。直後に表示される「元に戻す」で復元できます。</p><div class="dialog-actions"><button class="quiet" id="cancel-void">戻る</button><button class="primary" id="confirm-void">この訪問を取り消す</button></div>`);$('#cancel-void').onclick=closeDialog;$('#confirm-void').onclick=async e=>{e.target.disabled=true;try{await api('visit/void',{id});closeDialog();await refresh();toast('訪問記録を取り消しました。',{label:'元に戻す',run:async()=>{try{await api('visit/undo',{id});await refresh();toast('記録を復元しました。');}catch(err){showError(err);}}});}catch(err){showError(err);e.target.disabled=false;}};}
 function newJourneyDialog(){openDialog('新しい巡礼をつくる',`<form id="journey-form" class="dialog-form"><label>巡礼の名前<input name="name" required maxlength="60" placeholder="例：自分の2周目"></label><p class="small">訪問記録・XP・達成率は巡礼ごとに分かれます。今の記録は残ります。</p><div class="actions"><button class="primary">作成する</button></div></form>`);$('#journey-form').onsubmit=async e=>{e.preventDefault();e.submitter.disabled=true;try{const r=await api('journeys',{name:new FormData(e.target).get('name')});journeyId=r.id;closeDialog();await refresh();setView('home');toast('新しい巡礼を作成しました。');}catch(err){showError(err);e.submitter.disabled=false;}};}
-async function exportBackup(onlyCurrent=false){if(!requireAuth())return;try{const data=await api('export');if(onlyCurrent){data.journeys=data.journeys.filter(j=>j.id===journeyId);data.visits=data.visits.filter(v=>v.journeyId===journeyId);}const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`ohenro-${onlyCurrent?'journey':'all'}-${japanDate()}.json`;link.click();await api('backup/exported',{});await refresh({silent:true});setTimeout(()=>URL.revokeObjectURL(url),1000);toast('バックアップを保存しました。保存先をご確認ください。');}catch(e){showError(e);}}
 $('#text-size').value=textSize;$('#text-size').onchange=e=>{textSize=applyTextSize(e.target.value);try{localStorage.setItem(textKey,textSize);}catch{}toast('文字の大きさを変更しました。');setTimeout(()=>roadMap.reset(),50);};
 $('#open-credits').onclick=()=>openDialog('出典とライセンス',creditsHTML());
 $('#all-backup-save').onclick=()=>requireAuth(()=>backupUI.save());$('#all-backup-restore').onchange=e=>{const f=e.target.files?.[0];e.target.value='';if(f)requireAuth(()=>backupUI.restore(f));};
 $('#photos-export').onclick=()=>requireAuth(()=>photoUI.exportPhotos());
 $('#photos-import').onchange=e=>{const file=e.target.files[0];e.target.value='';if(file)requireAuth(()=>photoUI.importPhotos(file));};
-$('#export').onclick=()=>exportBackup();$('#export-current').onclick=()=>exportBackup(true);
-$('#import').onchange=async e=>{
-  const file=e.target.files[0];e.target.value='';
-  if(!file||!requireAuth())return;
-  if(state.user.role!=='owner'){toast('バックアップの読込は管理者のみ利用できます。');return;}
-  try{
-    if(file.size>5*1024*1024)throw new Error('5MB以下のJSONファイルを選択してください。');
-    const data=JSON.parse(await file.text());
-    if(data.format!=='ohenro-quest'||data.version!==1||!Array.isArray(data.visits)||!Array.isArray(data.journeys)||!data.journeys.length)throw new Error('くるま遍路のバックアップファイルを選択してください。');
-    const target=journeyId;
-    openDialog('バックアップを復元する',`<p>${esc(file.name)} の ${data.journeys.length}巡礼・${data.visits.length}件を読み込みます。</p><label class="dialog-form">復元方法<select id="import-mode"><option value="restore">新しい巡礼として復元（周回を維持）</option>${data.journeys.length===1?'<option value="merge">現在の巡礼に追加</option>':''}</select></label><div class="preview-list">${data.journeys.map(j=>esc(j.name)).join('<br>')}</div><p class="small">新しい巡礼には「（復元）」を付けます。現在の巡礼に追加する場合の追加先：${esc(currentJourney()?.name)}。</p><p class="small">既存の記録は置き換えません。同じ札所・日付の重複は除きます。元の作者・GPS判定は引き継がず、手動記録として保存します。</p><div class="dialog-actions"><button class="quiet" id="cancel-import">戻る</button><button class="primary" id="confirm-import">確認して読み込む</button></div>`);
-    $('#cancel-import').onclick=closeDialog;
-    $('#confirm-import').onclick=async event=>{
-      event.target.disabled=true;
-      try{
-        const r=await api('import',{backup:data,targetJourneyId:target,restoreJourneys:$('#import-mode').value==='restore'});
-        if(r.journeyIds?.length)journeyId=r.journeyIds[0];
-        closeDialog();await refresh();toast(`${r.added}件を復元しました。重複${r.skipped}件はスキップしました。`);
-      }catch(err){showError(err);event.target.disabled=false;}
-    };
-  }catch(err){showError(new Error(err instanceof SyntaxError?'JSONファイルを読み取れませんでした。':err.message));}
-};
-
 const svgNS='http://www.w3.org/2000/svg';
 const mercator=lat=>180/Math.PI*Math.log(Math.tan(Math.PI/4+lat*Math.PI/360));
 const projection=([lng,lat])=>[130+(lng-131.9)*190,20+(mercator(34.55)-mercator(lat))*190];
