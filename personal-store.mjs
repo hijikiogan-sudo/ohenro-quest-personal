@@ -70,15 +70,15 @@ export function createPersonalStore({indexedDB=globalThis.indexedDB,scope='/',te
   function insert(s,journeyId,values,method='manual',gps={}) {
     ownJourney(s,journeyId);
     const live=new Set(s.visits.filter(v=>v.deletedAt===null).map(v=>`${v.journeyId}|${v.templeId}|${v.date}`));
-    let added=0;
+    let added=0;const ids=[];
     for(const v of values){
       const key=`${journeyId}|${v.templeId}|${v.date}`;
       if(live.has(key))continue;
       if(s.visits.length>=MAX_VISITS)fail('この端末の記録は合計1万件までです。記録をバックアップしてください。');
-      s.visits.unshift({id:uuid(),journeyId,...v,method,accuracy:gps.accuracy??null,distance:gps.distance??null,author:'自分',createdAt:now(),deletedAt:null});
+      const id=uuid();ids.push(id);s.visits.unshift({id,journeyId,...v,method,accuracy:gps.accuracy??null,distance:gps.distance??null,author:'自分',createdAt:now(),deletedAt:null});
       live.add(key);added++;
     }
-    return {added,skipped:values.length-added};
+    return {added,skipped:values.length-added,ids};
   }
   return {
     async call(route,b={}) {
