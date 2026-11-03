@@ -147,7 +147,7 @@ function requireAuth(callback){if(!state||!connected){toast('端末の保存領�
 function setView(next){if(view==='home'&&next!=='home')todayUI.leave();if(view==='plan'&&next!=='plan'){if(!planUI.canLeave())return;planUI.leave();}if(next!=='album')photoUI.leaveLibrary();view=next;$$('.view').forEach(el=>el.hidden=el.id!=='view-'+view);$$('[data-view]').forEach(el=>{el.classList.toggle('active',el.dataset.view===view);el.setAttribute('aria-current',el.dataset.view===view?'page':'false');});render();window.scrollTo({top:0,behavior:'instant'});}
 $$('[data-view]').forEach(el=>el.onclick=()=>setView(el.dataset.view));
 $$('[data-action=manual]').forEach(el=>el.onclick=()=>requireAuth(()=>manualDialog()));
-$('#quick-trip-open').onclick=()=>requireAuth(()=>quickTrip.pickDialog());
+$('#quick-trip-open').onclick=$('#quick-trip-home').onclick=()=>requireAuth(()=>quickTrip.pickDialog());
 $$('[data-action=history]').forEach(el=>el.onclick=()=>setView('history'));
 $('#account').onclick=()=>setView('family');
 $('#journey').onchange=e=>{journeyId=e.target.value;render();};
