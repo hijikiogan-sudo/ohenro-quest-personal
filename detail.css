@@ -68,3 +68,12 @@
 :root[lang=en] :is(h1,h2,h3,h4,strong){word-break:keep-all;overflow-wrap:break-word}
 /* 英語表記：住所は「Naruto City, Tokushima」と日本語の住所の2行 */
 :root[lang=en] :is(.temple-card p,.next p,.detail-meta){white-space:pre-line}
+/* ダイアログ（札所の詳細など）：中身が長いときは中だけを上下に動かす。iPhone の Safari は既定で中をスクロールしないことがあるので明示する。
+   開いている間は後ろのページを動かさない（指の動きが後ろへ逃げて、ダイアログが動かなく見えるのを防ぐ）。 */
+dialog{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+html:has(dialog[open]),html:has(dialog[open]) body{overflow:hidden}
+/* 大きい・特大は画面全体を拡大しているので、ダイアログの高さをその分だけ小さくして画面に収める */
+:root[data-text-size=l] dialog{max-height:calc(90dvh / 1.12)}
+:root[data-text-size=xl] dialog{max-height:calc(90dvh / 1.25)}
+:root[data-text-size=l] dialog.photo-viewer{max-height:calc(94dvh / 1.12)}
+:root[data-text-size=xl] dialog.photo-viewer{max-height:calc(94dvh / 1.25)}
