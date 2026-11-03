@@ -61,3 +61,9 @@ export function groupByKey(rows, keyOf, group) {
 export function nearestUnvisited(position, temples, done, distance, n = 3) {
   return temples.filter(t => !done.has(t.id)).map(t => ({temple: t, meters: distance(position, t)})).sort((a, b) => a.meters - b.meters).slice(0, n);
 }
+
+// チェックインした札所の次の番号から数えて、最初の未訪問の札所（88番の次は1番に戻る）。なければ null。
+export function nextByNumber(temples, done, fromId) {
+  const sorted = [...temples].sort((a, b) => a.id - b.id);
+  return sorted.find(t => t.id > fromId && !done.has(t.id)) || sorted.find(t => t.id < fromId && !done.has(t.id)) || null;
+}

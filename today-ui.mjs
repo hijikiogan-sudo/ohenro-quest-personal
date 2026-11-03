@@ -48,5 +48,7 @@ export function createTodayUI({document=globalThis.document,store,plans,getJourn
   }
   function skipDialog(s,row){const token=openDialog('今回は見送る',`<p>${esc(label(row.templeId))}を今回の順番から見送ります。</p><p class="small">訪問済みにはなりません。「順番変更・見送り」から元に戻せます。</p><div class="dialog-actions"><button class="quiet" id="today-skip-cancel">戻る</button><button class="primary" id="today-skip-confirm">今回は見送る</button></div>`);$('#today-skip-cancel').onclick=()=>manage(s);$('#today-skip-confirm').onclick=()=>mutate(s,{type:'skip',templeId:row.templeId,skipped:true},{token,after:manage});}
   function recordDialog(s,row){const token=openDialog('訪問を記録する',`<p>${esc(label(row.templeId))}</p><p class="small">GPSの近接判定、または実際に訪問した日を手動で登録できます。本日の日付で保存されると今回の進捗に反映します。</p><div class="dialog-actions"><button class="primary" id="today-gps">GPSでチェックイン</button><button class="secondary" id="today-manual">手動で記録</button></div>`);$('#today-gps').onclick=()=>runAction(s,row,onGPS);$('#today-manual').onclick=()=>runAction(s,row,onManual);}
-  return {render,startDialog,leave(){epoch++;signature='';}};
+  // 進行中（今日）の巡礼の次の札所。無ければ null。
+  async function nextStop(){const journey=getJourney();if(!journey)return null;try{const s=await store.get(journey.id);if(!s||s.status!=='active')return null;const p=outingProgress(s,getVisits(),japanDate(now()));return p.next&&!p.needsResume?temple(p.next.templeId)||null:null;}catch{return null;}}
+  return {render,startDialog,nextStop,leave(){epoch++;signature='';}};
 }
