@@ -9,7 +9,7 @@ import {createPhotoUI} from './photo-ui.mjs';
 import {groupNearby,templeGlyph} from './temple-marker.mjs';
 import {attachTheme, fittedMapBox} from './display.mjs';
 import {createRoadMap} from './road-map.mjs';
-import {routePoints,routeZigzag,spreadBadges,groupByKey,nearestUnvisited} from './map-route.mjs';
+import {routePoints,routeZigzag,spreadBadges,groupByKey,nearestUnvisited,nextByNumber} from './map-route.mjs';
 import {createMiniMap} from './mini-map.mjs';
 import {createBackupUI} from './backup-ui.mjs';
 import {roadInfoHTML} from './road-info.mjs';
@@ -253,8 +253,12 @@ function confirmVisits(ids,date,note){
   $('#back-manual').onclick=()=>{manualDialog(ids);$('[name=date]').value=date||japanDate();$('[name=note]').value=note;if(!date){$('#unknown-date').checked=true;$('#unknown-date').onchange({target:$('#unknown-date')});}};
   $('#save-manual').onclick=async e=>{e.target.disabled=true;try{const r=await api('visits',{journeyId:target,visits:ids.map(templeId=>({templeId,date,note}))});closeDialog();await refresh();toast(`${r.added}件を保存しました。${r.skipped?` 重複${r.skipped}件は登録済みです。`:''}`);}catch(err){showError(err);e.target.disabled=false;}};
 }
+// 2回目からは「チェックイン」を押したらすぐ測位し、範囲内ならそのまま記録する（初回だけ説明を読んでから測位）。
+const gpsIntroKey='ohenro-gps-intro-seen:'+new URL('.',import.meta.url).pathname;
 function gpsDialog(t){
-  openDialog('現地でチェックイン',`<p>第${t.id}番 ${esc(t.name)} にチェックインします。</p><p class="small">ボタンを押したときだけ位置情報を取得します。本堂（札所の位置）から誤差を含め300m以内、測位誤差100m以内で近接判定します。駐車場では判定されないので、本堂の近くで測位してください。現在地の緯度・経度は記録に保存しません。</p><p class="small">GPSは端末の自己申告です。位置偽装を完全には防げず、参拝の証明にはなりません。</p><div id="gps-result" class="gps-result" hidden></div><div class="dialog-actions"><button class="secondary" id="gps-manual">手動で記録する</button><button class="primary" id="gps-measure">現在地を取得する</button></div>`);
+  let seen=false;try{seen=localStorage.getItem(gpsIntroKey)==='1';}catch{}
+  const about='<p class="small">「チェックイン」を押したときだけ位置情報を取得し、本堂（札所の位置）から誤差を含め300m以内・測位誤差100m以内なら、そのまま記録します。駐車場では判定されないので、本堂の近くで測位してください。現在地の緯度・経度は記録に保存しません。</p><p class="small">GPSは端末の自己申告です。位置偽装を完全には防げず、参拝の証明にはなりません。</p>';
+  openDialog('現地でチェックイン',`<p>第${t.id}番 ${esc(t.name)} にチェックインします。</p>${seen?`<details class="gps-about"><summary>位置情報の扱い</summary>${about}</details>`:about}<div id="gps-result" class="gps-result" hidden></div><div class="dialog-actions"><button class="secondary" id="gps-manual">手動で記録する</button><button class="primary" id="gps-measure">現在地を取得する</button></div>`);
   $('#gps-manual').onclick=()=>manualDialog([t.id]);
   $('#gps-measure').onclick=async e=>{
     if(!window.isSecureContext){showError(new Error('GPSはHTTPSまたはlocalhostで利用できます。手動登録をご利用ください。'));return;}
@@ -266,11 +270,19 @@ function gpsDialog(t){
       if(epoch!==dialogEpoch)return;
       const position={lat:result.coords.latitude,lng:result.coords.longitude,accuracy:result.coords.accuracy,timestamp:result.timestamp};
       const assessment=assessGPS(position,t);if(!assessment.ok)throw new Error(assessment.message);
-      $('#gps-result').hidden=false;$('#gps-result').textContent=`札所まで約${assessment.distance}m / 測位誤差 約${assessment.accuracy}m。近接判定の範囲内です。`;
-      e.target.textContent='チェックインを保存';e.target.disabled=false;
-      e.target.onclick=async event=>{event.target.disabled=true;try{const saved=await api('gps/checkin',{challengeId:challenge.id,position});closeDialog();await refresh();toast(saved.added?'GPS自己申告の訪問を保存しました。':'本日の訪問は登録済みです。');if(saved.added)carUI.memoDialog(t,{afterCheckin:true});}catch(err){showError(err);event.target.disabled=false;}};
-    }catch(err){if(epoch!==dialogEpoch)return;const messages={1:'位置情報が許可されていません。端末設定で許可するか、手動登録をご利用ください。',2:'現在地を取得できませんでした。屋外で再度お試しいただくか、手動登録をご利用ください。',3:'測位に時間がかかりました。再測位するか、手動登録をご利用ください。'};showError(new Error(messages[err.code]||err.message));e.target.disabled=false;e.target.textContent='現在地を取得する';}
+      $('#gps-result').hidden=false;$('#gps-result').textContent=`札所まで約${assessment.distance}m / 測位誤差 約${assessment.accuracy}m。近接判定の範囲内です。記録しています…`;
+      try{localStorage.setItem(gpsIntroKey,'1');}catch{}
+      const saved=await api('gps/checkin',{challengeId:challenge.id,position});if(epoch!==dialogEpoch)return;
+      closeDialog();await refresh();toast(saved.added?'GPS自己申告の訪問を保存しました。':'本日の訪問は登録済みです。');
+      if(saved.added)carUI.memoDialog(t,{afterCheckin:true,next:await nextAfterCheckin(t)});
+    }catch(err){if(epoch!==dialogEpoch)return;const messages={1:'位置情報が許可されていません。端末設定で許可するか、手動登録をご利用ください。',2:'現在地を取得できませんでした。屋外で再度お試しいただくか、手動登録をご利用ください。',3:'測位に時間がかかりました。再測位するか、手動登録をご利用ください。'};showError(new Error(messages[err.code]||err.message));e.target.disabled=false;e.target.textContent='もう一度測位する';}
   };
+  if(seen)$('#gps-measure').click();
+}
+// チェックインのあとに案内する次の札所：進行中の巡礼があればその次、なければ次の番号の未訪問札所。
+async function nextAfterCheckin(t){
+  const n=await todayUI.nextStop();if(n&&n.id!==t.id)return {temple:n,why:'今日の巡礼の次の札所'};
+  const x=nextByNumber(temples,new Set(currentVisits().map(v=>v.templeId)),t.id);return x?{temple:x,why:'次の番号の未訪問の札所'}:null;
 }
 function voidDialog(id){const v=state.visits.find(v=>v.id===id),t=temples[v.templeId-1];openDialog('訪問記録を取り消す',`<p>${esc(t.name)} · ${esc(v.date||'訪問日不明')} の訪問を取り消します。</p><p class="small">この端末の記録から取り消します。直後に表示される「元に戻す」で復元できます。</p><div class="dialog-actions"><button class="quiet" id="cancel-void">戻る</button><button class="primary" id="confirm-void">この訪問を取り消す</button></div>`);$('#cancel-void').onclick=closeDialog;$('#confirm-void').onclick=async e=>{e.target.disabled=true;try{await api('visit/void',{id});closeDialog();await refresh();toast('訪問記録を取り消しました。',{label:'元に戻す',run:async()=>{try{await api('visit/undo',{id});await refresh();toast('記録を復元しました。');}catch(err){showError(err);}}});}catch(err){showError(err);e.target.disabled=false;}};}
 function newJourneyDialog(){openDialog('新しい巡礼をつくる',`<form id="journey-form" class="dialog-form"><label>巡礼の名前<input name="name" required maxlength="60" placeholder="例：自分の2周目"></label><p class="small">訪問記録・XP・達成率は巡礼ごとに分かれます。今の記録は残ります。</p><div class="actions"><button class="primary">作成する</button></div></form>`);$('#journey-form').onsubmit=async e=>{e.preventDefault();e.submitter.disabled=true;try{const r=await api('journeys',{name:new FormData(e.target).get('name')});journeyId=r.id;closeDialog();await refresh();setView('home');toast('新しい巡礼を作成しました。');}catch(err){showError(err);e.submitter.disabled=false;}};}

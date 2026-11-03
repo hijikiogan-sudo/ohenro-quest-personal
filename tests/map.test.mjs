@@ -98,3 +98,11 @@ test('アプリ版の判定と出典画面', () => {
   for (const g of CREDITS) for (const i of g.items) { assert.match(i.url, /^https:\/\//); assert.ok(html.includes(i.url)); }
   assert.ok(html.includes('BSD 2-Clause'));
 });
+
+import {nextByNumber} from '../map-route.mjs';
+test('チェックイン後の次の札所：次の番号の未訪問、88番の次は1番に戻る', () => {
+  assert.equal(nextByNumber(temples, new Set([1, 2, 3]), 2).id, 4);
+  assert.equal(nextByNumber(temples, new Set([5, 6, 7]), 5).id, 8);
+  assert.equal(nextByNumber(temples, new Set([1, 88]), 88).id, 2);
+  assert.equal(nextByNumber(temples, new Set(temples.map(t => t.id)), 10), null);
+});
