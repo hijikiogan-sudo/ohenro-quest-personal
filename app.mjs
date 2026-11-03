@@ -15,7 +15,8 @@ import {createMiniMap} from './mini-map.mjs';
 import {createBackupUI} from './backup-ui.mjs';
 import {createBackupReminder} from './backup-reminder.mjs';
 import {createI18n} from './i18n.mjs';
-import {readRoadData, roadChipHTML, roadCardHTML} from './road-level.mjs';
+import {readRoadData, roadChipHTML, roadCardHTML, roadLabel} from './road-level.mjs';
+import {createReportUI} from './report.mjs';
 import {readFeeData, feeChipHTML, feeCardHTML, feeTotal, readLocalFees, writeLocalFees, withLocal, localDiffs, feeShort} from './parking-fee.mjs';
 import {roadInfoHTML} from './road-info.mjs';
 import {creditsHTML,isNativeApp} from './credits.mjs';
@@ -39,6 +40,9 @@ const feeLocalKey='ohenro-fee-local:'+new URL('.',import.meta.url).pathname;
 function localFees(){try{return readLocalFees(localStorage.getItem(feeLocalKey));}catch{return new Map();}}
 function saveLocalFees(map){try{localStorage.setItem(feeLocalKey,writeLocalFees(map));}catch{toast('この端末に保存できませんでした。');}}
 const feeFor=id=>withLocal(feeData.temples.get(id),localFees().get(id));
+// 間違いの報告・情報提供（運営の Google フォームを、札所・項目・今の表示を入れて開く）
+const reportUI=createReportUI({document,openDialog,getVersion:()=>$('.side-footer .version')?.textContent||''});
+function reportShown(t){const r=roadData.temples.get(t.id),f=feeData.temples.get(t.id);return [r&&`道：${roadLabel(r.level)}（${roadData.checkedAt}調べ）`,f&&`駐車場：${feeShort(f)}（${feeData.checkedAt}調べ）`,`住所：${t.address}`].filter(Boolean).join(' ／ ');}
 let carData=null,parkingPoints=[],parkingFor=()=>null,ratingRows=[],ratings=new Map(),memoRows=[],sharedPacks=[];
 const speedKey='ohenro-speed:'+new URL('.',import.meta.url).pathname;
 // 「個人用テスト版です」の案内を閉じたか（一時的な表示状態なので、まとめてバックアップには含めない）。
@@ -237,14 +241,15 @@ function detailDialog(id,tab=detailTab){
   const tabs=[['basic','基本'],['car',warn?'車 !':'車'],['prayer','お経'],['photo','写真']];
   if(!tabs.some(([k])=>k===tab))tab='basic';
   const panes={
-    basic:`${quickTrip.detailHTML()}<div class="detail-actions"><button class="secondary" id="single-manual">過去の訪問を記録</button><button class="secondary" id="add-to-plan">行き先予定に追加</button><a class="secondary route-link" href="${esc(routeUrl(t,'google',park))}" target="_blank" rel="noopener noreferrer"><strong>Googleマップ ↗</strong><small>${park?'駐車場へ':'車ルート'}</small></a><a class="secondary route-link" href="${esc(routeUrl(t,'apple',park))}" target="_blank" rel="noopener noreferrer"><strong>Appleマップ ↗</strong><small>${park?'駐車場へ':'車ルート'}</small></a></div><p class="small">${park?'ルート先は登録された駐車場の位置です。':'ルート先は札所名・住所で検索します。'}入口や通行規制は公式案内で確認し、安全な場所に停車して操作してください。</p><details><summary>情報の出典・座標を確認</summary><div class="source-links"><p>緯度 ${t.lat} / 経度 ${t.lng}<br>公式公開地図と照合：${t.verifiedAt}<br>${esc(t.coordinateNote)}</p><a href="${esc(t.associationSourceUrl)}" target="_blank" rel="noopener noreferrer">霊場会の札所案内 ↗</a><br><a href="${esc(t.sourceUrl)}" target="_blank" rel="noopener noreferrer">日本遺産の札所案内 ↗</a>${t.addressSupplementSourceUrl?`<br><a href="${esc(t.addressSupplementSourceUrl)}" target="_blank" rel="noopener noreferrer">所在地の補足確認 ↗</a>`:''}${t.address!==t.heritageAddress?`<p>所在地は出典間に表記差があります。日本遺産掲載値：${esc(t.heritageAddress)}。採用理由は検証記録を参照してください。</p>`:''}</div></details>`,
-    car:roadCardHTML(roadData.temples.get(t.id),roadData.checkedAt)+feeCardHTML(feeData.temples.get(t.id),feeData.checkedAt,{local:localFees().get(t.id)})+carUI.card(t),
+    basic:`${quickTrip.detailHTML()}<div class="detail-actions"><button class="secondary" id="single-manual">過去の訪問を記録</button><button class="secondary" id="add-to-plan">行き先予定に追加</button><a class="secondary route-link" href="${esc(routeUrl(t,'google',park))}" target="_blank" rel="noopener noreferrer"><strong>Googleマップ ↗</strong><small>${park?'駐車場へ':'車ルート'}</small></a><a class="secondary route-link" href="${esc(routeUrl(t,'apple',park))}" target="_blank" rel="noopener noreferrer"><strong>Appleマップ ↗</strong><small>${park?'駐車場へ':'車ルート'}</small></a></div><p class="small">${park?'ルート先は登録された駐車場の位置です。':'ルート先は札所名・住所で検索します。'}入口や通行規制は公式案内で確認し、安全な場所に停車して操作してください。</p><details><summary>情報の出典・座標を確認</summary><div class="source-links"><p>緯度 ${t.lat} / 経度 ${t.lng}<br>公式公開地図と照合：${t.verifiedAt}<br>${esc(t.coordinateNote)}</p><a href="${esc(t.associationSourceUrl)}" target="_blank" rel="noopener noreferrer">霊場会の札所案内 ↗</a><br><a href="${esc(t.sourceUrl)}" target="_blank" rel="noopener noreferrer">日本遺産の札所案内 ↗</a>${t.addressSupplementSourceUrl?`<br><a href="${esc(t.addressSupplementSourceUrl)}" target="_blank" rel="noopener noreferrer">所在地の補足確認 ↗</a>`:''}${t.address!==t.heritageAddress?`<p>所在地は出典間に表記差があります。日本遺産掲載値：${esc(t.heritageAddress)}。採用理由は検証記録を参照してください。</p>`:''}</div></details>${reportUI.linkHTML()}`,
+    car:roadCardHTML(roadData.temples.get(t.id),roadData.checkedAt)+feeCardHTML(feeData.temples.get(t.id),feeData.checkedAt,{local:localFees().get(t.id)})+carUI.card(t)+reportUI.linkHTML(),
     prayer:templePrayerCard(t),
     photo:`<section class="temple-album-card"><div class="album-section-title"><span>この札所の写真</span><span id="album-count">確認中</span></div><div id="album-preview" class="album-preview"></div><button class="secondary" id="open-album">写真を撮る・アルバムを開く →</button></section>`
   };
   openDialog(`${t.name}`,`<div class="detail-number">${esc(t.prefecture)} · 第${t.id}番札所</div><div class="detail-name">${esc(t.kana)}</div><div class="detail-meta">${esc(t.address)}<br>${visits.length?`✓ ${visits.length}回の訪問を記録`:'この巡礼では未訪問'}</div>${visits.length?`<ul class="detail-visits">${visits.map(v=>`<li><span>${v.date?esc(v.date):'訪問日不明'} · ${v.method==='gps-self-reported'?'GPSチェックイン':'手動記録'}</span><button type="button" class="quiet" data-detail-void="${esc(v.id)}">取り消す</button></li>`).join('')}</ul>`:''}<button class="primary detail-checkin" id="gps-start">現在地でチェックイン</button><div class="detail-tabs" role="tablist" aria-label="札所の情報">${tabs.map(([k,l])=>`<button type="button" role="tab" id="detail-tab-${k}" aria-controls="detail-pane-${k}" aria-selected="${k===tab}" tabindex="${k===tab?0:-1}" data-detail-tab="${k}"${k==='car'&&warn?' class="has-warn"':''}>${l}</button>`).join('')}</div>${tabs.map(([k])=>`<div class="detail-pane" role="tabpanel" id="detail-pane-${k}" aria-labelledby="detail-tab-${k}"${k===tab?'':' hidden'}>${panes[k]}</div>`).join('')}`);
   // 間違えて記録した訪問は、札所の詳細からも取り消せる（取り消したあと「元に戻す」で復元できる）。
   quickTrip.bindDetail(t);
+  reportUI.bind($('#dialog-content'),()=>{const tab=$('#dialog [data-detail-tab][aria-selected=true]')?.dataset.detailTab||'basic';return {temple:`第${t.id}番 ${t.name}`,item:tab==='car'?'駐車場の費用':'住所・場所',shown:reportShown(t),back:()=>detailDialog(t.id,tab)};});
   if($('#fee-local-btn'))$('#fee-local-btn').onclick=()=>feeLocalDialog(t);
   if($('#fee-local-clear'))$('#fee-local-clear').onclick=()=>{const m=localFees();m.delete(t.id);saveLocalFees(m);toast('現地の料金の記録を消しました。');render();detailDialog(t.id,'car');};
   document.querySelectorAll('[data-detail-void]').forEach(b=>b.onclick=()=>voidDialog(b.dataset.detailVoid));
@@ -331,6 +336,7 @@ function voidDialog(id){const v=state.visits.find(v=>v.id===id),t=temples[v.temp
 function newJourneyDialog(){openDialog('新しい巡礼をつくる',`<form id="journey-form" class="dialog-form"><label>巡礼の名前<input name="name" required maxlength="60" placeholder="例：自分の2周目"></label><p class="small">訪問記録・XP・達成率は巡礼ごとに分かれます。今の記録は残ります。</p><div class="actions"><button class="primary">作成する</button></div></form>`);$('#journey-form').onsubmit=async e=>{e.preventDefault();e.submitter.disabled=true;try{const r=await api('journeys',{name:new FormData(e.target).get('name')});journeyId=r.id;closeDialog();await refresh();setView('home');toast('新しい巡礼を作成しました。');}catch(err){showError(err);e.submitter.disabled=false;}};}
 $('#lang').value=i18n.lang;$('#lang').onchange=e=>{i18n.set(e.target.value);toast(i18n.lang==='en'?'Switched to English.':'日本語の表示にしました。');setTimeout(()=>roadMap.reset(),50);};$('#text-size').value=textSize;$('#text-size').onchange=e=>{textSize=applyTextSize(e.target.value);try{localStorage.setItem(textKey,textSize);}catch{}toast('文字の大きさを変更しました。');setTimeout(()=>roadMap.reset(),50);};
 $('#open-credits').onclick=()=>openDialog('出典とライセンス',creditsHTML());
+if($('#report-general')){$('#report-general').hidden=!reportUI.ready();$('#report-general').onclick=()=>reportUI.open({item:'画面の表示・使い方'});}
 $('#all-backup-save').onclick=()=>requireAuth(()=>backupUI.save());$('#all-backup-restore').onchange=e=>{const f=e.target.files?.[0];e.target.value='';if(f)requireAuth(()=>backupUI.restore(f));};
 $('#photos-export').onclick=()=>requireAuth(()=>photoUI.exportPhotos());
 $('#photos-import').onchange=e=>{const file=e.target.files[0];e.target.value='';if(file)requireAuth(()=>photoUI.importPhotos(file));};
