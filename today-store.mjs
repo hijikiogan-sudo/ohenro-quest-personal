@@ -56,5 +56,7 @@ export function createTodayStore({indexedDB=globalThis.indexedDB,scope='/',now=(
     }
     s.updatedAt=at;s.revision++;validateOuting(s);store.put(s);return s;
   });}
-  return {get,start,update,close(){db?.close();db=null;pending=null;}};
+  // 終わった巡礼の進行をホームから片づける（進行中のものは残す）。訪問記録・写真・予定は別の保存場所なので変わらない。
+  async function clearEnded(journeyId){if(!idOK(journeyId))fail('巡礼の記録を確認してください。');return transact(journeyId,true,(rows,store)=>{const ended=rows.filter(s=>s.status!=='active');ended.forEach(s=>store.delete(s.id));return ended.length;});}
+  return {get,start,update,clearEnded,close(){db?.close();db=null;pending=null;}};
 }
