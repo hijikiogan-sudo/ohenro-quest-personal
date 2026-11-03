@@ -1,5 +1,5 @@
 // 札所詳細の「車でのアクセス」カード、駐車場地点の登録・解除、設定画面のバックアップ。
-import {assessParkingRegistration, carInfoFor, exportParkings, readParkingsJSON, PARKING_REGISTER_MAX_ACCURACY, RATINGS, VEHICLES, vehicleBlocked, vehicleLabel, carFlags, MEMO_FIELDS, memoText, suggestRating, ratingLabel, SPEEDS, exportSharePack, readSharePack, shareText} from './car-domain.mjs';
+import {assessParkingRegistration, carInfoFor, PARKING_REGISTER_MAX_ACCURACY, RATINGS, VEHICLES, vehicleBlocked, vehicleLabel, carFlags, MEMO_FIELDS, memoText, suggestRating, ratingLabel, SPEEDS, exportSharePack, readSharePack, shareText} from './car-domain.mjs';
 import {routeUrl} from './domain.mjs';
 import {roadInfoHTML} from './road-info.mjs';
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
@@ -103,8 +103,7 @@ export function createCarUI({document = globalThis.document, store, getCarData, 
 
   // 設定画面：登録件数・JSONバックアップ・復元。
   function renderSettings(root) {
-    const points = getParkings(), ratings = [...getRatings()].map(([templeId, level]) => ({templeId, level}));
-    root.innerHTML = `<label class="car-vehicle">乗っていく車<select id="car-vehicle">${VEHICLES.map(v => `<option value="${v.id}"${v.id === getVehicle() ? ' selected' : ''}>${esc(v.label)}</option>`).join('')}</select></label><p class="tiny">通行できない車種が案内されている札所で、一覧と行き先予定に注意を出します。</p><label class="car-vehicle">移動時間の目安の速さ<select id="car-speed">${SPEEDS.map(v => `<option value="${v.id}"${v.id === getSpeed() ? ' selected' : ''}>${esc(v.label)}</option>`).join('')}</select></label><p class="tiny">行き先予定の「時間の目安」に使います（直線距離からの概算）。</p><details class="settings-fold"><summary><strong>駐車場・評価・車メモを保存・復元</strong><small>JSONファイル（まとめてバックアップにも入っています）</small></summary><div class="settings-fold-body"><p>札所で登録した駐車場の位置・自分の評価・車メモを、JSONで保存・復元できます。訪問記録のJSONには含まれません。</p><p id="parking-count" class="small">駐車場の位置：${points.length}か所${points.length ? `（${points.map(p => `第${p.templeId}番`).join('・')}）` : ''}<br>自分の評価：${ratings.length}か所<br>車メモ：${getMemos().length}件</p><button class="secondary" id="parking-export"${points.length || ratings.length || getMemos().length ? '' : ' disabled'}>駐車場・評価・車メモを保存</button><label class="file-label">駐車場・評価・車メモを復元<input type="file" id="parking-import" accept=".json,application/json"></label><p class="tiny">復元は追加のみで、すでに登録がある札所は上書きしません。</p></div></details><details class="settings-fold"><summary><strong>家族・友人と共有</strong><small>車メモ・評価・駐車場の位置を渡す・受け取る</small></summary><div class="settings-fold-body"><p class="small">車メモ・評価・駐車場の位置を、ファイルや文章にしてLINEやAirDropで渡せます。サーバーには送りません。</p><button class="secondary" id="share-export"${getMemos().length || getRatingRows().length || getParkings().length ? '' : ' disabled'}>共有ファイル・文章をつくる</button><label class="file-label">受け取った共有ファイルを読み込む<input type="file" id="share-import" accept=".json,application/json"></label><div id="shared-list">${getShared().map(p => `<div class="shared-row"><div><strong>${esc(p.name)}さん</strong><small>車メモ${p.memos.length}件・評価${p.ratings.length}か所・駐車場${p.points.length}か所 · ${esc(fmtDate(p.importedAt))}に読み込み</small></div><button class="quiet" data-shared-remove="${esc(p.id)}">外す</button></div>`).join('') || '<p class="tiny">受け取った共有データはありません。</p>'}</div></div></details>`;
+    root.innerHTML = `<label class="car-vehicle">乗っていく車<select id="car-vehicle">${VEHICLES.map(v => `<option value="${v.id}"${v.id === getVehicle() ? ' selected' : ''}>${esc(v.label)}</option>`).join('')}</select></label><p class="tiny">通行できない車種が案内されている札所で、一覧と行き先予定に注意を出します。</p><label class="car-vehicle">移動時間の目安の速さ<select id="car-speed">${SPEEDS.map(v => `<option value="${v.id}"${v.id === getSpeed() ? ' selected' : ''}>${esc(v.label)}</option>`).join('')}</select></label><p class="tiny">行き先予定の「時間の目安」に使います（直線距離からの概算）。</p><details class="settings-fold"><summary><strong>家族・友人と共有</strong><small>車メモ・評価・駐車場の位置を渡す・受け取る</small></summary><div class="settings-fold-body"><p class="small">車メモ・評価・駐車場の位置を、ファイルや文章にしてLINEやAirDropで渡せます。サーバーには送りません。</p><button class="secondary" id="share-export"${getMemos().length || getRatingRows().length || getParkings().length ? '' : ' disabled'}>共有ファイル・文章をつくる</button><label class="file-label">受け取った共有ファイルを読み込む<input type="file" id="share-import" accept=".json,application/json"></label><div id="shared-list">${getShared().map(p => `<div class="shared-row"><div><strong>${esc(p.name)}さん</strong><small>車メモ${p.memos.length}件・評価${p.ratings.length}か所・駐車場${p.points.length}か所 · ${esc(fmtDate(p.importedAt))}に読み込み</small></div><button class="quiet" data-shared-remove="${esc(p.id)}">外す</button></div>`).join('') || '<p class="tiny">受け取った共有データはありません。</p>'}</div></div></details>`;
     $('#car-speed').onchange = e => { setSpeed(e.target.value); toast('移動時間の目安の速さを変更しました。'); };
     $('#share-export').onclick = () => shareExportDialog(root);
     $('#share-import').onchange = async e => {
@@ -118,18 +117,6 @@ export function createCarUI({document = globalThis.document, store, getCarData, 
       $('#share-remove-ok').onclick = async ev => { ev.target.disabled = true; try { await store.removeShared(pack.id); await onChanged(); closeDialog(); renderSettings(root); toast('共有データを外しました。'); } catch (err) { showError(err); ev.target.disabled = false; } };
     });
     $('#car-vehicle').onchange = e => { setVehicle(e.target.value); toast(`乗っていく車を「${vehicleLabel(e.target.value)}」にしました。`); };
-    $('#parking-export').onclick = () => {
-      try {
-        const blob = new Blob([exportParkings(getParkings(), getRatingRows(), getMemos())], {type: 'application/json'}), url = URL.createObjectURL(blob), a = document.createElement('a');
-        a.href = url; a.download = `ohenro-parkings-${japanDate()}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast('駐車場の位置を保存しました。保存先をご確認ください。');
-      } catch (err) { toast(err.message); }
-    };
-    $('#parking-import').onchange = async e => {
-      const file = e.target.files?.[0]; e.target.value = ''; if (!file) return;
-      try { const data = readParkingsJSON(await file.text()), r = await store.importPoints(data.points, data.ratings, data.memos); await onChanged(); renderSettings(root); toast(`駐車場${r.added}か所・評価${r.ratingsAdded}か所・車メモ${r.memosAdded}件を復元しました。${r.skipped + r.ratingsSkipped + r.memosSkipped ? `登録済みの${r.skipped + r.ratingsSkipped + r.memosSkipped}件はそのままです。` : ''}`); }
-      catch (err) { toast(err.message); }
-    };
   }
 
   // 車メモ：同じ札所・同じ日のメモがあれば編集する。
