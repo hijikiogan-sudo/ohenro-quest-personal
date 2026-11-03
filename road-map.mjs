@@ -1,4 +1,4 @@
-import {groupNearby,templeGlyph} from './temple-marker.mjs';
+import {groupNearby} from './temple-marker.mjs';
 import {MAP_KINDS,readMapKind,isTileKind,GSI,spreadBadges,groupByKey} from './map-route.mjs';
 import {loadLeaflet} from './leaflet-loader.mjs';
 // 地図の種類は「全体図・地図・写真」の1か所で切り替える。地図は国土地理院の淡色／標準、写真は国土地理院の写真。
@@ -12,7 +12,7 @@ export function createRoadMap({document=globalThis.document,window=globalThis.wi
   const tiles=()=>isTileKind(kind);
   function show(){
     const active=tiles()&&navigator.onLine!==false;
-    $('#road-map').hidden=!active;$('#map-wrap').hidden=active;
+    $('#road-map').hidden=!active;$('#map-wrap').hidden=active;$('#road-map').dataset.kind=kind;
     const tab=kind==='photo'?'photo':kind==='overview'?'overview':'map';
     $$('[data-map-kind]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mapKind===tab)));
     $('#map-sub').hidden=tab!=='map';
@@ -60,20 +60,21 @@ export function createRoadMap({document=globalThis.document,window=globalThis.wi
         const shift=spreadBadges(route.map(p=>{const pt=map.project([p.lat,p.lng],map.getZoom());return[pt.x,pt.y];}),26);
         route.forEach((p,i)=>{
           const el=document.createElement('span');el.textContent=String(p.order);
-          L.marker([p.lat,p.lng],{interactive:false,keyboard:false,icon:L.divIcon({className:'route-order route-'+p.status,html:el,iconSize:[24,24],iconAnchor:[-6-shift[i],52]})}).addTo(routeLayer);
+          L.marker([p.lat,p.lng],{interactive:false,keyboard:false,icon:L.divIcon({className:'route-order route-'+p.status,html:el,iconSize:[24,24],iconAnchor:[-8-shift[i],30]})}).addTo(routeLayer);
         });
-        const near=list=>groupNearby(list,t=>{const pt=map.project([t.lat,t.lng],map.getZoom());return[pt.x,pt.y];},48);
+        // 札所の印は全体図と同じ番号の丸（白い縁取りで地図の文字に埋もれない）。重なるものだけ「n寺」の札にまとめる。
+        const near=list=>groupNearby(list,t=>{const pt=map.project([t.lat,t.lng],map.getZoom());return[pt.x,pt.y];},34);
         const groups=overlay.dojoOf?groupByKey(rows,t=>overlay.dojoOf(t.id),near):near(rows);
         for(const group of groups){
           const t=group[0],isGroup=group.length>1,done=group.every(t=>visited.has(t.id));
           const label=isGroup?'この周辺に'+group.length+'札所':'第'+t.id+'番 '+t.name+(done?' 訪問済み':' 未訪問');
-          const content=document.createElement('span');content.innerHTML=templeGlyph(isGroup?group.length+'寺':t.id);
+          const v=group.filter(t=>visited.has(t.id)).length,content=document.createElement('span');content.className=isGroup?'rm-pill':'rm-dot';content.textContent=isGroup?(v&&v<group.length?`${v}/${group.length}寺`:`${group.length}寺`):String(t.id);if(isGroup&&v&&v<group.length)content.classList.add('partial');if(group.some(t=>overlay.warn.has(t.id)))content.classList.add('warn');
           const lat=group.reduce((s,t)=>s+t.lat,0)/group.length,lng=group.reduce((s,t)=>s+t.lng,0)/group.length;
           const onRoute=group.some(t=>inRoute.has(t.id));
           const warn=group.some(t=>overlay.warn.has(t.id)),dojo=overlay.dojoOf&&new Set(group.map(t=>overlay.dojoOf(t.id))).size===1?' dojo-'+overlay.dojoOf(t.id):'';
-          const marker=L.marker([lat,lng],{keyboard:true,title:label+(warn?' 車の注意あり':''),alt:label,icon:L.divIcon({className:'temple-map-marker'+(done?' visited':'')+(isGroup?' grouped':'')+(onRoute?' on-route':'')+(warn?' car-warn':'')+dojo,html:content,iconSize:[44,48],iconAnchor:[22,47]})}).addTo(markers);
+          const marker=L.marker([lat,lng],{keyboard:true,title:label+(warn?' 車の注意あり':''),alt:label,icon:L.divIcon({className:'temple-map-marker'+(done?' visited':'')+(isGroup?' grouped':'')+(onRoute?' on-route':'')+dojo,html:content,iconSize:isGroup?[72,26]:[30,30],iconAnchor:isGroup?[36,13]:[15,15]})}).addTo(markers);
           marker.on('click',()=>isGroup?onCluster(group.map(t=>t.id)):onTemple(t.id));
-          if(!isGroup&&map.getZoom()>=12){const name=document.createElement('span');name.textContent=t.name;marker.bindTooltip(name,{direction:'right',offset:[12,-22],className:'temple-map-name'});}
+          if(!isGroup&&map.getZoom()>=12){const name=document.createElement('span');name.textContent=t.name;marker.bindTooltip(name,{direction:'right',offset:[14,0],className:'temple-map-name'});}
         }
       }
       if(pendingView){map.setView(pendingView.center,pendingView.zoom,{animate:false});pendingView=null;needsFit=false;}
