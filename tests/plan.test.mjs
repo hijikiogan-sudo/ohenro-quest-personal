@@ -106,3 +106,28 @@ test('今日の巡礼：日と宿の表示用の情報、その日の札所を�
   assert.equal(morning.toStay, null, '翌朝は宿の案内を出さず次の札所へ');
   assert.equal(outingProgress(outing([1, 2]), [visit(1, '2026-11-14')], '2026-11-14').toStay, null, '区切りが無ければ出さない');
 });
+
+import {japanClock, estimateFromHere} from '../car-domain.mjs';
+test('今から：日本時間の時刻と、今いる場所から札所までの目安', () => {
+  const now = Date.UTC(2026, 10, 3, 5, 7); // 日本時間 14:07
+  assert.deepEqual(japanClock(now), {date: '2026-11-03', hm: '14:07', departAt: '2026-11-03T14:07', minutes: 847});
+  assert.equal(japanClock(Date.UTC(2026, 10, 3, 15, 30)).date, '2026-11-04', '日本時間で日付が変わる');
+  const t = temples.find(t => t.id === 1), here = {lat: t.lat - 0.1, lng: t.lng};
+  const r = estimateFromHere({here, to: t, kmh: 35, now: Date.UTC(2026, 10, 3, 5, 0)});
+  assert.ok(r.roadKm > 10 && r.roadKm < 20);
+  assert.equal(r.inTime, true);
+  const late = estimateFromHere({here, to: t, kmh: 35, now: Date.UTC(2026, 10, 3, 7, 50)}); // 16:50発
+  assert.equal(late.inTime, false);
+  const early = estimateFromHere({here, to: t, kmh: 35, now: Date.UTC(2026, 10, 2, 21, 0)}); // 6:00発
+  assert.equal(early.beforeOpen, true);
+});
+
+test('今から：今いる場所を出発地にして近い順と時間の目安を出す', () => {
+  const stops = [6, 1, 3].map(templeId => ({templeId, minutes: 30}));
+  const one = temples.find(t => t.id === 1), here = {kind: 'here', lat: one.lat, lng: one.lng};
+  const r = nearestOrder({stops, temples, origin: here});
+  assert.equal(r.stops[0].templeId, 1, '今いる場所にいちばん近い札所から');
+  const sc = planSchedule({stops: r.stops, departAt: '2026-11-03T10:00', temples, origin: here});
+  assert.equal(sc.unknownFirst, false, '最初の札所までの移動も計算する');
+  assert.ok(sc.rows[0].leg && sc.rows[0].leg.minutes >= 5);
+});

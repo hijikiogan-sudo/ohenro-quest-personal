@@ -233,6 +233,19 @@ export function estimateLeg(from, to, kmh = 35) {
 }
 
 const hm = m => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+// 日本時間の今の日付と時刻（'YYYY-MM-DD'・'HH:MM'・0時からの分）。
+export function japanClock(now = Date.now()) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'}).formatToParts(new Date(now)).map(p => [p.type, p.value]));
+  const hm = `${parts.hour}:${parts.minute}`;
+  return {date: `${parts.year}-${parts.month}-${parts.day}`, hm, departAt: `${parts.year}-${parts.month}-${parts.day}T${hm}`, minutes: Number(parts.hour) * 60 + Number(parts.minute)};
+}
+
+// 今いる場所から1つの札所へ、今出たら何分・何時ごろ着くか（直線距離×1.4の目安）。納経の受付時間に間に合うかも返す。
+export function estimateFromHere({here, to, kmh = 35, now = Date.now()}) {
+  const leg = estimateLeg(here, to, kmh), clock = japanClock(now), arrive = clock.minutes + leg.minutes;
+  return {...leg, roadKm: Math.round(leg.roadKm), arriveText: hm(arrive), nextDay: arrive >= 24 * 60, inTime: arrive >= NOKYO_OPEN && arrive + 15 <= NOKYO_CLOSE, beforeOpen: arrive < NOKYO_OPEN};
+}
+
 export const formatMinutes = m => m >= 60 ? `${Math.floor(m / 60)}時間${m % 60 ? `${m % 60}分` : ''}` : `${m}分`;
 
 // 自分のGPSチェックインから、同じ日に続けて記録した2札所の間隔（参拝＋移動）を集める。
@@ -257,7 +270,8 @@ const stopPoint = (temples, parkingFor) => id => { const p = parkingFor(id); if 
 // nights があれば日ごとに分け、2日目からは dayStart に宿を出て最初の札所へ着く計算にする（宿からの移動は含めない）。
 export function planSchedule({stops, departAt = '', temples, parkingFor = () => null, origin = null, returnTo = null, kmh = 35, history = new Map(), nights = [], dayStart = '08:00'}) {
   const point = stopPoint(temples, parkingFor);
-  const endPoint = e => e?.kind === 'temple' ? point(e.templeId) : null;
+  // 出発地・帰着地：札所、または「今いる場所」（{kind:'here', lat, lng}。保存はせず、その場の計算だけに使う）。
+  const endPoint = e => e?.kind === 'temple' ? point(e.templeId) : e?.kind === 'here' && Number.isFinite(e.lat) && Number.isFinite(e.lng) ? {lat: e.lat, lng: e.lng} : null;
   const start = departAt && /T\d{2}:\d{2}$/.test(departAt) ? Number(departAt.slice(11, 13)) * 60 + Number(departAt.slice(14, 16)) : null;
   let clock = start, prev = endPoint(origin), prevId = origin?.kind === 'temple' ? origin.templeId : null, driveTotal = 0, kmTotal = 0, unknownFirst = false, day = 1;
   const rows = [], dayHeads = new Set(nights.map(n => n.after + 1)), morning = Number(dayStart.slice(0, 2)) * 60 + Number(dayStart.slice(3, 5));
@@ -307,7 +321,7 @@ export function nearestOrder({stops, temples, parkingFor = () => null, origin = 
     return order;
   };
   const ends = [...nights.map(n => n.after), stops.length - 1], last = returnTo?.kind === 'temple' ? point(returnTo.templeId) : null;
-  let from = 0, start = origin?.kind === 'temple' ? point(origin.templeId) : null, startBefore = start, before = 0, after = 0;
+  let from = 0, start = origin?.kind === 'temple' ? point(origin.templeId) : origin?.kind === 'here' && Number.isFinite(origin.lat) && Number.isFinite(origin.lng) ? {lat: origin.lat, lng: origin.lng} : null, startBefore = start, before = 0, after = 0;
   const order = [];
   ends.forEach((to, k) => {
     const idx = Array.from({length: to - from + 1}, (_, i) => from + i), end = k === ends.length - 1 ? last : null, sorted = sortDay(idx, start, end);
