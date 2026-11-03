@@ -26,3 +26,31 @@ test('駐車場の費用：表示と予定の合計', () => {
 test('駐車場の費用：同梱の data/parking-fee.json は88寺そろっていて読める', {skip: !existsSync(new URL('../data/parking-fee.json', import.meta.url))}, () => {
   assert.equal(readFeeData(JSON.parse(readFileSync(new URL('../data/parking-fee.json', import.meta.url)))).temples.size, 88);
 });
+
+import {readLocalFees, writeLocalFees, withLocal, localDiffs} from '../parking-fee.mjs';
+import {isStale, roadCardHTML} from '../road-level.mjs';
+test('現地の料金の記録：読み書き・優先・調べた料金との違い', () => {
+  const m = readLocalFees(JSON.stringify({2: {fee: 'paid', yen: 500, date: '2027-04-01', note: '値上げ'}, 3: {fee: 'free', yen: 100, date: '2027-04-01'}, 99: {fee: 'free', date: '2027-04-01'}, 4: {fee: 'x', date: '2027-04-01'}, 5: {fee: 'paid', yen: -1, date: '2027-04-01'}}));
+  assert.deepEqual([...m.keys()], [2, 3], '番号・種類・金額がおかしい記録は使わない');
+  assert.equal(m.get(3).yen, null, '無料なら金額は持たない');
+  assert.deepEqual(readLocalFees('{壊れた'), new Map());
+  assert.deepEqual(readLocalFees(writeLocalFees(m)), m);
+  const official = readFeeData(data([row(2, {fee: 'paid', yen: 300}), row(3)])).temples;
+  const f = withLocal(official.get(2), m.get(2));
+  assert.equal(f.yen, 500); assert.equal(f.own, true); assert.equal(f.detail, official.get(2).detail, '説明と出典は調べたものを残す');
+  assert.equal(withLocal(official.get(3), undefined), official.get(3));
+  assert.deepEqual(localDiffs(official, m).map(d => d.id), [2], '同じ料金なら違いに出さない');
+  assert.equal(feeChipHTML(f), '<span class="fee-chip paid own">駐車場：500円（自分の記録）</span>');
+});
+
+test('調べた日から1年以上たったら知らせる', () => {
+  const day = 24 * 60 * 60 * 1000, at = Date.parse('2026-11-03T00:00:00+09:00');
+  assert.equal(isStale('2026-11-03', at + 300 * day), false);
+  assert.equal(isStale('2026-11-03', at + 366 * day), true);
+  assert.equal(isStale('', at), false);
+  const r = {level: 1, reason: 'x', sources: [{label: 'a', url: 'https://a'}], confidence: 'high'};
+  assert.match(roadCardHTML(r, '2026-11-03', at + 400 * day), /1年以上たっています/);
+  assert.doesNotMatch(roadCardHTML(r, '2026-11-03', at + 10 * day), /1年以上/);
+  assert.match(feeCardHTML(official1(), '2026-11-03', {now: at + 400 * day}), /1年以上たっています/);
+});
+function official1() { return readFeeData(data([row(1)])).temples.get(1); }

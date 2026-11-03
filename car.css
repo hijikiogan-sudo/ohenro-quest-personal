@@ -133,3 +133,9 @@
 .fee-card{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 14px;background:#f3f8fc}
 .fee-card>p{margin:8px 0 0;font-size:13px;line-height:1.75;color:var(--ink)}.fee-card .tiny{color:var(--muted)}.fee-extra{font-weight:600}
 :root[data-theme=dark] .fee-card{background:#1f2d38;border-color:#3d5566}:root[data-theme=dark] .fee-chip{background:#223a4c;color:#a9d3f0}:root[data-theme=dark] .fee-chip.free{background:#244236;color:#a8e2c4}:root[data-theme=dark] .fee-chip.unknown,:root[data-theme=dark] .fee-chip.none{background:#2f3533;color:#b9c2bd}
+.fee-own{display:grid;gap:2px;margin:10px 0 0;padding:10px 12px;border-radius:10px;background:#fff;border:1px dashed #9cb9cf}.fee-own strong{font-size:14px;color:var(--ink)}.fee-own span{font-size:12px;color:var(--muted)}.fee-own .text-button{justify-self:start;padding:6px 0;font-size:12px}
+.fee-local-btn{width:100%;margin-top:12px}.fee-chip.own{outline:1px dashed #7fa6c2}
+.stale-note{margin:10px 0 0;padding:8px 10px;border-radius:8px;background:#fff6e0;color:#7a5a17;font-size:12px;line-height:1.7}
+.fee-local-form{display:grid;gap:10px;margin:12px 0}.fee-local-form label{display:grid;gap:6px;font-size:13px}.fee-local-form label.inline{display:flex;align-items:center;gap:8px}
+.fee-local-head{font-size:14px;margin:18px 0 6px}.fee-diff-list{list-style:none;padding:0;margin:8px 0;display:grid;gap:6px}.fee-diff-list li{display:grid;gap:2px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:12px}.fee-diff-list span{color:var(--muted)}
+:root[data-theme=dark] .fee-own{background:#1c2a33;border-color:#4b6a80}:root[data-theme=dark] .stale-note{background:#3a3220;color:#f3dda0}

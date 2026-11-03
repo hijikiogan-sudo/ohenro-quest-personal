@@ -16,7 +16,7 @@ import {createBackupUI} from './backup-ui.mjs';
 import {createBackupReminder} from './backup-reminder.mjs';
 import {createI18n} from './i18n.mjs';
 import {readRoadData, roadChipHTML, roadCardHTML} from './road-level.mjs';
-import {readFeeData, feeChipHTML, feeCardHTML, feeTotal} from './parking-fee.mjs';
+import {readFeeData, feeChipHTML, feeCardHTML, feeTotal, readLocalFees, writeLocalFees, withLocal, localDiffs, feeShort} from './parking-fee.mjs';
 import {roadInfoHTML} from './road-info.mjs';
 import {creditsHTML,isNativeApp} from './credits.mjs';
 import {DOJO} from './badges.mjs';
@@ -34,6 +34,11 @@ const $$ = selector=>[...document.querySelectorAll(selector)];
 const esc = value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizeTerm=value=>value.normalize('NFKC').toLocaleLowerCase().replace(/[國寶佛圓瀧釋峯]/g,c=>({'國':'国','寶':'宝','佛':'仏','圓':'円','瀧':'滝','釋':'釈','峯':'峰'}[c]));
 let roadData={checkedAt:'',temples:new Map()},feeData={checkedAt:'',temples:new Map()};
+// 現地で払った駐車場の料金（この端末だけ）。調べた料金より優先して出す。
+const feeLocalKey='ohenro-fee-local:'+new URL('.',import.meta.url).pathname;
+function localFees(){try{return readLocalFees(localStorage.getItem(feeLocalKey));}catch{return new Map();}}
+function saveLocalFees(map){try{localStorage.setItem(feeLocalKey,writeLocalFees(map));}catch{toast('この端末に保存できませんでした。');}}
+const feeFor=id=>withLocal(feeData.temples.get(id),localFees().get(id));
 let carData=null,parkingPoints=[],parkingFor=()=>null,ratingRows=[],ratings=new Map(),memoRows=[],sharedPacks=[];
 const speedKey='ohenro-speed:'+new URL('.',import.meta.url).pathname;
 // 「個人用テスト版です」の案内を閉じたか（一時的な表示状態なので、まとめてバックアップには含めない）。
@@ -135,7 +140,7 @@ function scheduleHTML(plan){
   if(!plan.stops.length)return '';
   const speed=speedOf(getSpeed()),sc=planSchedule({stops:plan.stops,departAt:plan.departAt||'',temples,parkingFor:id=>parkingFor(id),origin:plan.origin,returnTo:plan.returnTo,kmh:speed.kmh,history:legHistory(state?.visits||[]),nights:plan.nights||[],dayStart:plan.dayStart||DAY_START,pace:getPace()});
   const name=id=>`第${id}番 ${temples.find(t=>t.id===id)?.name||''}`,hasTime=!!sc.rows[0]?.arriveText;
-  const fee={...feeTotal(plan.stops.map(p=>p.templeId),feeData.temples),temples:feeData.temples.size};
+  const fee={...feeTotal(plan.stops.map(p=>p.templeId),new Map([...feeData.temples.keys(),...localFees().keys()].map(id=>[id,feeFor(id)]))),temples:feeData.temples.size};
   const hhmm=m=>`${Math.floor(m/60)}:${String(m%60).padStart(2,'0')}`;
   return `<div class="sched-total"><div><small>移動の目安</small><strong>約${sc.roadKm}km · ${formatMinutes(sc.driveMinutes)}</strong></div><div><small>参拝の合計</small><strong>${formatMinutes(sc.prayerMinutes)}</strong></div>${fee.temples?`<div><small>駐車場代の目安</small><strong>${fee.yen?`約${fee.yen.toLocaleString('ja-JP')}円`:'0円'}</strong>${fee.donation||fee.unknown?`<small>${[fee.donation&&`志納${fee.donation}寺`,fee.unknown&&`料金不明${fee.unknown}寺`].filter(Boolean).join('・')}は含まない</small>`:''}</div>`:''}<div><small>${hasTime?(sc.days>1?'最終日の':'')+(plan.returnTo.kind==='none'?'最後の札所を出る目安':'帰着の目安'):'出発予定'}</small><strong>${hasTime?esc(sc.finishText)+(sc.overnight?'（翌日）':''):'未設定'}</strong></div></div>${sc.outsideCount?`<p class="car-plan-msg warn">${sc.outsideCount}か所で、到着の目安が納経の受付時間（${hhmm(NOKYO_OPEN)}〜${hhmm(NOKYO_CLOSE)}）から外れます。順番・出発時刻・札所の数を見直してください。</p>`:''}<div class="sched-wrap"><table class="sched"><thead><tr><th>札所</th><th>移動</th><th>到着</th><th>出発</th></tr></thead><tbody>${sc.rows.map(r=>`${sc.days>1&&(r.dayHead||r===sc.rows[0])?`<tr class="sched-day"><th colspan="4">${r.day}日目${r.dayHead?`（${esc(plan.dayStart||DAY_START)}から）`:''}</th></tr>`:''}<tr${r.outside?' class="out"':''}><td><strong>${esc(name(r.templeId))}</strong>${r.past.length?`<small>前回の実績 ${formatMinutes(r.past.at(-1).minutes)}（${esc(r.past.at(-1).date)}・前の札所の参拝込み）</small>`:''}${parkingFor(r.templeId)?'<small>駐車場の位置で計算</small>':''}</td><td>${r.leg?`約${Math.round(r.leg.roadKm)}km<br>${formatMinutes(r.leg.minutes)}${r.leg.fromHistory?'<small>実績から</small>':r.leg.mountain?'<small>山道で長め</small>':''}`:'—'}</td><td>${r.arriveText?esc(r.arriveText)+(r.outside?'<br><small>受付時間外</small>':''):'—'}</td><td>${r.leaveText?esc(r.leaveText):'—'}</td></tr>`).join('')}${sc.back?`<tr><td><strong>帰着地</strong></td><td>約${Math.round(sc.back.roadKm)}km<br>${formatMinutes(sc.back.minutes)}</td><td>${hasTime?esc(sc.finishText):'—'}</td><td></td></tr>`:''}</tbody></table></div><p class="tiny">${sc.unknownFirst?'出発地が現在地・住所のため、最初の札所までの移動は含めていません（出発予定時刻に最初の札所へ着く計算）。':''}${sc.days>1?'2日目からは、宿から最初の札所までの移動を含めず、出発時刻に最初の札所へ着く計算です。':''}移動は直線距離×1.4を${esc(speed.label)}で割った概算です（自分のGPSチェックインの実績がある区間は実績を優先、山道の札所に出入りする区間は約1.5倍）。${esc(paceText(paceInfo(),paceOn()))}市街地・休憩で大きく変わるため、正確な時間はGoogleマップで確認してください。納経の受付時間は霊場会の案内（基本的に8時〜17時）によります。速さは設定で変えられます。${hasTime?'':'出発予定を入れると到着時刻の目安を表示します。'}</p>`;
 }
@@ -199,7 +204,7 @@ function renderTemples(){
   const rows=temples.filter(t=>(!term||normalizeTerm(`${t.id} ${t.name} ${t.kana} ${t.address}`).includes(term))&&(!pref||t.prefecture===pref)&&(!status||(status==='visited'?done.has(t.id):!done.has(t.id)))&&carOK(t));
   $('#result-count').textContent=`${rows.length} 件の札所${!state?' · 保存領域を確認してください':''}`;
   $('#status-filter').disabled=!state;
-  $('#temple-list').innerHTML=rows.length?rows.map(t=>`<button class="temple-card" data-temple="${t.id}"><span class="temple-number">${t.id.toString().padStart(2,'0')}</span>${done.has(t.id)?'<span class="status-tag">✓ 訪問済み</span>':''}<small>${esc(t.prefecture)} · 第${t.id}番</small><h2>${esc(t.name)}</h2><p>${esc(t.address)}</p>${roadChipHTML(roadData.temples.get(t.id))}${feeChipHTML(feeData.temples.get(t.id))}${chipsHTML(flags.get(t.id))}</button>`).join(''):'<div class="empty">該当する札所がありません。検索条件を変えてください。</div>';
+  $('#temple-list').innerHTML=rows.length?rows.map(t=>`<button class="temple-card" data-temple="${t.id}"><span class="temple-number">${t.id.toString().padStart(2,'0')}</span>${done.has(t.id)?'<span class="status-tag">✓ 訪問済み</span>':''}<small>${esc(t.prefecture)} · 第${t.id}番</small><h2>${esc(t.name)}</h2><p>${esc(t.address)}</p>${roadChipHTML(roadData.temples.get(t.id))}${feeChipHTML(feeFor(t.id))}${chipsHTML(flags.get(t.id))}</button>`).join(''):'<div class="empty">該当する札所がありません。検索条件を変えてください。</div>';
   $$('#temple-list [data-temple]').forEach(el=>el.onclick=()=>detailDialog(Number(el.dataset.temple)));
 }
 $('#search').oninput=renderTemples;$('#pref-filter').onchange=renderTemples;$('#car-filter').onchange=renderTemples;$('#status-filter').onchange=renderTemples;
@@ -213,22 +218,35 @@ function renderFamily(){
   const last=state?.lastExportAt?new Date(state.lastExportAt).toLocaleString('ja-JP'):'まだ書き出していません';
   if($('#all-backup-last'))$('#all-backup-last').textContent=`前回のバックアップ：${last}`;
   $('#family-content').innerHTML=`<p>自分たちのペースで、八十八の出会いを。</p><p class="version" id="settings-version">${esc($('.side-footer .version')?.textContent||'')}</p><p class="small">ログイン不要の個人版です。記録・写真はこの端末だけに保存し、インターネットには送りません。家族や別の端末とも自動では共有しません。</p><button class="secondary" id="new-journey">新しい巡礼を作成</button><button class="quiet" id="settings-history">訪問の記録を見る</button><p class="tiny">プライベートブラウズは使わず、ホーム画面に追加して使ってください。機種変更や端末の故障に備えて、ときどき「すべてを1つのファイルに保存」でバックアップしてください。</p>`;
-  if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));$('#new-journey').onclick=()=>requireAuth(()=>newJourneyDialog());$('#settings-history').onclick=()=>setView('history');
+  if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));
+  if($('#fee-local-list')){const locals=localFees(),diffs=localDiffs(feeData.temples,locals);$('#fee-local-list').innerHTML=locals.size?`<p class="small">現地で記録した駐車場の料金：${locals.size}件（調べた料金と違う札所 ${diffs.length}件）</p>${diffs.length?`<ul class="fee-diff-list">${diffs.map(d=>`<li><strong>第${d.id}番 ${esc(temples.find(x=>x.id===d.id)?.name||'')}</strong><span>調べた料金：${esc(d.official?feeShort(d.official):'なし')} → 自分の記録：${esc(feeShort(d.local))}（${esc(d.local.date)}）</span></li>`).join('')}</ul><p class="tiny">次の見直しのときに、この一覧を見せてください。データに反映します。</p>`:''}`:'<p class="tiny">札所の詳細の「車」タブで、現地で払った駐車場の料金を記録できます。記録した札所はここに出ます。</p>';}$('#new-journey').onclick=()=>requireAuth(()=>newJourneyDialog());$('#settings-history').onclick=()=>setView('history');
 }
 let detailTab='basic';
+// 現地で払った駐車場の料金を記録する（無料・有料・志納と金額、ひとこと）
+function feeLocalDialog(t){
+  const cur=localFees().get(t.id),off=feeData.temples.get(t.id);
+  openDialog('現地で払った駐車場の料金',`<p class="small">第${t.id}番 ${esc(t.name)}${off?` · 調べた料金：${esc(feeShort(off))}`:''}</p><div class="fee-local-form"><label class="inline"><input type="radio" name="fee-local" value="free"${cur?.fee==='free'?' checked':''}>無料だった</label><label class="inline"><input type="radio" name="fee-local" value="paid"${!cur||cur.fee==='paid'?' checked':''}>有料だった</label><label class="inline"><input type="radio" name="fee-local" value="donation"${cur?.fee==='donation'?' checked':''}>志納（気持ちで納めた）</label><label>払った金額（円）<input type="number" id="fee-local-yen" inputmode="numeric" min="0" max="10000" step="10" value="${cur?.yen??''}"></label><label>ひとこと（任意・60文字まで）<input type="text" id="fee-local-note" maxlength="60" value="${esc(cur?.note||'')}" placeholder="例：納経所で払った"></label></div><p id="fee-local-error" class="car-plan-msg warn" hidden></p><div class="dialog-actions"><button type="button" class="quiet" id="fee-local-back">戻る</button><button type="button" class="primary" id="fee-local-save">記録する</button></div><p class="tiny">この端末だけに保存し、まとめてバックアップにも入ります。次の見直しのときに、調べた料金と違う札所の一覧として使えます。</p>`);
+  $('#fee-local-back').onclick=()=>detailDialog(t.id,'car');
+  $('#fee-local-save').onclick=()=>{const fee=document.querySelector('input[name=fee-local]:checked')?.value,raw=$('#fee-local-yen').value.trim(),yen=raw===''?null:Number(raw);
+    if(fee!=='free'&&yen!==null&&(!Number.isInteger(yen)||yen<0||yen>10000)){$('#fee-local-error').textContent='金額は0〜10000円の整数で入れてください。';$('#fee-local-error').hidden=false;return;}
+    if(fee==='paid'&&yen===null){$('#fee-local-error').textContent='有料のときは、払った金額を入れてください。';$('#fee-local-error').hidden=false;return;}
+    const m=localFees();m.set(t.id,{fee,yen:fee==='free'?null:yen,date:japanDate(),note:$('#fee-local-note').value.trim().slice(0,60)});saveLocalFees(m);toast('現地の料金を記録しました。');render();detailDialog(t.id,'car');};
+}
 function detailDialog(id,tab=detailTab){
   const t=temples.find(t=>t.id===id),visits=currentVisits().filter(v=>v.templeId===id),park=parkingFor(t.id),warn=hasWarn(carUI.flagsFor(t.id));
   const tabs=[['basic','基本'],['car',warn?'車 !':'車'],['prayer','お経'],['photo','写真']];
   if(!tabs.some(([k])=>k===tab))tab='basic';
   const panes={
     basic:`${quickTrip.detailHTML()}<div class="detail-actions"><button class="secondary" id="single-manual">過去の訪問を記録</button><button class="secondary" id="add-to-plan">行き先予定に追加</button><a class="secondary route-link" href="${esc(routeUrl(t,'google',park))}" target="_blank" rel="noopener noreferrer"><strong>Googleマップ ↗</strong><small>${park?'駐車場へ':'車ルート'}</small></a><a class="secondary route-link" href="${esc(routeUrl(t,'apple',park))}" target="_blank" rel="noopener noreferrer"><strong>Appleマップ ↗</strong><small>${park?'駐車場へ':'車ルート'}</small></a></div><p class="small">${park?'ルート先は登録された駐車場の位置です。':'ルート先は札所名・住所で検索します。'}入口や通行規制は公式案内で確認し、安全な場所に停車して操作してください。</p><details><summary>情報の出典・座標を確認</summary><div class="source-links"><p>緯度 ${t.lat} / 経度 ${t.lng}<br>公式公開地図と照合：${t.verifiedAt}<br>${esc(t.coordinateNote)}</p><a href="${esc(t.associationSourceUrl)}" target="_blank" rel="noopener noreferrer">霊場会の札所案内 ↗</a><br><a href="${esc(t.sourceUrl)}" target="_blank" rel="noopener noreferrer">日本遺産の札所案内 ↗</a>${t.addressSupplementSourceUrl?`<br><a href="${esc(t.addressSupplementSourceUrl)}" target="_blank" rel="noopener noreferrer">所在地の補足確認 ↗</a>`:''}${t.address!==t.heritageAddress?`<p>所在地は出典間に表記差があります。日本遺産掲載値：${esc(t.heritageAddress)}。採用理由は検証記録を参照してください。</p>`:''}</div></details>`,
-    car:roadCardHTML(roadData.temples.get(t.id),roadData.checkedAt)+feeCardHTML(feeData.temples.get(t.id),feeData.checkedAt)+carUI.card(t),
+    car:roadCardHTML(roadData.temples.get(t.id),roadData.checkedAt)+feeCardHTML(feeData.temples.get(t.id),feeData.checkedAt,{local:localFees().get(t.id)})+carUI.card(t),
     prayer:templePrayerCard(t),
     photo:`<section class="temple-album-card"><div class="album-section-title"><span>この札所の写真</span><span id="album-count">確認中</span></div><div id="album-preview" class="album-preview"></div><button class="secondary" id="open-album">写真を撮る・アルバムを開く →</button></section>`
   };
   openDialog(`${t.name}`,`<div class="detail-number">${esc(t.prefecture)} · 第${t.id}番札所</div><div class="detail-name">${esc(t.kana)}</div><div class="detail-meta">${esc(t.address)}<br>${visits.length?`✓ ${visits.length}回の訪問を記録`:'この巡礼では未訪問'}</div>${visits.length?`<ul class="detail-visits">${visits.map(v=>`<li><span>${v.date?esc(v.date):'訪問日不明'} · ${v.method==='gps-self-reported'?'GPSチェックイン':'手動記録'}</span><button type="button" class="quiet" data-detail-void="${esc(v.id)}">取り消す</button></li>`).join('')}</ul>`:''}<button class="primary detail-checkin" id="gps-start">現在地でチェックイン</button><div class="detail-tabs" role="tablist" aria-label="札所の情報">${tabs.map(([k,l])=>`<button type="button" role="tab" id="detail-tab-${k}" aria-controls="detail-pane-${k}" aria-selected="${k===tab}" tabindex="${k===tab?0:-1}" data-detail-tab="${k}"${k==='car'&&warn?' class="has-warn"':''}>${l}</button>`).join('')}</div>${tabs.map(([k])=>`<div class="detail-pane" role="tabpanel" id="detail-pane-${k}" aria-labelledby="detail-tab-${k}"${k===tab?'':' hidden'}>${panes[k]}</div>`).join('')}`);
   // 間違えて記録した訪問は、札所の詳細からも取り消せる（取り消したあと「元に戻す」で復元できる）。
   quickTrip.bindDetail(t);
+  if($('#fee-local-btn'))$('#fee-local-btn').onclick=()=>feeLocalDialog(t);
+  if($('#fee-local-clear'))$('#fee-local-clear').onclick=()=>{const m=localFees();m.delete(t.id);saveLocalFees(m);toast('現地の料金の記録を消しました。');render();detailDialog(t.id,'car');};
   document.querySelectorAll('[data-detail-void]').forEach(b=>b.onclick=()=>voidDialog(b.dataset.detailVoid));
   let miniDrawn=false;
   const drawMini=()=>{miniDrawn=true;miniMap.render(document.querySelector('#dialog .mini-map-box'),t,park,miniKind);};
