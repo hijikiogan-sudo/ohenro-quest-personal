@@ -108,3 +108,11 @@
 .qt-search{display:block;margin:0 0 10px}
 .qt-search input{width:100%}
 @media(max-width:620px){.quick-home{display:block;padding:15px}.quick-home .primary{width:100%;margin-top:12px}}
+.backup-reminder{display:flex;align-items:center;justify-content:space-between;gap:16px;border:1px solid #e8d6a6;border-radius:18px;padding:16px 20px;margin:0 0 20px;background:#fff8e6}
+.backup-reminder>div:first-child{display:grid;gap:4px}
+.backup-reminder strong{font-size:16px;color:#6b5428}
+.backup-reminder span{font-size:12px;color:#79643a;line-height:1.7}
+.backup-reminder-actions{display:flex;gap:8px;flex-shrink:0}
+.backup-reminder-actions .primary{white-space:nowrap}
+:root[data-theme=dark] .backup-reminder{background:#3a3220;border-color:#6b5a32}:root[data-theme=dark] .backup-reminder strong{color:#f3dda0}:root[data-theme=dark] .backup-reminder span{color:#e3cf9e}
+@media(max-width:620px){.backup-reminder{display:block;padding:15px}.backup-reminder-actions{margin-top:12px}.backup-reminder-actions .primary{flex:1}}
