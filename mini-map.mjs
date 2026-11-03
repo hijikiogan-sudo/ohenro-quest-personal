@@ -24,7 +24,8 @@ export function createMiniMap({document = globalThis.document, window = globalTh
     try {
       const L = await loadLeaflet(document, window);
       if (!box.isConnected) return;
-      map = L.map(box, {zoomControl: false, attributionControl: true, scrollWheelZoom: false, minZoom: 12, maxZoom: 18});
+      // スマホでは1本指で地図を動かさない（札所の詳細の上下のスクロールを地図が奪わないように）。拡大・縮小はボタンと2本指で。
+      map = L.map(box, {zoomControl: false, attributionControl: true, scrollWheelZoom: false, dragging: !L.Browser.mobile, minZoom: 12, maxZoom: 18});
       map.attributionControl.setPrefix(false);
       L.control.zoom({zoomInTitle: '拡大', zoomOutTitle: '縮小'}).addTo(map);
       const credit = '<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">地理院タイル</a>';
