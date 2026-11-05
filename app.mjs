@@ -20,6 +20,7 @@ import {createReportUI} from './report.mjs';
 import {readFeeData, feeChipHTML, feeCardHTML, feeTotal, readLocalFees, writeLocalFees, withLocal, localDiffs, feeShort} from './parking-fee.mjs';
 import {roadInfoHTML} from './road-info.mjs';
 import {creditsHTML,isNativeApp} from './credits.mjs';
+import {installNativeGeolocation} from './native-geo.mjs';
 import {DOJO} from './badges.mjs';
 import {outingProgress} from './today-store.mjs';
 import {progress, routeUrl, japanDate, assessGPS, distanceMeters} from './domain.mjs';
@@ -41,6 +42,10 @@ function localFees(){try{return readLocalFees(localStorage.getItem(feeLocalKey))
 function saveLocalFees(map){try{localStorage.setItem(feeLocalKey,writeLocalFees(map));}catch{toast('この端末に保存できませんでした。');}}
 const feeFor=id=>withLocal(feeData.temples.get(id),localFees().get(id));
 // 間違いの報告・情報提供（運営の Google フォームを、札所・項目・今の表示を入れて開く）
+// アプリ版（App Store）だけの表示：Web版の案内（ホーム画面に追加・Safariで開くなど）を出さない。
+const nativeApp=isNativeApp();
+if(nativeApp){document.documentElement.classList.add('native-app');installNativeGeolocation();document.querySelectorAll('.side-footer .version').forEach(e=>{e.textContent=e.textContent.replace('個人テスト版','アプリ版');});document.querySelectorAll('.footer small').forEach(e=>{e.textContent=e.textContent.replace('個人テスト版 · ','');});}
+const reopenHint=nativeApp?'アプリを開き直してください。':'通常のSafariで開き直してください。';
 const reportUI=createReportUI({document,openDialog,getVersion:()=>$('.side-footer .version')?.textContent||''});
 function reportShown(t){const r=roadData.temples.get(t.id),f=feeData.temples.get(t.id);return [r&&`道：${roadLabel(r.level)}（${roadData.checkedAt}調べ）`,f&&`駐車場：${feeShort(f)}（${feeData.checkedAt}調べ）`,`住所：${t.address}`].filter(Boolean).join(' ／ ');}
 let carData=null,parkingPoints=[],parkingFor=()=>null,ratingRows=[],ratings=new Map(),memoRows=[],sharedPacks=[];
@@ -167,7 +172,7 @@ function closeDialog() {prayerUI.cleanup();photoUI.cleanup();dialogEpoch++;$('#d
 $('#dialog-close').onclick=closeDialog;
 $('#dialog').addEventListener('cancel',()=>{prayerUI.cleanup();photoUI.cleanup();dialogEpoch++;});
 $('#dialog').addEventListener('close',()=>{photoUI.dialogClosed();if(!$('#dialog').open)prayerUI.cleanup();});
-function requireAuth(callback){if(!state||!connected){toast('端末の保存領域を利用できません。通常のSafariで再読み込みしてください。');return false;}callback?.();return true;}
+function requireAuth(callback){if(!state||!connected){toast(`端末の保存領域を利用できません。${reopenHint}`);return false;}callback?.();return true;}
 function setView(next){if(view==='home'&&next!=='home')todayUI.leave();if(view==='plan'&&next!=='plan'){if(!planUI.canLeave())return;planUI.leave();}if(next!=='album')photoUI.leaveLibrary();view=next;$$('.view').forEach(el=>el.hidden=el.id!=='view-'+view);$$('[data-view]').forEach(el=>{el.classList.toggle('active',el.dataset.view===view);el.setAttribute('aria-current',el.dataset.view===view?'page':'false');});render();window.scrollTo({top:0,behavior:'instant'});}
 $$('[data-view]').forEach(el=>el.onclick=()=>setView(el.dataset.view));
 $$('[data-action=manual]').forEach(el=>el.onclick=()=>requireAuth(()=>manualDialog()));
@@ -181,8 +186,8 @@ function render(){
   $('#connection').textContent=connected?(navigator.onLine===false?'● オフラインで記録可':'● この端末に保存'):'● 保存領域を確認';$('#connection').classList.toggle('offline',!connected);
   $('#account').textContent='設定';
   $('#notice').hidden=connected&&noticeClosed;
-  if(connected){$('#notice').innerHTML='<span>個人用テスト版です。記録はこの端末だけに保存されます。ホーム画面に追加して使い、設定からバックアップしてください。</span><button type="button" class="notice-close" aria-label="この案内を閉じる">閉じる</button>';$('#notice .notice-close').onclick=()=>{noticeClosed=true;try{localStorage.setItem(noticeKey,'1');}catch{}$('#notice').hidden=true;};}
-  else $('#notice').textContent='端末の保存領域を利用できません。記録を初期化せず停止しました。通常のSafariで開き直してください。';
+  if(connected){$('#notice').innerHTML=`<span>${nativeApp?'記録はこの端末だけに保存されます。機種変更に備えて、設定からときどきバックアップしてください。':'個人用テスト版です。記録はこの端末だけに保存されます。ホーム画面に追加して使い、設定からバックアップしてください。'}</span><button type="button" class="notice-close" aria-label="この案内を閉じる">閉じる</button>`;$('#notice .notice-close').onclick=()=>{noticeClosed=true;try{localStorage.setItem(noticeKey,'1');}catch{}$('#notice').hidden=true;};}
+  else $('#notice').textContent=`端末の保存領域を利用できません。記録を初期化せず停止しました。${reopenHint}`;
   $('#view-home').classList.toggle('home-compact',p.count>0);
   $('#journey').innerHTML=state?state.journeys.map(j=>`<option value="${esc(j.id)}">${esc(j.name)}</option>`).join(''):'<option>はじめての巡礼</option>';
   if(state)$('#journey').value=journeyId;$('#journey').disabled=!state;
@@ -214,14 +219,14 @@ function renderTemples(){
 $('#search').oninput=renderTemples;$('#pref-filter').onchange=renderTemples;$('#car-filter').onchange=renderTemples;$('#status-filter').onchange=renderTemples;
 function renderHistory(){
   const visits=currentVisits();$('#history-count').textContent=`${currentJourney()?.name||'巡礼の記録'} · ${visits.length}件`;
-  $('#history-list').innerHTML=!state?'<div class="empty">このブラウザでは記録の保存領域を利用できません。通常のSafariで開いてください。</div>':!visits.length?'<div class="empty">まだ記録はありません。<br>過去の訪問も、まとめて登録できます。</div>':visits.map(v=>{const t=temples.find(t=>t.id===v.templeId);return `<article class="history-item"><button class="temple-number" data-temple="${t.id}" aria-label="第${t.id}番 ${esc(t.name)}の詳細">${t.id}</button><div class="content"><h3>${esc(t.name)}</h3><p>${esc(v.author)} · ${v.method==='gps-self-reported'?'GPS自己申告（近接判定）':v.method==='imported-manual'?'バックアップからの手動記録':'手動記録'}${v.accuracy!==null?` · 誤差${v.accuracy}m`:''}</p>${v.note?`<p>${esc(v.note)}</p>`:''}</div><time>${v.date?esc(v.date):'訪問日不明'}</time><button class="quiet" data-void="${esc(v.id)}">取り消す</button></article>`;}).join('');
+  $('#history-list').innerHTML=!state?`<div class="empty">記録の保存領域を利用できません。${reopenHint}</div>`:!visits.length?'<div class="empty">まだ記録はありません。<br>過去の訪問も、まとめて登録できます。</div>':visits.map(v=>{const t=temples.find(t=>t.id===v.templeId);return `<article class="history-item"><button class="temple-number" data-temple="${t.id}" aria-label="第${t.id}番 ${esc(t.name)}の詳細">${t.id}</button><div class="content"><h3>${esc(t.name)}</h3><p>${esc(v.author)} · ${v.method==='gps-self-reported'?'GPS自己申告（近接判定）':v.method==='imported-manual'?'バックアップからの手動記録':'手動記録'}${v.accuracy!==null?` · 誤差${v.accuracy}m`:''}</p>${v.note?`<p>${esc(v.note)}</p>`:''}</div><time>${v.date?esc(v.date):'訪問日不明'}</time><button class="quiet" data-void="${esc(v.id)}">取り消す</button></article>`;}).join('');
   $$('#history-list [data-temple]').forEach(el=>el.onclick=()=>detailDialog(Number(el.dataset.temple)));
   $$('#history-list [data-void]').forEach(el=>el.onclick=()=>voidDialog(el.dataset.void));
 }
 function renderFamily(){
   const last=state?.lastExportAt?new Date(state.lastExportAt).toLocaleString('ja-JP'):'まだ書き出していません';
   if($('#all-backup-last'))$('#all-backup-last').textContent=`前回のバックアップ：${last}`;
-  $('#family-content').innerHTML=`<p>自分たちのペースで、八十八の出会いを。</p><p class="version" id="settings-version">${esc($('.side-footer .version')?.textContent||'')}</p><p class="small">ログイン不要の個人版です。記録・写真はこの端末だけに保存し、インターネットには送りません。家族や別の端末とも自動では共有しません。</p><button class="secondary" id="new-journey">新しい巡礼を作成</button><button class="quiet" id="settings-history">訪問の記録を見る</button><p class="tiny">プライベートブラウズは使わず、ホーム画面に追加して使ってください。機種変更や端末の故障に備えて、ときどき「すべてを1つのファイルに保存」でバックアップしてください。</p>`;
+  $('#family-content').innerHTML=`<p>自分たちのペースで、八十八の出会いを。</p><p class="version" id="settings-version">${esc($('.side-footer .version')?.textContent||'')}</p><p class="small">${nativeApp?'ログイン不要です。':'ログイン不要の個人版です。'}記録・写真はこの端末だけに保存し、インターネットには送りません。家族や別の端末とも自動では共有しません。</p><button class="secondary" id="new-journey">新しい巡礼を作成</button><button class="quiet" id="settings-history">訪問の記録を見る</button><p class="tiny">${nativeApp?'':'プライベートブラウズは使わず、ホーム画面に追加して使ってください。'}機種変更や端末の故障に備えて、ときどき「すべてを1つのファイルに保存」でバックアップしてください。</p>`;
   if($('#parking-settings'))carUI.renderSettings($('#parking-settings'));
   if($('#fee-local-list')){const locals=localFees(),diffs=localDiffs(feeData.temples,locals);$('#fee-local-list').innerHTML=locals.size?`<p class="small">現地で記録した駐車場の料金：${locals.size}件（調べた料金と違う札所 ${diffs.length}件）</p>${diffs.length?`<ul class="fee-diff-list">${diffs.map(d=>`<li><strong>第${d.id}番 ${esc(temples.find(x=>x.id===d.id)?.name||'')}</strong><span>調べた料金：${esc(d.official?feeShort(d.official):'なし')} → 自分の記録：${esc(feeShort(d.local))}（${esc(d.local.date)}）</span></li>`).join('')}</ul><p class="tiny">次の見直しのときに、この一覧を見せてください。データに反映します。</p>`:''}`:'<p class="tiny">札所の詳細の「車」タブで、現地で払った駐車場の料金を記録できます。記録した札所はここに出ます。</p>';}$('#new-journey').onclick=()=>requireAuth(()=>newJourneyDialog());$('#settings-history').onclick=()=>setView('history');
 }
